@@ -4,7 +4,6 @@ import {
   FileText,
   Target,
   Mail,
-  BarChart3,
   //   CheckCircle,
   Star,
   ArrowRight,
@@ -32,11 +31,6 @@ const Landing: React.FC = () => {
       title: "Cover Letter Generator",
       description:
         "Generate compelling cover letters that complement your resume.",
-    },
-    {
-      icon: BarChart3,
-      title: "Application Tracking",
-      description: "Track your job applications and monitor your success rate.",
     },
   ];
 
@@ -66,7 +60,7 @@ const Landing: React.FC = () => {
                 to="/dashboard"
                 className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors flex items-center justify-center"
               >
-                Get Started Free
+                Get Started
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors">
@@ -103,7 +97,7 @@ const Landing: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-8">
             {features.map(({ icon: Icon, title, description }) => (
               <div
                 key={title}
@@ -145,7 +139,7 @@ const Landing: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <FileText className="w-6 h-6 text-blue-400" />
-                <span className="text-xl font-bold">ResumeAI</span>
+                <span className="text-xl font-bold">ElevateCv</span>
               </div>
               <p className="text-gray-400">
                 Empowering job seekers with AI-powered resume building and job
@@ -181,7 +175,7 @@ const Landing: React.FC = () => {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 ResumeAI. All rights reserved.</p>
+            <p>&copy; 2025 ElevateCv. All rights reserved.</p>
           </div>
         </div>
       </footer>

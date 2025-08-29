@@ -14,7 +14,6 @@ import {
 const Dashboard: React.FC = () => {
   const stats = [
     { label: "Resumes Created", value: "12", icon: FileText, color: "blue" },
-    { label: "Applications Sent", value: "8", icon: Target, color: "green" },
     {
       label: "Avg Match Score",
       value: "85%",
@@ -47,41 +46,6 @@ const Dashboard: React.FC = () => {
       updatedAt: "3 days ago",
     },
   ];
-
-  const recentApplications = [
-    {
-      company: "Google",
-      position: "Senior SWE",
-      status: "interview",
-      date: "2024-01-15",
-    },
-    {
-      company: "Meta",
-      position: "Product Manager",
-      status: "applied",
-      date: "2024-01-14",
-    },
-    {
-      company: "Netflix",
-      position: "Data Scientist",
-      status: "screening",
-      date: "2024-01-12",
-    },
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "interview":
-        return "bg-green-100 text-green-800";
-      case "screening":
-        return "bg-yellow-100 text-yellow-800";
-      case "applied":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -90,7 +54,7 @@ const Dashboard: React.FC = () => {
           Track your job search progress and manage your applications
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
         {stats.map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
@@ -140,7 +104,7 @@ const Dashboard: React.FC = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid place-items-center grid-cols-1 lg:grid-cols-1 gap-8">
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
@@ -187,46 +151,6 @@ const Dashboard: React.FC = () => {
                       Edit
                     </Link>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Recent Applications
-              </h2>
-              <Link
-                to="/applications"
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-              >
-                View All
-              </Link>
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              {recentApplications.map((app, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">
-                      {app.position}
-                    </h3>
-                    <p className="text-sm text-gray-600">{app.company}</p>
-                    <p className="text-xs text-gray-500 mt-1">{app.date}</p>
-                  </div>
-                  <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${getStatusColor(
-                      app.status
-                    )}`}
-                  >
-                    {app.status}
-                  </span>
                 </div>
               ))}
             </div>

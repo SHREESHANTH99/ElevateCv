@@ -20,9 +20,7 @@ const Navbar: React.FC = () => {
     { path: "/resume/builder", icon: FileText, label: "Resume Builder" },
     { path: "/job-matcher", icon: Target, label: "Job Matcher" },
     { path: "/cover-letter", icon: Mail, label: "Cover Letter" },
-    { path: "/applications", icon: BarChart3, label: "Applications" },
     { path: "/templates", icon: FileText, label: "Templates" },
-    { path: "/analytics", icon: BarChart3, label: "Analytics" },
   ];
 
   return (
