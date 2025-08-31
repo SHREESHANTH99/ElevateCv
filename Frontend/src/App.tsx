@@ -32,17 +32,6 @@ function App() {
                     element={<ResumeBuilder />}
                   />
                   <Route path="/job-matcher" element={<JobMatcher />} />
-                  {/* <Route
-                    path="/cover-letter"
-                    element={<CoverLetterGenerator />}
-                  />
-                  <Route
-                    path="/applications"
-                    element={<ApplicationTracker />}
-                  />
-                  <Route path="/templates" element={<Templates />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/profile" element={<Profile />} /> */}
                 </Routes>
               </>
             }
