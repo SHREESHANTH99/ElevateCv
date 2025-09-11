@@ -7,7 +7,6 @@ A comprehensive resume building platform with AI-powered suggestions, job matchi
 - 🚀 **AI-Powered Resume Builder** - Create professional resumes with intelligent suggestions
 - 🎯 **Smart Job Matching** - Optimize your resume for specific job postings
 - 📝 **Cover Letter Generator** - Generate compelling cover letters
-- 🎨 **Professional Templates** - Choose from multiple resume templates
 - 📊 **Dashboard Analytics** - Track your job search progress
 - 🔒 **Secure Authentication** - JWT-based user authentication
 - 📄 **PDF Export** - Download your resume as a professional PDF
@@ -38,7 +37,7 @@ A comprehensive resume building platform with AI-powered suggestions, job matchi
 
 ### 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/SHREESHANTH99/ElevateCv.git
 cd ElevateCv
 ```
 
