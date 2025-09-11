@@ -91,7 +91,7 @@ mongod
 1. Start the backend server:
 ```bash
 cd Backend
-npm run dev
+npm start
 ```
 
 2. Start the frontend development server:
@@ -229,8 +229,6 @@ This project is licensed under the MIT License.
 For support, email support@elevatecv.com or create an issue in the repository.
 
 ## Roadmap
-
-- [ ] Advanced AI integration with OpenAI
 - [ ] Resume analytics and insights
 - [ ] Application tracking system
 - [ ] Interview preparation tools
