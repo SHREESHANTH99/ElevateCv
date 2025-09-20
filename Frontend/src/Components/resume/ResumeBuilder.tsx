@@ -1,13 +1,8 @@
-import React, { useReducer, useEffect, useCallback } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { ResumeApi } from '../../services/resumeApi';
-import { 
-  Save, Download, Eye, Plus, Trash2, X, 
-  CheckCircle, AlertCircle, User, Briefcase, 
-  GraduationCap, Code, FolderOpen, Link as LinkIcon, ExternalLink
-} from 'lucide-react';
-import { format, parseISO } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
+import { useReducer, useCallback } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { ResumeApi } from "../../services/resumeApi";
+import { format, parseISO } from "date-fns";
+import { v4 as uuidv4 } from "uuid";
 type Experience = {
   id: string;
   company: string;
@@ -33,7 +28,7 @@ type Education = {
 type Skill = {
   id: string;
   name: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+  level: "Beginner" | "Intermediate" | "Advanced" | "Expert";
   category: string;
 };
 type Project = {
@@ -63,91 +58,91 @@ type ResumeState = {
   template: string;
   isLoading: boolean;
   error: string | null;
-  saveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  saveStatus: "idle" | "saving" | "saved" | "error";
 };
 type ResumeAction =
-  | { type: 'SET_PERSONAL_INFO'; payload: Partial<ResumeState['personalInfo']> }
-  | { type: 'SET_SUMMARY'; payload: string }
-  | { type: 'ADD_EXPERIENCE'; payload?: Partial<Experience> }
-  | { type: 'UPDATE_EXPERIENCE'; id: string; updates: Partial<Experience> }
-  | { type: 'REMOVE_EXPERIENCE'; id: string }
-  | { type: 'ADD_EDUCATION'; payload?: Partial<Education> }
-  | { type: 'UPDATE_EDUCATION'; id: string; updates: Partial<Education> }
-  | { type: 'REMOVE_EDUCATION'; id: string }
-  | { type: 'ADD_SKILL'; payload?: Partial<Skill> }
-  | { type: 'UPDATE_SKILL'; id: string; updates: Partial<Skill> }
-  | { type: 'REMOVE_SKILL'; id: string }
-  | { type: 'ADD_PROJECT'; payload?: Partial<Project> }
-  | { type: 'UPDATE_PROJECT'; id: string; updates: Partial<Project> }
-  | { type: 'REMOVE_PROJECT'; id: string }
-  | { type: 'SET_TEMPLATE'; payload: string }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'SET_SAVE_STATUS'; payload: ResumeState['saveStatus'] }
-  | { type: 'SET_RESUME'; payload: Partial<ResumeState> };
+  | { type: "SET_PERSONAL_INFO"; payload: Partial<ResumeState["personalInfo"]> }
+  | { type: "SET_SUMMARY"; payload: string }
+  | { type: "ADD_EXPERIENCE"; payload?: Partial<Experience> }
+  | { type: "UPDATE_EXPERIENCE"; id: string; updates: Partial<Experience> }
+  | { type: "REMOVE_EXPERIENCE"; id: string }
+  | { type: "ADD_EDUCATION"; payload?: Partial<Education> }
+  | { type: "UPDATE_EDUCATION"; id: string; updates: Partial<Education> }
+  | { type: "REMOVE_EDUCATION"; id: string }
+  | { type: "ADD_SKILL"; payload?: Partial<Skill> }
+  | { type: "UPDATE_SKILL"; id: string; updates: Partial<Skill> }
+  | { type: "REMOVE_SKILL"; id: string }
+  | { type: "ADD_PROJECT"; payload?: Partial<Project> }
+  | { type: "UPDATE_PROJECT"; id: string; updates: Partial<Project> }
+  | { type: "REMOVE_PROJECT"; id: string }
+  | { type: "SET_TEMPLATE"; payload: string }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null }
+  | { type: "SET_SAVE_STATUS"; payload: ResumeState["saveStatus"] }
+  | { type: "SET_RESUME"; payload: Partial<ResumeState> };
 const initialState: ResumeState = {
   personalInfo: {
-    fullName: '',
-    email: '',
-    phone: '',
-    location: '',
-    linkedin: '',
-    website: ''
+    fullName: "",
+    email: "",
+    phone: "",
+    location: "",
+    linkedin: "",
+    website: "",
   },
-  summary: '',
+  summary: "",
   experiences: [],
   education: [],
   skills: [],
   projects: [],
-  template: 'modern',
+  template: "modern",
   isLoading: false,
   error: null,
-  saveStatus: 'idle'
+  saveStatus: "idle",
 };
 function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
   switch (action.type) {
-    case 'SET_PERSONAL_INFO':
+    case "SET_PERSONAL_INFO":
       return {
         ...state,
-        personalInfo: { ...state.personalInfo, ...action.payload }
+        personalInfo: { ...state.personalInfo, ...action.payload },
       };
-    case 'SET_SUMMARY':
+    case "SET_SUMMARY":
       return { ...state, summary: action.payload };
-    case 'ADD_EXPERIENCE':
+    case "ADD_EXPERIENCE":
       const newExp: Experience = {
         id: uuidv4(),
-        company: '',
-        position: '',
-        location: '',
-        startDate: format(new Date(), 'yyyy-MM-dd'),
-        endDate: '',
+        company: "",
+        position: "",
+        location: "",
+        startDate: format(new Date(), "yyyy-MM-dd"),
+        endDate: "",
         current: false,
-        description: [''],
-        ...action.payload
+        description: [""],
+        ...action.payload,
       };
       return {
         ...state,
-        experiences: [...state.experiences, newExp]
+        experiences: [...state.experiences, newExp],
       };
-    case 'UPDATE_EXPERIENCE':
+    case "UPDATE_EXPERIENCE":
       return {
         ...state,
-        experiences: state.experiences.map(exp =>
+        experiences: state.experiences.map((exp) =>
           exp.id === action.id ? { ...exp, ...action.updates } : exp
-        )
+        ),
       };
-    case 'REMOVE_EXPERIENCE':
+    case "REMOVE_EXPERIENCE":
       return {
         ...state,
-        experiences: state.experiences.filter(exp => exp.id !== action.id)
+        experiences: state.experiences.filter((exp) => exp.id !== action.id),
       };
-    case 'SET_LOADING':
+    case "SET_LOADING":
       return { ...state, isLoading: action.payload };
-    case 'SET_ERROR':
+    case "SET_ERROR":
       return { ...state, error: action.payload };
-    case 'SET_SAVE_STATUS':
+    case "SET_SAVE_STATUS":
       return { ...state, saveStatus: action.payload };
-    case 'SET_RESUME':
+    case "SET_RESUME":
       return { ...state, ...action.payload };
     default:
       return state;
@@ -156,100 +151,175 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
 const useResume = () => {
   const [state, dispatch] = useReducer(resumeReducer, initialState);
   const { user } = useAuth();
-  const loadResume = useCallback(async () => {
-    if (!user?.resumeId) return;
-    dispatch({ type: 'SET_LOADING', payload: true });
-    dispatch({ type: 'SET_ERROR', payload: null });
+  const loadResume = useCallback(async (resumeId?: string) => {
+    if (!resumeId) return;
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
     try {
-      const data = await ResumeApi.getResume(user.resumeId);
+      const data = await ResumeApi.getResume(resumeId);
       if (data) {
-        dispatch({ type: 'SET_RESUME', payload: data });
+        const transformedData = {
+          ...data,
+          experiences: (data.experiences || []).map((exp) => ({
+            ...exp,
+            id: exp.id || uuidv4(),
+          })),
+          education: (data.education || []).map((edu) => ({
+            ...edu,
+            id: edu.id || uuidv4(),
+            current: false,
+          })),
+          skills: (data.skills || []).map((skill) => ({
+            ...skill,
+            id: skill.id || uuidv4(),
+          })),
+          projects: (data.projects || []).map((project) => ({
+            ...project,
+            id: project.id || uuidv4(),
+          })),
+        };
+        dispatch({ type: "SET_RESUME", payload: transformedData });
       }
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to load resume' });
-      console.error('Error loading resume:', error);
+      dispatch({ type: "SET_ERROR", payload: "Failed to load resume" });
+      console.error("Error loading resume:", error);
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: "SET_LOADING", payload: false });
     }
-  }, [user]);
-  const saveResume = useCallback(async () => {
-    if (!user) return;
-    dispatch({ type: 'SET_SAVE_STATUS', payload: 'saving' });
-    dispatch({ type: 'SET_ERROR', payload: null });
-    try {
-      const resumeData = {
-        personalInfo: state.personalInfo,
-        summary: state.summary,
-        experiences: state.experiences,
-        education: state.education,
-        skills: state.skills,
-        projects: state.projects,
-        template: state.template
-      };
-      if (user.resumeId) {
-        await ResumeApi.updateResume(user.resumeId, resumeData);
-      } else {
-        const result = await ResumeApi.createResume(resumeData);
+  }, []);
+  const saveResume = useCallback(
+    async (resumeId?: string) => {
+      if (!user) return;
+      dispatch({ type: "SET_SAVE_STATUS", payload: "saving" });
+      dispatch({ type: "SET_ERROR", payload: null });
+      try {
+        const resumeData = {
+          personalInfo: state.personalInfo,
+          summary: state.summary,
+          experiences: state.experiences,
+          education: state.education,
+          skills: state.skills,
+          projects: state.projects,
+          template: state.template,
+        };
+        if (resumeId) {
+          await ResumeApi.updateResume(resumeData);
+        } else {
+          await ResumeApi.createResume(resumeData);
+        }
+        dispatch({ type: "SET_SAVE_STATUS", payload: "saved" });
+        setTimeout(
+          () => dispatch({ type: "SET_SAVE_STATUS", payload: "idle" }),
+          3000
+        );
+      } catch (error) {
+        dispatch({ type: "SET_ERROR", payload: "Failed to save resume" });
+        dispatch({ type: "SET_SAVE_STATUS", payload: "error" });
+        console.error("Error saving resume:", error);
       }
-      dispatch({ type: 'SET_SAVE_STATUS', payload: 'saved' });
-      setTimeout(() => dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' }), 3000);
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to save resume' });
-      dispatch({ type: 'SET_SAVE_STATUS', payload: 'error' });
-      console.error('Error saving resume:', error);
-    }
-  }, [state, user]);
-  const exportResume = useCallback(async (format: 'pdf' | 'docx' = 'pdf') => {
-  }, [state]);
+    },
+    [state, user]
+  );
+  const exportResume = useCallback(
+    async (format: "pdf" | "docx" = "pdf", resumeId?: string) => {
+      try {
+        dispatch({ type: "SET_LOADING", payload: true });
+        dispatch({ type: "SET_ERROR", payload: null });
+        const fullName = state.personalInfo.fullName || "Resume";
+        const filename = `${fullName.replace(
+          /[^a-zA-Z0-9]/g,
+          "_"
+        )}_Resume.${format}`;
+        if (resumeId) {
+          await ResumeApi.exportResume(resumeId, filename);
+        } else {
+          if (!user) {
+            throw new Error("User not authenticated");
+          }
+          const resumeData = {
+            personalInfo: state.personalInfo,
+            summary: state.summary,
+            experiences: state.experiences,
+            education: state.education,
+            skills: state.skills,
+            projects: state.projects,
+            template: state.template,
+          };
+          const result = await ResumeApi.createResume(resumeData);
+          const targetResumeId = (result as any)._id || (result as any).id;
+          if (targetResumeId) {
+            await ResumeApi.exportResume(targetResumeId, filename);
+          } else {
+            throw new Error("Failed to get resume ID for export");
+          }
+        }
+      } catch (error) {
+        dispatch({ type: "SET_ERROR", payload: "Failed to export resume" });
+        console.error("Error exporting resume:", error);
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [state, user]
+  );
   const addExperience = useCallback((experience?: Partial<Experience>) => {
-    dispatch({ type: 'ADD_EXPERIENCE', payload: experience });
+    dispatch({ type: "ADD_EXPERIENCE", payload: experience });
   }, []);
   const addEducation = useCallback((education?: Partial<Education>) => {
-    dispatch({ type: 'ADD_EDUCATION', payload: education });
+    dispatch({ type: "ADD_EDUCATION", payload: education });
   }, []);
   const addSkill = useCallback((skill?: Partial<Skill>) => {
-    dispatch({ type: 'ADD_SKILL', payload: skill });
+    dispatch({ type: "ADD_SKILL", payload: skill });
   }, []);
   const addProject = useCallback((project?: Partial<Project>) => {
-    dispatch({ type: 'ADD_PROJECT', payload: project });
+    dispatch({ type: "ADD_PROJECT", payload: project });
   }, []);
-  const updateExperience = useCallback((id: string, updates: Partial<Experience>) => {
-    dispatch({ type: 'UPDATE_EXPERIENCE', id, updates });
-  }, []);
-  const updateEducation = useCallback((id: string, updates: Partial<Education>) => {
-    dispatch({ type: 'UPDATE_EDUCATION', id, updates });
-  }, []);
+  const updateExperience = useCallback(
+    (id: string, updates: Partial<Experience>) => {
+      dispatch({ type: "UPDATE_EXPERIENCE", id, updates });
+    },
+    []
+  );
+  const updateEducation = useCallback(
+    (id: string, updates: Partial<Education>) => {
+      dispatch({ type: "UPDATE_EDUCATION", id, updates });
+    },
+    []
+  );
   const updateSkill = useCallback((id: string, updates: Partial<Skill>) => {
-    dispatch({ type: 'UPDATE_SKILL', id, updates });
+    dispatch({ type: "UPDATE_SKILL", id, updates });
   }, []);
   const updateProject = useCallback((id: string, updates: Partial<Project>) => {
-    dispatch({ type: 'UPDATE_PROJECT', id, updates });
+    dispatch({ type: "UPDATE_PROJECT", id, updates });
   }, []);
   const removeExperience = useCallback((id: string) => {
-    dispatch({ type: 'REMOVE_EXPERIENCE', id });
+    dispatch({ type: "REMOVE_EXPERIENCE", id });
   }, []);
   const removeEducation = useCallback((id: string) => {
-    dispatch({ type: 'REMOVE_EDUCATION', id });
+    dispatch({ type: "REMOVE_EDUCATION", id });
   }, []);
   const removeSkill = useCallback((id: string) => {
-    dispatch({ type: 'REMOVE_SKILL', id });
+    dispatch({ type: "REMOVE_SKILL", id });
   }, []);
   const removeProject = useCallback((id: string) => {
-    dispatch({ type: 'REMOVE_PROJECT', id });
+    dispatch({ type: "REMOVE_PROJECT", id });
   }, []);
-  const updatePersonalInfo = useCallback((updates: Partial<ResumeState['personalInfo']>) => {
-    dispatch({ type: 'SET_PERSONAL_INFO', payload: updates });
-  }, []);
+  const updatePersonalInfo = useCallback(
+    (updates: Partial<ResumeState["personalInfo"]>) => {
+      dispatch({ type: "SET_PERSONAL_INFO", payload: updates });
+    },
+    []
+  );
   const updateSummary = useCallback((summary: string) => {
-    dispatch({ type: 'SET_SUMMARY', payload: summary });
+    dispatch({ type: "SET_SUMMARY", payload: summary });
   }, []);
   const setTemplate = useCallback((template: string) => {
-    dispatch({ type: 'SET_TEMPLATE', payload: template });
+    dispatch({ type: "SET_TEMPLATE", payload: template });
   }, []);
   const formatDate = useCallback((dateString: string): string => {
-    if (!dateString) return 'Present';
+    if (!dateString) return "Present";
     try {
-      return format(parseISO(dateString), 'MMM yyyy');
+      return format(parseISO(dateString), "MMM yyyy");
     } catch (error) {
       return dateString;
     }
@@ -275,8 +345,8 @@ const useResume = () => {
       updatePersonalInfo,
       updateSummary,
       setTemplate,
-      formatDate
-    }
+      formatDate,
+    },
   };
 };
 export { useResume };

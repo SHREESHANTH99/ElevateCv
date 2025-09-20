@@ -1,5 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Navbar from "./Components/Navbar";
 import Dashboard from "./Pages/DashBoard";
@@ -31,9 +37,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-gray-50">
     <Navbar />
-    <main className="container mx-auto px-4 py-8">
-      {children}
-    </main>
+    <main className="container mx-auto px-4 py-8">{children}</main>
   </div>
 );
 function App() {
@@ -45,8 +49,22 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/resume/builder" element={<AppLayout><ResumeBuilder/></AppLayout>} />
-          <Route path="/resume/builder/:id" element={<AppLayout><ResumeBuilder /></AppLayout>} />
+          <Route
+            path="/resume/builder"
+            element={
+              <AppLayout>
+                <ResumeBuilder />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/resume/builder/:id"
+            element={
+              <AppLayout>
+                <ResumeBuilder />
+              </AppLayout>
+            }
+          />
           {}
           <Route
             path="/dashboard"
