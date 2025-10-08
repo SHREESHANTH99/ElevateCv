@@ -1,0 +1,11 @@
+{
+  "name": "elevatecv-deploy",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd ElevateCv/Backend && npm install",
+    "start": "cd ElevateCv/Backend && npm start"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
