@@ -122,7 +122,7 @@ const CreativeTemplate = React.forwardRef<
                       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-3">
                         <div>
                           <h3 className="text-xl font-bold text-gray-900">
-                            {exp.position}
+                            {exp.position || exp.title}
                           </h3>
                           <p className="text-lg text-purple-600 font-semibold">
                             {exp.company}

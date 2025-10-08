@@ -65,7 +65,7 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
                 <div key={index}>
                   <div className="text-center mb-3">
                     <h3 className="text-xl font-bold text-gray-900">
-                      {exp.position}
+                      {exp.position || exp.title}
                     </h3>
                     <p className="text-lg text-gray-700 font-semibold">
                       {exp.company}
@@ -186,8 +186,8 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
                 <div key={index} className="text-center">
                   <h3 className="font-bold text-gray-900">{cert.name}</h3>
                   <p className="text-gray-700">{cert.issuer}</p>
-                  {cert.date && (
-                    <p className="text-gray-600 italic">Issued: {cert.date}</p>
+                  {(cert.date || cert.issueDate) && (
+                    <p className="text-gray-600 italic">Issued: {cert.date || cert.issueDate}</p>
                   )}
                 </div>
               ))}

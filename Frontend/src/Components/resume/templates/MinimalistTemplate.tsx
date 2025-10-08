@@ -66,7 +66,7 @@ const MinimalistTemplate = React.forwardRef<
                 <div className="flex justify-between items-baseline mb-2">
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">
-                      {exp.position}
+                      {exp.position || exp.title}
                     </h3>
                     <p className="text-gray-700">{exp.company}</p>
                     {exp.location && (

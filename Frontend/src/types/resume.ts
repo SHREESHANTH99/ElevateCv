@@ -1,6 +1,7 @@
 export type Experience = {
   id: string;
   title: string;
+  position?: string; // Add position property as optional for backward compatibility
   company: string;
   location?: string;
   startDate: string;
@@ -41,6 +42,7 @@ export type Certification = {
   name: string;
   issuer: string;
   issueDate: string;
+  date?: string; // Add date property for backward compatibility
   expiryDate?: string;
   credentialId?: string;
   credentialUrl?: string;

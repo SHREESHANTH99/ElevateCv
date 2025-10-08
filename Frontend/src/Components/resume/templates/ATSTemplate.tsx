@@ -78,7 +78,7 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
               <div key={index} className="mb-4">
                 <div className="mb-2">
                   <h3 className="font-bold text-black text-base">
-                    {exp.position}
+                    {exp.position || exp.title}
                   </h3>
                   <p className="text-black font-semibold">{exp.company}</p>
                   {exp.location && <p className="text-black">{exp.location}</p>}
@@ -156,7 +156,7 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
               <div key={index} className="mb-2">
                 <h3 className="font-bold text-black">{cert.name}</h3>
                 <p className="text-black">{cert.issuer}</p>
-                {cert.date && <p className="text-black">Issued: {cert.date}</p>}
+                {(cert.date || cert.issueDate) && <p className="text-black">Issued: {cert.date || cert.issueDate}</p>}
                 {cert.expiryDate && (
                   <p className="text-black">Expires: {cert.expiryDate}</p>
                 )}

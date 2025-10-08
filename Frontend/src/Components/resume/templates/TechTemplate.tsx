@@ -23,7 +23,6 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
         className={`bg-gray-900 text-green-400 p-8 font-mono max-w-4xl mx-auto ${className}`}
         style={style}
       >
-
         <header className="border border-green-400 p-6 mb-8 bg-black">
           <div className="flex items-center mb-4">
             <div className="flex space-x-2 mr-4">
@@ -82,9 +81,7 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
           </div>
         </header>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
           <div className="lg:col-span-2 space-y-8">
-
             {data.summary && (
               <section>
                 <h2 className="text-xl font-bold text-cyan-400 mb-4 flex items-center">
@@ -117,7 +114,7 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
                         <p>
                           <span className="text-cyan-300">position:</span>
                           <span className="text-green-300 ml-2">
-                            "{exp.position}"
+                            "{exp.position || exp.title}"
                           </span>
                         </p>
                         <p>
@@ -241,7 +238,6 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
           </div>
 
           <div className="space-y-6">
-
             {Object.keys(skillsByCategory).length > 0 && (
               <section>
                 <h2 className="text-xl font-bold text-cyan-400 mb-4 flex items-center">

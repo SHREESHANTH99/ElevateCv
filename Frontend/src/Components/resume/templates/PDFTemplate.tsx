@@ -1,7 +1,7 @@
 import React from 'react';
-import type { ResumeContent } from '../../../../types';
+import type { ResumeData } from '../../../types/resume';
 interface PDFTemplateProps {
-  data: ResumeContent;
+  data: ResumeData;
 }
 const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
   const skillsByCategory = data.skills?.reduce<Record<string, string[]>>((acc, skill) => {
@@ -61,7 +61,7 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
             {data.experiences.map((exp, index) => (
               <div key={index} className="pl-4 border-l-2 border-blue-100">
                 <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="text-lg font-semibold">{exp.position}</h3>
+                  <h3 className="text-lg font-semibold">{exp.position || exp.title}</h3>
                   <div className="text-sm bg-blue-50 px-2 py-1 rounded text-blue-700">
                     {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
                   </div>

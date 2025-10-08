@@ -25,7 +25,6 @@ const EngineerTemplate = React.forwardRef<
       className={`bg-gray-50 p-8 font-mono text-gray-900 max-w-4xl mx-auto ${className}`}
       style={style}
     >
-
       <header className="bg-gray-900 text-green-400 p-6 -mx-8 -mt-8 mb-8 border-l-8 border-green-500">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -67,9 +66,7 @@ const EngineerTemplate = React.forwardRef<
         </div>
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         <div className="lg:col-span-2 space-y-8">
-
           {data.summary && (
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
@@ -99,7 +96,7 @@ const EngineerTemplate = React.forwardRef<
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="text-lg font-bold text-gray-900 font-mono">
-                          {exp.position.toLowerCase().replace(/\s+/g, "_")}()
+                          {(exp.position || exp.title).toLowerCase().replace(/\s+/g, "_")}()
                         </h3>
                         <p className="text-gray-700 font-semibold">
                           {exp.company}
@@ -192,7 +189,6 @@ const EngineerTemplate = React.forwardRef<
         </div>
 
         <div className="space-y-6">
-
           {Object.keys(skillsByCategory).length > 0 && (
             <section className="bg-gray-900 text-green-400 p-6 rounded border-l-4 border-green-500">
               <h2 className="text-lg font-bold text-green-300 mb-4 flex items-center">

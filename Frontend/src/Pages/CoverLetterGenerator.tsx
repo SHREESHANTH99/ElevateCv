@@ -8,7 +8,6 @@ import {
   User,
   Building,
   Calendar,
-  Save,
   Eye,
 } from "lucide-react";
 interface CoverLetterData {

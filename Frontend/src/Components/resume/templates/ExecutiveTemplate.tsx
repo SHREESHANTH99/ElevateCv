@@ -130,7 +130,7 @@ const ExecutiveTemplate = React.forwardRef<
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">
-                          {exp.position}
+                          {exp.position || exp.title}
                         </h3>
                         <p className="text-lg text-blue-700 font-semibold">
                           {exp.company}

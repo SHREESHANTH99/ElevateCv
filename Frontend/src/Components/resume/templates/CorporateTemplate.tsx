@@ -74,7 +74,7 @@ const CorporateTemplate = React.forwardRef<
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <h3 className="text-xl font-bold text-slate-900">
-                            {exp.position}
+                            {exp.position || exp.title}
                           </h3>
                           <p className="text-lg text-slate-700 font-semibold">
                             {exp.company}
@@ -217,9 +217,9 @@ const CorporateTemplate = React.forwardRef<
                   <div key={index}>
                     <h3 className="font-bold text-slate-800">{cert.name}</h3>
                     <p className="text-slate-700">{cert.issuer}</p>
-                    {cert.date && (
+                    {(cert.date || cert.issueDate) && (
                       <p className="text-slate-600 text-sm">
-                        Issued: {cert.date}
+                        Issued: {cert.date || cert.issueDate}
                       </p>
                     )}
                   </div>

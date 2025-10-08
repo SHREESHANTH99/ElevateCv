@@ -33,13 +33,6 @@ interface AuthModalProps {
 }
 const API_BASE_URL = "http://localhost:5000/api";
 class AuthAPI {
-  private static getAuthHeaders() {
-    const token = localStorage.getItem("authToken");
-    return {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
   static async login(email: string, password: string) {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
