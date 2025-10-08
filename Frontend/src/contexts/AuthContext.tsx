@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           setLoading(false);
           return;
         }
-        const response = await fetch("http://localhost:5000/api/auth/me", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {
       try {
-        const response = await fetch("http://localhost:5000/api/auth/login", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     ): Promise<void> => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/register",
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/register`,
           {
             method: "POST",
             headers: {
@@ -170,7 +170,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Not authenticated");
-        const response = await fetch("http://localhost:5000/api/auth/profile", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/profile`, {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -206,7 +206,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         if (!token) throw new Error("Not authenticated");
         const formData = new FormData();
         formData.append("profileImage", file);
-        const response = await fetch("http://localhost:5000/api/auth/upload", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/upload`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
