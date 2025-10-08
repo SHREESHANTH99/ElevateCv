@@ -13,7 +13,7 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
   }, {}) || {};
   return (
     <div className="p-8 text-gray-800" style={{ fontFamily: 'Arial, sans-serif' }}>
-      {}
+
       <header className="mb-8 pb-4 border-b border-gray-200">
         <h1 className="text-3xl font-bold mb-1">{data.personalInfo.fullName}</h1>
         {data.personalInfo.headline && (
@@ -46,14 +46,14 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
           )}
         </div>
       </header>
-      {}
+
       {data.summary && (
         <section className="mb-8">
           <h2 className="text-xl font-bold border-b border-gray-200 pb-1 mb-3">Professional Summary</h2>
           <p className="text-gray-700">{data.summary}</p>
         </section>
       )}
-      {}
+
       {data.experiences?.length > 0 && (
         <section className="mb-8">
           <h2 className="text-xl font-bold border-b border-gray-200 pb-1 mb-4">Professional Experience</h2>
@@ -79,7 +79,7 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
           </div>
         </section>
       )}
-      {}
+
       {data.education?.length > 0 && (
         <section className="mb-8">
           <h2 className="text-xl font-bold border-b border-gray-200 pb-1 mb-4">Education</h2>
@@ -103,7 +103,7 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
           </div>
         </section>
       )}
-      {}
+
       {Object.keys(skillsByCategory).length > 0 && (
         <section>
           <h2 className="text-xl font-bold border-b border-gray-200 pb-1 mb-4">Skills & Expertise</h2>

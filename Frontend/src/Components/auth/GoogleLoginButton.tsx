@@ -1,1 +1,82 @@
-import React, { useState } from "react";import { FcGoogle } from "react-icons/fc";import { AlertCircle } from "lucide-react";import { useAuth } from "../../contexts/AuthContext";import LoadingSpinner from "../common/LoadingSpinner";interface GoogleLoginButtonProps {  variant?: "signin" | "signup";  className?: string;  disabled?: boolean;}const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({  variant = "signin",  className = "",  disabled = false,}) => {  const [isLoading, setIsLoading] = useState(false);  const [error, setError] = useState("");  const { loginWithGoogle } = useAuth();  const handleGoogleLogin = async () => {    if (disabled || isLoading) return;    try {      setIsLoading(true);      setError("");      await new Promise((resolve) => setTimeout(resolve, 100));      await loginWithGoogle();      console.log("Google login completed successfully");    } catch (error: any) {      console.error("Google login failed:", error);      let errorMessage = "Failed to sign in with Google. Please try again.";      if (error.message) {        errorMessage = error.message;      }      setError(errorMessage);      setTimeout(() => {        setError("");      }, 5000);    } finally {      setIsLoading(false);    }  };  const buttonText =    variant === "signin" ? "Sign in with Google" : "Sign up with Google";  return (    <div className="w-full">      {error && (        <div className="mb-3 p-3 bg-red-50 text-red-700 text-sm rounded-md flex items-center">          <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />          <span>{error}</span>        </div>      )}      <button        type="button"        onClick={handleGoogleLogin}        disabled={disabled || isLoading}        className={`          w-full flex items-center justify-center px-4 py-2           border border-gray-300 rounded-md shadow-sm           text-sm font-medium text-gray-700 bg-white           hover:bg-gray-50 focus:outline-none focus:ring-2           focus:ring-offset-2 focus:ring-indigo-500           disabled:opacity-50 disabled:cursor-not-allowed          transition-all duration-200 ease-in-out          ${isLoading ? "animate-pulse" : "hover:shadow-md"}          ${className}        `}      >        {isLoading ? (          <>            <LoadingSpinner size="sm" className="mr-3" />            <span>Connecting...</span>          </>        ) : (          <>            <FcGoogle className="h-5 w-5 mr-3" />            <span>{buttonText}</span>          </>        )}      </button>    </div>  );};export default GoogleLoginButton;
+import React, { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
+import { AlertCircle } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import LoadingSpinner from "../common/LoadingSpinner";
+interface GoogleLoginButtonProps {
+  variant?: "signin" | "signup";
+  className?: string;
+  disabled?: boolean;
+}
+const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
+  variant = "signin",
+  className = "",
+  disabled = false,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { loginWithGoogle } = useAuth();
+  const handleGoogleLogin = async () => {
+    if (disabled || isLoading) return;
+    try {
+      setIsLoading(true);
+      setError("");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await loginWithGoogle();
+      console.log("Google login completed successfully");
+    } catch (error: any) {
+      console.error("Google login failed:", error);
+      let errorMessage = "Failed to sign in with Google. Please try again.";
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      setError(errorMessage);
+      setTimeout(() => {
+        setError("");
+      }, 5000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const buttonText =
+    variant === "signin" ? "Sign in with Google" : "Sign up with Google";
+  return (
+    <div className="w-full">
+      {error && (
+        <div className="mb-3 p-3 bg-red-50 text-red-700 text-sm rounded-md flex items-center">
+          <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={handleGoogleLogin}
+        disabled={disabled || isLoading}
+        className={`
+          w-full flex items-center justify-center px-4 py-2 
+          border border-gray-300 rounded-md shadow-sm 
+          text-sm font-medium text-gray-700 bg-white 
+          hover:bg-gray-50 focus:outline-none focus:ring-2 
+          focus:ring-offset-2 focus:ring-indigo-500 
+          disabled:opacity-50 disabled:cursor-not-allowed
+          transition-all duration-200 ease-in-out
+          ${isLoading ? "animate-pulse" : "hover:shadow-md"}
+          ${className}
+        `}
+      >
+        {isLoading ? (
+          <>
+            <LoadingSpinner size="sm" className="mr-3" />
+            <span>Connecting...</span>
+          </>
+        ) : (
+          <>
+            <FcGoogle className="h-5 w-5 mr-3" />
+            <span>{buttonText}</span>
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
+export default GoogleLoginButton;

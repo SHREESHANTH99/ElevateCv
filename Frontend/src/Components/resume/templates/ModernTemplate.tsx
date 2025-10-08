@@ -23,7 +23,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
         className={`bg-white p-10 font-sans text-gray-800 max-w-4xl mx-auto ${className}`}
         style={style}
       >
-        {}
+
         <header className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 -mx-8 -mt-8 mb-8 rounded-b-lg shadow-sm">
           <h1 className="text-4xl font-bold text-gray-800 mb-2 tracking-tight">
             {data.personalInfo.fullName}
@@ -117,7 +117,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             )}
           </div>
         </header>
-        {}
+
         {data.summary && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4 flex items-center">
@@ -127,7 +127,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             <p className="text-gray-700 leading-relaxed">{data.summary}</p>
           </section>
         )}
-        {}
+
         {data.experiences?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -165,7 +165,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.education?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -201,7 +201,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {Object.keys(skillsByCategory).length > 0 && (
           <section>
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -231,7 +231,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.projects?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -298,7 +298,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.certifications?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -341,7 +341,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.awards?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -371,7 +371,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.languages?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -404,7 +404,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.publications?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -446,7 +446,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.volunteerExperience?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">
@@ -484,7 +484,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
             </div>
           </section>
         )}
-        {}
+
         {data.references?.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-6 flex items-center">

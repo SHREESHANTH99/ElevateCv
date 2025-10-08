@@ -212,7 +212,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        {}
+
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
@@ -231,7 +231,7 @@ const ProfilePage: React.FC = () => {
             </button>
           </div>
         </div>
-        {}
+
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             <button
@@ -266,9 +266,9 @@ const ProfilePage: React.FC = () => {
             </button>
           </nav>
         </div>
-        {}
+
         <div className="mt-8">
-          {}
+
           {activeTab === "profile" && (
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6">
@@ -409,7 +409,7 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
           )}
-          {}
+
           {activeTab === "resumes" && (
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
@@ -508,10 +508,10 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
           )}
-          {}
+
           {activeTab === "settings" && (
             <div className="space-y-6">
-              {}
+
               <div className="bg-white shadow overflow-hidden sm:rounded-lg">
                 <div className="px-4 py-5 sm:px-6">
                   <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -553,7 +553,7 @@ const ProfilePage: React.FC = () => {
                   </dl>
                 </div>
               </div>
-              {}
+
               <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-4 py-5 sm:p-6">
                   <h3 className="text-lg leading-6 font-medium text-red-700">
@@ -577,7 +577,7 @@ const ProfilePage: React.FC = () => {
             </div>
           )}
         </div>
-        {}
+
         {error && (
           <div className="mt-6">
             <div className="rounded-md bg-red-50 p-4">

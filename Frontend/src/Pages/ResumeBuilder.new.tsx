@@ -749,7 +749,7 @@ const ResumeBuilder: React.FC = () => {
               </button>
             </div>
           </div>
-          {}
+
           <div className="mt-2 flex justify-end">
             {saveStatus === "saving" && (
               <div className="inline-flex items-center text-sm text-gray-600">
@@ -778,7 +778,7 @@ const ResumeBuilder: React.FC = () => {
           </div>
         </div>
       </div>
-      {}
+
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="w-full max-w-md">
@@ -817,7 +817,7 @@ const ResumeBuilder: React.FC = () => {
           )}
           <div className="w-full">
             <div className="w-full">
-              {}
+
               <div className="bg-white rounded-lg shadow p-4 lg:p-6 mb-4 lg:mb-8">
                 <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                   Resume Sections
@@ -1405,7 +1405,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "education" && (
             <div>
               <div className="flex justify-between items-center mb-6">
@@ -1605,7 +1605,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "skills" && (
             <div>
               <div className="flex justify-between items-center mb-6">
@@ -1731,7 +1731,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "projects" && (
             <div>
               <div className="flex justify-between items-center mb-6">
@@ -1900,7 +1900,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "certifications" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
@@ -2039,7 +2039,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "awards" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
@@ -2140,7 +2140,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "languages" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
@@ -2221,7 +2221,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "publications" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
@@ -2345,7 +2345,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "volunteer" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
@@ -2491,7 +2491,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "references" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
@@ -2631,7 +2631,7 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-          {}
+
           {activeSection === "template" && (
             <div className="bg-white rounded-lg shadow p-4 lg:p-6">
               <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
@@ -2734,7 +2734,7 @@ const ResumeBuilder: React.FC = () => {
           )}
         </div>
       </div>
-      {}
+
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden z-20">
         <div className="flex justify-between items-center gap-2">
           <button
@@ -2770,7 +2770,7 @@ const ResumeBuilder: React.FC = () => {
           </button>
         </div>
       </div>
-      {}
+
       {showPreview && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 lg:p-4"
@@ -2781,7 +2781,7 @@ const ResumeBuilder: React.FC = () => {
           }}
         >
           <div className="bg-white rounded-lg w-full h-full lg:max-w-4xl lg:max-h-[95vh] flex flex-col shadow-2xl">
-            {}
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 lg:p-4 border-b border-gray-200 bg-gray-50 gap-3">
               <div className="flex items-center space-x-3">
                 <Eye className="h-5 lg:h-6 w-5 lg:w-6 text-blue-600" />
@@ -2820,7 +2820,7 @@ const ResumeBuilder: React.FC = () => {
                 </button>
               </div>
             </div>
-            {}
+
             <div className="flex-1 overflow-auto bg-gray-100 p-2 lg:p-4">
               <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
                 <div
@@ -2858,7 +2858,7 @@ const ResumeBuilder: React.FC = () => {
                 </div>
               </div>
             </div>
-            {}
+
             <div className="p-3 lg:p-4 border-t border-gray-200 bg-gray-50">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 lg:gap-4">
                 <div className="text-xs lg:text-sm text-gray-600">
@@ -2889,7 +2889,7 @@ const ResumeBuilder: React.FC = () => {
           </div>
         </div>
       )}
-      {}
+
       <div className="h-20 lg:hidden"></div>
     </div>
   );

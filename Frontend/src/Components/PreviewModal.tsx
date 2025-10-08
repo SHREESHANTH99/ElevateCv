@@ -1,1 +1,261 @@
-import React, { useRef } from "react";import { motion, AnimatePresence } from "framer-motion";import { X, Download, Eye, Sparkles } from "lucide-react";import { generateSampleResumeData } from "../utils/sampleResumeData";import {  ModernTemplate,  ExecutiveTemplate,  CreativeTemplate,  MinimalistTemplate,  ATSTemplate,  TechTemplate,  ClassicTemplate,  CorporateTemplate,  EngineerTemplate,  GraduateTemplate,} from "./resume/templates";import type { ResumeData } from "../types/resume";interface PreviewModalProps {  templateId: string;  templateName: string;  isOpen: boolean;  onClose: () => void;}const PreviewModal: React.FC<PreviewModalProps> = ({  templateId,  templateName,  isOpen,  onClose,}) => {  const previewRef = useRef<HTMLDivElement>(null);  const sampleData: ResumeData = {    ...generateSampleResumeData(),    template: templateId,  };  const renderTemplate = () => {    switch (templateId) {      case "modern":        return <ModernTemplate data={sampleData} ref={previewRef} />;      case "executive":        return <ExecutiveTemplate data={sampleData} ref={previewRef} />;      case "creative":        return <CreativeTemplate data={sampleData} ref={previewRef} />;      case "minimalist":        return <MinimalistTemplate data={sampleData} ref={previewRef} />;      case "ats":        return <ATSTemplate data={sampleData} ref={previewRef} />;      case "tech":        return <TechTemplate data={sampleData} ref={previewRef} />;      case "classic":        return <ClassicTemplate data={sampleData} ref={previewRef} />;      case "corporate":        return <CorporateTemplate data={sampleData} ref={previewRef} />;      case "engineer":        return <EngineerTemplate data={sampleData} ref={previewRef} />;      case "graduate":        return <GraduateTemplate data={sampleData} ref={previewRef} />;      case "ind-1":      case "ind-2":      case "ind-3":      case "ind-4":        return <ModernTemplate data={sampleData} ref={previewRef} />;      default:        return <ModernTemplate data={sampleData} ref={previewRef} />;    }  };  const handleDownloadSample = async () => {    try {      const sampleContent = {        templateId,        templateName,        sampleData,        instructions:          "This is sample data for preview purposes. Use the Resume Builder to create your own resume with this template.",        downloadDate: new Date().toISOString(),        features: {          preview: "Full template preview with sample data",          customization: "Fully customizable with your personal information",          pdfExport: "Professional PDF export available",          atsOptimized: "Applicant Tracking System compatible",        },      };      const element = document.createElement("a");      const file = new Blob([JSON.stringify(sampleContent, null, 2)], {        type: "application/json",      });      element.href = URL.createObjectURL(file);      element.download = `${templateName.replace(        /\s+/g,        "_"      )}_Sample_Data.json`;      document.body.appendChild(element);      element.click();      document.body.removeChild(element);      console.log("Sample data downloaded successfully");    } catch (error) {      console.error("Error downloading sample:", error);      alert("Failed to download sample. Please try again.");    }  };  return (    <AnimatePresence>      {isOpen && (        <motion.div          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"          initial={{ opacity: 0 }}          animate={{ opacity: 1 }}          exit={{ opacity: 0 }}          transition={{ duration: 0.3 }}          onClick={onClose}        >          <motion.div            className="bg-white rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-2xl"            initial={{ scale: 0.8, opacity: 0, y: 50 }}            animate={{ scale: 1, opacity: 1, y: 0 }}            exit={{ scale: 0.8, opacity: 0, y: 50 }}            transition={{ duration: 0.4, ease: "easeOut" }}            onClick={(e) => e.stopPropagation()}          >            {}            <motion.div              className="p-6 border-b border-gray-200/50 bg-gradient-to-r from-blue-50 to-purple-50"              initial={{ opacity: 0, y: -20 }}              animate={{ opacity: 1, y: 0 }}              transition={{ delay: 0.2 }}            >              <div className="flex justify-between items-center">                <motion.div                  initial={{ opacity: 0, x: -20 }}                  animate={{ opacity: 1, x: 0 }}                  transition={{ delay: 0.3 }}                >                  <div className="flex items-center space-x-3">                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">                      <Eye className="w-6 h-6 text-white" />                    </div>                    <div>                      <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">                        {templateName}                      </h2>                      <div className="flex items-center text-gray-600 mt-1">                        <Sparkles className="w-4 h-4 mr-2" />                        <span>Preview with sample data</span>                      </div>                    </div>                  </div>                </motion.div>                <motion.div                  className="flex items-center space-x-3"                  initial={{ opacity: 0, x: 20 }}                  animate={{ opacity: 1, x: 0 }}                  transition={{ delay: 0.4 }}                >                  <motion.button                    onClick={handleDownloadSample}                    className="flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg font-semibold"                    whileHover={{ scale: 1.05, y: -2 }}                    whileTap={{ scale: 0.95 }}                  >                    <Download className="w-5 h-5 mr-2" />                    Download Sample                  </motion.button>                  <motion.button                    onClick={onClose}                    className="text-gray-500 hover:text-red-500 p-3 rounded-xl hover:bg-red-50 transition-all duration-300"                    whileHover={{ scale: 1.1, rotate: 90 }}                    whileTap={{ scale: 0.9 }}                  >                    <X className="w-6 h-6" />                  </motion.button>                </motion.div>              </div>            </motion.div>            {}            <motion.div              className="flex-1 overflow-auto p-8 bg-gradient-to-br from-gray-50 to-blue-50"              initial={{ opacity: 0, y: 20 }}              animate={{ opacity: 1, y: 0 }}              transition={{ delay: 0.5 }}            >              <motion.div                className="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200/50"                initial={{ scale: 0.9, opacity: 0 }}                animate={{ scale: 1, opacity: 1 }}                transition={{ delay: 0.6, duration: 0.5 }}                whileHover={{ scale: 1.02 }}              >                <motion.div                  className="transform scale-75 md:scale-90 origin-top transition-transform duration-500"                  initial={{ opacity: 0 }}                  animate={{ opacity: 1 }}                  transition={{ delay: 0.8 }}                >                  {renderTemplate()}                </motion.div>              </motion.div>              {}              <motion.div                className="max-w-5xl mx-auto mt-8"                initial={{ opacity: 0, y: 30 }}                animate={{ opacity: 1, y: 0 }}                transition={{ delay: 1 }}              >                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl p-6 shadow-lg">                  <div className="flex items-start space-x-4">                    <motion.div                      className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center"                      animate={{ rotate: [0, 5, -5, 0] }}                      transition={{                        duration: 2,                        repeat: Infinity,                        repeatDelay: 3,                      }}                    >                      <Sparkles className="w-6 h-6 text-white" />                    </motion.div>                    <div className="flex-1">                      <h3 className="text-lg font-bold text-blue-800 mb-2">                        ✨ Preview Information                      </h3>                      <p className="text-blue-700 leading-relaxed mb-4">                        This preview shows how the template looks with                        professional sample data. You can customize all content,                        colors, and sections when you build your own resume with                        this template.                      </p>                      <motion.div                        className="flex space-x-4"                        initial={{ opacity: 0 }}                        animate={{ opacity: 1 }}                        transition={{ delay: 1.2 }}                      >                        <motion.button                          onClick={handleDownloadSample}                          className="flex items-center px-6 py-3 border-2 border-blue-300 text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 font-semibold"                          whileHover={{ scale: 1.05, y: -2 }}                          whileTap={{ scale: 0.95 }}                        >                          <Download className="w-5 h-5 mr-2" />                          Download Sample Data                        </motion.button>                        <motion.button                          onClick={onClose}                          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg"                          whileHover={{ scale: 1.05, y: -2 }}                          whileTap={{ scale: 0.95 }}                        >                          Close Preview                        </motion.button>                      </motion.div>                    </div>                  </div>                </div>              </motion.div>            </motion.div>          </motion.div>        </motion.div>      )}    </AnimatePresence>  );};export default PreviewModal;
+import React, { useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Download, Eye, Sparkles } from "lucide-react";
+import { generateSampleResumeData } from "../utils/sampleResumeData";
+import {
+  ModernTemplate,
+  ExecutiveTemplate,
+  CreativeTemplate,
+  MinimalistTemplate,
+  ATSTemplate,
+  TechTemplate,
+  ClassicTemplate,
+  CorporateTemplate,
+  EngineerTemplate,
+  GraduateTemplate,
+} from "./resume/templates";
+import type { ResumeData } from "../types/resume";
+interface PreviewModalProps {
+  templateId: string;
+  templateName: string;
+  isOpen: boolean;
+  onClose: () => void;
+}
+const PreviewModal: React.FC<PreviewModalProps> = ({
+  templateId,
+  templateName,
+  isOpen,
+  onClose,
+}) => {
+  const previewRef = useRef<HTMLDivElement>(null);
+  const sampleData: ResumeData = {
+    ...generateSampleResumeData(),
+    template: templateId,
+  };
+  const renderTemplate = () => {
+    switch (templateId) {
+      case "modern":
+        return <ModernTemplate data={sampleData} ref={previewRef} />;
+      case "executive":
+        return <ExecutiveTemplate data={sampleData} ref={previewRef} />;
+      case "creative":
+        return <CreativeTemplate data={sampleData} ref={previewRef} />;
+      case "minimalist":
+        return <MinimalistTemplate data={sampleData} ref={previewRef} />;
+      case "ats":
+        return <ATSTemplate data={sampleData} ref={previewRef} />;
+      case "tech":
+        return <TechTemplate data={sampleData} ref={previewRef} />;
+      case "classic":
+        return <ClassicTemplate data={sampleData} ref={previewRef} />;
+      case "corporate":
+        return <CorporateTemplate data={sampleData} ref={previewRef} />;
+      case "engineer":
+        return <EngineerTemplate data={sampleData} ref={previewRef} />;
+      case "graduate":
+        return <GraduateTemplate data={sampleData} ref={previewRef} />;
+      case "ind-1":
+      case "ind-2":
+      case "ind-3":
+      case "ind-4":
+        return <ModernTemplate data={sampleData} ref={previewRef} />;
+      default:
+        return <ModernTemplate data={sampleData} ref={previewRef} />;
+    }
+  };
+  const handleDownloadSample = async () => {
+    try {
+      const sampleContent = {
+        templateId,
+        templateName,
+        sampleData,
+        instructions:
+          "This is sample data for preview purposes. Use the Resume Builder to create your own resume with this template.",
+        downloadDate: new Date().toISOString(),
+        features: {
+          preview: "Full template preview with sample data",
+          customization: "Fully customizable with your personal information",
+          pdfExport: "Professional PDF export available",
+          atsOptimized: "Applicant Tracking System compatible",
+        },
+      };
+      const element = document.createElement("a");
+      const file = new Blob([JSON.stringify(sampleContent, null, 2)], {
+        type: "application/json",
+      });
+      element.href = URL.createObjectURL(file);
+      element.download = `${templateName.replace(
+        /\s+/g,
+        "_"
+      )}_Sample_Data.json`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      console.log("Sample data downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading sample:", error);
+      alert("Failed to download sample. Please try again.");
+    }
+  };
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={onClose}
+        >
+          <motion.div
+            className="bg-white rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-2xl"
+            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            <motion.div
+              className="p-6 border-b border-gray-200/50 bg-gradient-to-r from-blue-50 to-purple-50"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex justify-between items-center">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                      <Eye className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        {templateName}
+                      </h2>
+                      <div className="flex items-center text-gray-600 mt-1">
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        <span>Preview with sample data</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+                <motion.div
+                  className="flex items-center space-x-3"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <motion.button
+                    onClick={handleDownloadSample}
+                    className="flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg font-semibold"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    Download Sample
+                  </motion.button>
+                  <motion.button
+                    onClick={onClose}
+                    className="text-gray-500 hover:text-red-500 p-3 rounded-xl hover:bg-red-50 transition-all duration-300"
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <X className="w-6 h-6" />
+                  </motion.button>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="flex-1 overflow-auto p-8 bg-gradient-to-br from-gray-50 to-blue-50"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <motion.div
+                className="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200/50"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <motion.div
+                  className="transform scale-75 md:scale-90 origin-top transition-transform duration-500"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  {renderTemplate()}
+                </motion.div>
+              </motion.div>
+
+              <motion.div
+                className="max-w-5xl mx-auto mt-8"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+              >
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl p-6 shadow-lg">
+                  <div className="flex items-start space-x-4">
+                    <motion.div
+                      className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center"
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 3,
+                      }}
+                    >
+                      <Sparkles className="w-6 h-6 text-white" />
+                    </motion.div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-blue-800 mb-2">
+                        ✨ Preview Information
+                      </h3>
+                      <p className="text-blue-700 leading-relaxed mb-4">
+                        This preview shows how the template looks with
+                        professional sample data. You can customize all content,
+                        colors, and sections when you build your own resume with
+                        this template.
+                      </p>
+                      <motion.div
+                        className="flex space-x-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.2 }}
+                      >
+                        <motion.button
+                          onClick={handleDownloadSample}
+                          className="flex items-center px-6 py-3 border-2 border-blue-300 text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 font-semibold"
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Download className="w-5 h-5 mr-2" />
+                          Download Sample Data
+                        </motion.button>
+                        <motion.button
+                          onClick={onClose}
+                          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg"
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Close Preview
+                        </motion.button>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+export default PreviewModal;
