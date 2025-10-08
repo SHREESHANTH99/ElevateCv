@@ -25,7 +25,6 @@ const CorporateTemplate = React.forwardRef<
       className={`bg-white p-8 font-sans text-gray-900 max-w-4xl mx-auto ${className}`}
       style={style}
     >
-
       <header className="bg-slate-800 text-white p-8 -mx-8 -mt-8 mb-8">
         <div className="flex justify-between items-start">
           <div>
@@ -46,9 +45,7 @@ const CorporateTemplate = React.forwardRef<
         </div>
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         <div className="lg:col-span-2 space-y-8">
-
           {data.summary && (
             <section>
               <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-slate-300">
@@ -156,7 +153,6 @@ const CorporateTemplate = React.forwardRef<
         </div>
 
         <div className="space-y-6">
-
           {Object.keys(skillsByCategory).length > 0 && (
             <section className="bg-slate-50 p-6 rounded-lg border-l-4 border-slate-600">
               <h2 className="text-xl font-bold text-slate-800 mb-4">

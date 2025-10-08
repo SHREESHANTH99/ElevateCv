@@ -25,7 +25,6 @@ const ExecutiveTemplate = React.forwardRef<
       className={`bg-white p-8 font-serif text-gray-900 max-w-4xl mx-auto ${className}`}
       style={style}
     >
-
       <header className="border-b-4 border-blue-800 pb-6 mb-8">
         <h1 className="text-5xl font-bold text-blue-900 mb-3 tracking-wide">
           {data.personalInfo.fullName}
@@ -105,9 +104,7 @@ const ExecutiveTemplate = React.forwardRef<
         </div>
       </header>
       <div className="grid grid-cols-3 gap-8">
-
         <div className="col-span-2 space-y-8">
-
           {data.summary && (
             <section>
               <h2 className="text-2xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">
@@ -200,7 +197,6 @@ const ExecutiveTemplate = React.forwardRef<
         </div>
 
         <div className="space-y-6">
-
           {data.education && data.education.length > 0 && (
             <section>
               <h2 className="text-xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">

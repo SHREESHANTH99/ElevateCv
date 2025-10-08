@@ -25,7 +25,6 @@ const MinimalistTemplate = React.forwardRef<
       className={`bg-white p-8 font-mono text-gray-900 max-w-4xl mx-auto leading-relaxed ${className}`}
       style={style}
     >
-
       <header className="border-b border-gray-300 pb-6 mb-8">
         <h1 className="text-4xl font-light text-gray-900 mb-2 tracking-wider">
           {data.personalInfo.fullName.toUpperCase()}

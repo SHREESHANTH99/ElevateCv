@@ -96,7 +96,10 @@ const EngineerTemplate = React.forwardRef<
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="text-lg font-bold text-gray-900 font-mono">
-                          {(exp.position || exp.title).toLowerCase().replace(/\s+/g, "_")}()
+                          {(exp.position || exp.title)
+                            .toLowerCase()
+                            .replace(/\s+/g, "_")}
+                          ()
                         </h3>
                         <p className="text-gray-700 font-semibold">
                           {exp.company}

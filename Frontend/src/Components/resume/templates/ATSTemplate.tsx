@@ -23,7 +23,6 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
         className={`bg-white p-8 font-sans text-black max-w-4xl mx-auto leading-normal ${className}`}
         style={style}
       >
-
         <header className="mb-6">
           <h1 className="text-2xl font-bold text-black mb-2">
             {data.personalInfo.fullName}
@@ -156,7 +155,11 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
               <div key={index} className="mb-2">
                 <h3 className="font-bold text-black">{cert.name}</h3>
                 <p className="text-black">{cert.issuer}</p>
-                {(cert.date || cert.issueDate) && <p className="text-black">Issued: {cert.date || cert.issueDate}</p>}
+                {(cert.date || cert.issueDate) && (
+                  <p className="text-black">
+                    Issued: {cert.date || cert.issueDate}
+                  </p>
+                )}
                 {cert.expiryDate && (
                   <p className="text-black">Expires: {cert.expiryDate}</p>
                 )}

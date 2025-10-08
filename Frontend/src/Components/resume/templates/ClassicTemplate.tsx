@@ -23,7 +23,6 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
         className={`bg-white p-8 font-serif text-gray-900 max-w-4xl mx-auto ${className}`}
         style={style}
       >
-
         <header className="text-center border-b-2 border-gray-800 pb-6 mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-wide">
             {data.personalInfo.fullName}
@@ -187,7 +186,9 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
                   <h3 className="font-bold text-gray-900">{cert.name}</h3>
                   <p className="text-gray-700">{cert.issuer}</p>
                   {(cert.date || cert.issueDate) && (
-                    <p className="text-gray-600 italic">Issued: {cert.date || cert.issueDate}</p>
+                    <p className="text-gray-600 italic">
+                      Issued: {cert.date || cert.issueDate}
+                    </p>
                   )}
                 </div>
               ))}

@@ -89,7 +89,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth }) => {
       const result = isLogin
         ? await AuthAPI.login(email, password)
         : await AuthAPI.register(email, password);
-      setSuccess(isLogin ? "Login successful!" : "Account created successfully!");
+      setSuccess(
+        isLogin ? "Login successful!" : "Account created successfully!"
+      );
       setTimeout(() => {
         onAuth(result.user);
         onClose();
@@ -123,7 +125,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
@@ -150,7 +151,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth }) => {
 
         <div className="px-8 py-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -248,7 +248,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth }) => {
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-3">
                 <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="text-sm font-medium text-green-800">Success</h3>
+                  <h3 className="text-sm font-medium text-green-800">
+                    Success
+                  </h3>
                   <p className="text-sm text-green-700 mt-1">{success}</p>
                 </div>
               </div>

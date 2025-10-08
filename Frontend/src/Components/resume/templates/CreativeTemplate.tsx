@@ -25,7 +25,6 @@ const CreativeTemplate = React.forwardRef<
       className={`bg-white p-8 font-sans text-gray-800 max-w-4xl mx-auto ${className}`}
       style={style}
     >
-
       <header className="relative bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-8 -mx-8 -mt-8 mb-8 rounded-bl-3xl shadow-xl">
         <div className="relative z-10">
           <h1 className="text-5xl font-bold text-white mb-3 tracking-wide">
@@ -102,9 +101,7 @@ const CreativeTemplate = React.forwardRef<
         </section>
       )}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         <div className="lg:col-span-2 space-y-8">
-
           {data.experiences && data.experiences.length > 0 && (
             <section>
               <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-6">
@@ -198,7 +195,6 @@ const CreativeTemplate = React.forwardRef<
         </div>
 
         <div className="space-y-6">
-
           {Object.keys(skillsByCategory).length > 0 && (
             <section>
               <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
