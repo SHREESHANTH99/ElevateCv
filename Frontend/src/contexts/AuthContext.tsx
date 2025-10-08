@@ -25,14 +25,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           setLoading(false);
           return;
         }
-        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_API_URL || "http://localhost:5000"
+          }/api/auth/me`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            credentials: "include",
+          }
+        );
         const data = await response.json();
         if (response.ok && data.success) {
           setUser(data.user);
@@ -53,15 +58,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        });
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_API_URL || "http://localhost:5000"
+          }/api/auth/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({ email, password }),
+          }
+        );
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.message || "Login failed");
@@ -88,7 +98,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     ): Promise<void> => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/register`,
+          `${
+            import.meta.env.VITE_API_URL || "http://localhost:5000"
+          }/api/auth/register`,
           {
             method: "POST",
             headers: {
@@ -170,14 +182,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Not authenticated");
-        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/profile`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(profileData),
-        });
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_API_URL || "http://localhost:5000"
+          }/api/auth/profile`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(profileData),
+          }
+        );
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.message || "Profile update failed");
@@ -206,13 +223,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         if (!token) throw new Error("Not authenticated");
         const formData = new FormData();
         formData.append("profileImage", file);
-        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/upload`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_API_URL || "http://localhost:5000"
+          }/api/auth/upload`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.message || "Image upload failed");
