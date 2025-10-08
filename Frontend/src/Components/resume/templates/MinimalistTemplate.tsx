@@ -1,0 +1,224 @@
+import React from "react";
+import type { ResumeData } from "../../../types/resume";
+
+interface MinimalistTemplateProps {
+  data: ResumeData;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+const MinimalistTemplate = React.forwardRef<
+  HTMLDivElement,
+  MinimalistTemplateProps
+>(({ data, className = "", style = {} }, ref) => {
+  const skillsByCategory =
+    data.skills?.reduce<Record<string, string[]>>((acc, skill) => {
+      if (!acc[skill.category]) {
+        acc[skill.category] = [];
+      }
+      acc[skill.category].push(
+        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+      );
+      return acc;
+    }, {}) || {};
+
+  return (
+    <div
+      ref={ref}
+      className={`bg-white p-8 font-mono text-gray-900 max-w-4xl mx-auto leading-relaxed ${className}`}
+      style={style}
+    >
+      {/* Minimalist Header */}
+      <header className="border-b border-gray-300 pb-6 mb-8">
+        <h1 className="text-4xl font-light text-gray-900 mb-2 tracking-wider">
+          {data.personalInfo.fullName.toUpperCase()}
+        </h1>
+        {data.personalInfo.headline && (
+          <p className="text-lg text-gray-600 font-light mb-4">
+            {data.personalInfo.headline}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-6 text-sm text-gray-700">
+          <span>{data.personalInfo.email}</span>
+          {data.personalInfo.phone && <span>{data.personalInfo.phone}</span>}
+          {data.personalInfo.location && (
+            <span>{data.personalInfo.location}</span>
+          )}
+        </div>
+      </header>
+
+      {/* Summary */}
+      {data.summary && (
+        <section className="mb-8">
+          <h2 className="text-sm font-medium text-gray-900 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">
+            Summary
+          </h2>
+          <p className="text-gray-700 leading-relaxed font-light">
+            {data.summary}
+          </p>
+        </section>
+      )}
+
+      {/* Experience */}
+      {data.experiences && data.experiences.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-medium text-gray-900 uppercase tracking-widest mb-6 border-b border-gray-200 pb-2">
+            Experience
+          </h2>
+          <div className="space-y-6">
+            {data.experiences.map((exp, index) => (
+              <div key={index}>
+                <div className="flex justify-between items-baseline mb-2">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {exp.position}
+                    </h3>
+                    <p className="text-gray-700">{exp.company}</p>
+                    {exp.location && (
+                      <p className="text-sm text-gray-600">{exp.location}</p>
+                    )}
+                  </div>
+                  <span className="text-sm text-gray-600 font-light">
+                    {exp.startDate} — {exp.current ? "Present" : exp.endDate}
+                  </span>
+                </div>
+                {exp.description && exp.description.length > 0 && (
+                  <ul className="space-y-1 text-gray-700 font-light">
+                    {exp.description.map((desc, descIndex) => (
+                      <li key={descIndex} className="flex items-start">
+                        <span className="text-gray-400 mr-3 mt-2">—</span>
+                        <span>{desc}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Skills */}
+      {Object.keys(skillsByCategory).length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-medium text-gray-900 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">
+            Skills
+          </h2>
+          <div className="space-y-3">
+            {Object.entries(skillsByCategory).map(([category, skills]) => (
+              <div key={category}>
+                <h3 className="text-sm font-medium text-gray-800 mb-2">
+                  {category}
+                </h3>
+                <p className="text-gray-700 font-light">{skills.join(" • ")}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Projects */}
+      {data.projects && data.projects.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-medium text-gray-900 uppercase tracking-widest mb-6 border-b border-gray-200 pb-2">
+            Projects
+          </h2>
+          <div className="space-y-4">
+            {data.projects.map((project, index) => (
+              <div key={index}>
+                <div className="flex justify-between items-baseline mb-2">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {project.name}
+                  </h3>
+                  <span className="text-sm text-gray-600 font-light">
+                    {project.startDate} — {project.endDate || "Present"}
+                  </span>
+                </div>
+                <p className="text-gray-700 font-light mb-2">
+                  {project.description}
+                </p>
+                {project.technologies && project.technologies.length > 0 && (
+                  <p className="text-sm text-gray-600 font-light">
+                    {project.technologies.join(" • ")}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Education */}
+      {data.education && data.education.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-medium text-gray-900 uppercase tracking-widest mb-6 border-b border-gray-200 pb-2">
+            Education
+          </h2>
+          <div className="space-y-4">
+            {data.education.map((edu, index) => (
+              <div key={index}>
+                <div className="flex justify-between items-baseline mb-1">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {edu.degree} in {edu.field}
+                    </h3>
+                    <p className="text-gray-700">{edu.institution}</p>
+                  </div>
+                  <span className="text-sm text-gray-600 font-light">
+                    {edu.startDate} — {edu.current ? "Present" : edu.endDate}
+                  </span>
+                </div>
+                {edu.gpa && (
+                  <p className="text-sm text-gray-600 font-light">
+                    GPA: {edu.gpa}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Contact */}
+      {(data.personalInfo.linkedin || data.personalInfo.website) && (
+        <section>
+          <h2 className="text-sm font-medium text-gray-900 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">
+            Links
+          </h2>
+          <div className="space-y-2 text-gray-700 font-light">
+            {data.personalInfo.linkedin && (
+              <div>
+                <span className="text-gray-600">LinkedIn: </span>
+                <a
+                  href={data.personalInfo.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-900 transition-colors"
+                >
+                  {data.personalInfo.linkedin.replace("https://", "")}
+                </a>
+              </div>
+            )}
+            {data.personalInfo.website && (
+              <div>
+                <span className="text-gray-600">Website: </span>
+                <a
+                  href={data.personalInfo.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-900 transition-colors"
+                >
+                  {data.personalInfo.website.replace("https://", "")}
+                </a>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+});
+
+MinimalistTemplate.displayName = "MinimalistTemplate";
+
+export default MinimalistTemplate;

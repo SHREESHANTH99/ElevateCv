@@ -1,0 +1,28 @@
+// Template exports
+export { default as ModernTemplate } from "./ModernTemplate";
+export { default as ExecutiveTemplate } from "./ExecutiveTemplate";
+export { default as CreativeTemplate } from "./CreativeTemplate";
+export { default as MinimalistTemplate } from "./MinimalistTemplate";
+export { default as ATSTemplate } from "./ATSTemplate";
+export { default as TechTemplate } from "./TechTemplate";
+export { default as ClassicTemplate } from "./ClassicTemplate";
+export { default as CorporateTemplate } from "./CorporateTemplate";
+export { default as EngineerTemplate } from "./EngineerTemplate";
+export { default as GraduateTemplate } from "./GraduateTemplate";
+export { default as PDFTemplate } from "./PDFTemplate";
+
+// Template mapping for dynamic imports
+export const templateComponents = {
+  modern: "ModernTemplate",
+  executive: "ExecutiveTemplate",
+  creative: "CreativeTemplate",
+  minimalist: "MinimalistTemplate",
+  ats: "ATSTemplate",
+  tech: "TechTemplate",
+  classic: "ClassicTemplate",
+  corporate: "CorporateTemplate",
+  engineer: "EngineerTemplate",
+  graduate: "GraduateTemplate",
+} as const;
+
+export type TemplateType = keyof typeof templateComponents;

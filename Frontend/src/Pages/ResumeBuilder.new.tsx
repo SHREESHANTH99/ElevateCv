@@ -18,7 +18,19 @@ import {
   Download,
   Save,
 } from "lucide-react";
-import ModernTemplate from "../Components/resume/templates/ModernTemplate";
+import {
+  ModernTemplate,
+  ExecutiveTemplate,
+  CreativeTemplate,
+  MinimalistTemplate,
+  ATSTemplate,
+  TechTemplate,
+  ClassicTemplate,
+  CorporateTemplate,
+  EngineerTemplate,
+  GraduateTemplate,
+  type TemplateType,
+} from "../Components/resume/templates";
 import type {
   ResumeData,
   Experience,
@@ -137,6 +149,12 @@ const ResumeBuilder: React.FC = () => {
     const loadResume = async () => {
       try {
         setIsLoading(true);
+
+        // Check URL parameters for template selection
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedTemplate =
+          urlParams.get("template") || localStorage.getItem("selectedTemplate");
+
         const data = await ResumeApi.getResume();
         if (data) {
           const apiData = data as unknown as {
@@ -209,7 +227,7 @@ const ResumeBuilder: React.FC = () => {
             publications: [],
             volunteerExperience: [],
             references: [],
-            template: apiData.template || "modern",
+            template: selectedTemplate || apiData.template || "modern",
           };
           setResumeData(normalizedData);
         }
@@ -225,12 +243,26 @@ const ResumeBuilder: React.FC = () => {
     switch (resumeData.template) {
       case "modern":
         return <ModernTemplate data={resumeData} />;
+      case "executive":
+        return <ExecutiveTemplate data={resumeData} />;
+      case "creative":
+        return <CreativeTemplate data={resumeData} />;
+      case "minimalist":
+        return <MinimalistTemplate data={resumeData} />;
+      case "ats":
+        return <ATSTemplate data={resumeData} />;
+      case "tech":
+        return <TechTemplate data={resumeData} />;
+      case "classic":
+        return <ClassicTemplate data={resumeData} />;
+      case "corporate":
+        return <CorporateTemplate data={resumeData} />;
+      case "engineer":
+        return <EngineerTemplate data={resumeData} />;
+      case "graduate":
+        return <GraduateTemplate data={resumeData} />;
       default:
-        return (
-          <div className="p-4 bg-gray-100 rounded-lg">
-            <p>Select a template to see a preview.</p>
-          </div>
-        );
+        return <ModernTemplate data={resumeData} />;
     }
   };
   const addExperience = () => {
@@ -926,6 +958,16 @@ const ResumeBuilder: React.FC = () => {
                     }`}
                   >
                     References
+                  </button>
+                  <button
+                    onClick={() => setActiveSection("template")}
+                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                      activeSection === "template"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Template
                   </button>
                 </div>
               </div>
@@ -2617,6 +2659,106 @@ const ResumeBuilder: React.FC = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Template Selection */}
+          {activeSection === "template" && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-6">Choose Template</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  {
+                    id: "modern",
+                    name: "Modern",
+                    description: "Clean and professional with gradient header",
+                  },
+                  {
+                    id: "executive",
+                    name: "Executive",
+                    description:
+                      "Sophisticated design for senior professionals",
+                  },
+                  {
+                    id: "creative",
+                    name: "Creative",
+                    description: "Vibrant design for creative professionals",
+                  },
+                  {
+                    id: "minimalist",
+                    name: "Minimalist",
+                    description: "Simple and clean monochrome design",
+                  },
+                  {
+                    id: "ats",
+                    name: "ATS-Friendly",
+                    description: "Optimized for applicant tracking systems",
+                  },
+                  {
+                    id: "tech",
+                    name: "Tech",
+                    description: "Terminal-style design for developers",
+                  },
+                  {
+                    id: "classic",
+                    name: "Classic",
+                    description: "Traditional academic resume format",
+                  },
+                  {
+                    id: "corporate",
+                    name: "Corporate",
+                    description: "Professional business template",
+                  },
+                  {
+                    id: "engineer",
+                    name: "Engineer",
+                    description: "Technical template for engineers",
+                  },
+                  {
+                    id: "graduate",
+                    name: "Graduate",
+                    description: "Perfect for new graduates and students",
+                  },
+                ].map((template) => (
+                  <div
+                    key={template.id}
+                    className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      resumeData.template === template.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                    onClick={() => {
+                      setResumeData((prev) => ({
+                        ...prev,
+                        template: template.id as TemplateType,
+                      }));
+                      localStorage.setItem("selectedTemplate", template.id);
+                    }}
+                  >
+                    {resumeData.template === template.id && (
+                      <div className="absolute top-2 right-2">
+                        <CheckCircle className="h-5 w-5 text-blue-500" />
+                      </div>
+                    )}
+                    <h3 className="font-semibold text-lg mb-2">
+                      {template.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {template.description}
+                    </p>
+                    <div className="mt-4 h-32 bg-gray-100 rounded border flex items-center justify-center">
+                      <span className="text-gray-500 text-xs">Preview</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p className="text-blue-800 text-sm">
+                  <strong>Tip:</strong> You can preview your resume with
+                  different templates in real-time using the preview panel on
+                  the right.
+                </p>
+              </div>
             </div>
           )}
         </div>

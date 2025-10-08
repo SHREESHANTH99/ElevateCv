@@ -1,1 +1,336 @@
-const express = require('express');const { body, validationResult } = require('express-validator');const auth = require('../middleware/auth');const router = express.Router();router.post('/suggestions', auth, [  body('section').isIn(['personal', 'summary', 'experience', 'education', 'skills', 'projects']),  body('currentData').isObject()], async (req, res) => {  try {    const errors = validationResult(req);    if (!errors.isEmpty()) {      return res.status(400).json({         message: 'Validation failed',        errors: errors.array()      });    }    const { section, currentData } = req.body;    const suggestions = await generateAISuggestions(section, currentData);    res.json({      suggestions,      section,      timestamp: new Date().toISOString()    });  } catch (error) {    console.error('AI suggestions error:', error);    res.status(500).json({ message: 'Server error while generating suggestions' });  }});router.post('/optimize', auth, [  body('resumeData').isObject(),  body('jobDescription').isString().isLength({ min: 50 })], async (req, res) => {  try {    const errors = validationResult(req);    if (!errors.isEmpty()) {      return res.status(400).json({         message: 'Validation failed',        errors: errors.array()      });    }    const { resumeData, jobDescription } = req.body;    const optimization = await generateOptimizationSuggestions(resumeData, jobDescription);    res.json({      optimization,      timestamp: new Date().toISOString()    });  } catch (error) {    console.error('AI optimization error:', error);    res.status(500).json({ message: 'Server error while optimizing resume' });  }});async function generateAISuggestions(section, currentData) {  try {    const suggestions = {      personal: [        "Consider adding a professional LinkedIn profile URL to increase your online presence",        "Include a personal website or portfolio if you have one to showcase your work",        "Make sure your phone number is formatted consistently (e.g., +1 (555) 123-4567)",        "Use a professional email address that includes your name"      ],      summary: [        "Start with your years of experience and key expertise areas",        "Include 2-3 specific achievements with quantifiable results",        "Mention your career objective or what you're seeking",        "Keep it concise - aim for 3-4 sentences maximum",        "Use action verbs and industry-specific keywords"      ],      experience: [        "Start each bullet point with a strong action verb (Led, Developed, Implemented)",        "Quantify your achievements with numbers, percentages, or dollar amounts",        "Focus on results and impact rather than just responsibilities",        "Use industry-specific keywords from job postings you're targeting",        "Keep descriptions concise but impactful - 1-2 lines per bullet point"      ],      education: [        "Include relevant coursework if you're a recent graduate",        "Add academic achievements like Dean's List, honors, or scholarships",        "Mention relevant projects or thesis work if applicable",        "Include study abroad or exchange programs if relevant",        "Add certifications or professional development courses"      ],      skills: [        "Group skills by category (Technical, Soft Skills, Languages)",        "Be specific about skill levels (Beginner, Intermediate, Advanced, Expert)",        "Include both hard and soft skills",        "Add industry-specific tools and software",        "Consider adding skills mentioned in job postings you're targeting"      ],      projects: [        "Include a brief description of the problem you solved",        "Mention the technologies and tools you used",        "Highlight the impact or results of your project",        "Add links to live demos or GitHub repositories",        "Include team size and your specific role if it was a group project"      ]    };    const baseSuggestions = suggestions[section] || [];    const contextualSuggestions = generateContextualSuggestions(section, currentData);    return [...baseSuggestions, ...contextualSuggestions];  } catch (error) {    console.error('AI suggestions error:', error);    throw error;  }}function generateContextualSuggestions(section, currentData) {  const suggestions = [];  switch (section) {    case 'personal':      if (!currentData.linkedin) {        suggestions.push("Consider adding your LinkedIn profile to increase professional visibility");      }      if (!currentData.website) {        suggestions.push("A personal website or portfolio can significantly enhance your application");      }      break;    case 'summary':      if (currentData.length < 50) {        suggestions.push("Your summary seems too short. Consider adding more details about your experience and achievements");      }      if (currentData.length > 200) {        suggestions.push("Your summary might be too long. Try to keep it concise and impactful");      }      break;    case 'experience':      if (currentData.length === 0) {        suggestions.push("Add at least one work experience, even if it's an internship or volunteer work");      }      break;    case 'education':      if (currentData.length === 0) {        suggestions.push("Include your educational background, even if you're self-taught or have alternative education");      }      break;    case 'skills':      if (currentData.length < 5) {        suggestions.push("Consider adding more skills to showcase your versatility");      }      break;    case 'projects':      if (currentData.length === 0) {        suggestions.push("Personal or academic projects can demonstrate your practical skills and initiative");      }      break;  }  return suggestions;}async function generateOptimizationSuggestions(resumeData, jobDescription) {  try {    const jobKeywords = extractKeywords(jobDescription);    const resumeText = JSON.stringify(resumeData).toLowerCase();    const missingKeywords = Object.keys(jobKeywords).filter(keyword =>      !resumeText.includes(keyword.toLowerCase())    );    const suggestions = [];    if (missingKeywords.length > 0) {      suggestions.push({        type: 'missing_keywords',        title: 'Missing Keywords',        description: 'These keywords from the job description are not found in your resume:',        items: missingKeywords.slice(0, 10),        priority: 'high'      });    }    suggestions.push({      type: 'general',      title: 'General Optimization Tips',      description: 'Consider these improvements to better match the job requirements:',      items: [        'Tailor your summary to match the job description',        'Highlight relevant experience that aligns with the role',        'Use similar terminology and keywords from the job posting',        'Quantify your achievements with specific numbers',        'Ensure your skills section includes required technologies'      ],      priority: 'medium'    });    return {      matchScore: calculateMatchScore(resumeData, jobDescription),      suggestions,      jobKeywords: Object.keys(jobKeywords).slice(0, 20)    };  } catch (error) {    console.error('AI optimization error:', error);    throw error;  }}function extractKeywords(text) {  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should'];  return text    .toLowerCase()    .replace(/[^\w\s]/g, ' ')    .split(/\s+/)    .filter(word => word.length > 3 && !commonWords.includes(word))    .reduce((acc, word) => {      acc[word] = (acc[word] || 0) + 1;      return acc;    }, {});}function calculateMatchScore(resumeData, jobDescription) {  const jobKeywords = Object.keys(extractKeywords(jobDescription));  const resumeText = JSON.stringify(resumeData).toLowerCase();  const matchedKeywords = jobKeywords.filter(keyword =>    resumeText.includes(keyword.toLowerCase())  );  const matchPercentage = jobKeywords.length > 0    ? Math.round((matchedKeywords.length / jobKeywords.length) * 100)    : 0;  return {    percentage: matchPercentage,    matched: matchedKeywords.length,    total: jobKeywords.length  };}module.exports = router;
+const express = require("express");
+const { body, validationResult } = require("express-validator");
+const auth = require("../middleware/auth");
+const router = express.Router();
+router.post(
+  "/suggestions",
+  auth,
+  [
+    body("section").isIn([
+      "personal",
+      "summary",
+      "experience",
+      "education",
+      "skills",
+      "projects",
+    ]),
+    body("currentData").isObject(),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          message: "Validation failed",
+          errors: errors.array(),
+        });
+      }
+      const { section, currentData } = req.body;
+      const suggestions = await generateAISuggestions(section, currentData);
+      res.json({
+        suggestions,
+        section,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("AI suggestions error:", error);
+      res
+        .status(500)
+        .json({ message: "Server error while generating suggestions" });
+    }
+  }
+);
+router.post(
+  "/optimize",
+  auth,
+  [
+    body("resumeData").isObject(),
+    body("jobDescription").isString().isLength({ min: 50 }),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          message: "Validation failed",
+          errors: errors.array(),
+        });
+      }
+      const { resumeData, jobDescription } = req.body;
+      const optimization = await generateOptimizationSuggestions(
+        resumeData,
+        jobDescription
+      );
+      res.json({
+        optimization,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("AI optimization error:", error);
+      res.status(500).json({ message: "Server error while optimizing resume" });
+    }
+  }
+);
+async function generateAISuggestions(section, currentData) {
+  try {
+    const suggestions = {
+      personal: [
+        "Consider adding a professional LinkedIn profile URL to increase your online presence",
+        "Include a personal website or portfolio if you have one to showcase your work",
+        "Make sure your phone number is formatted consistently (e.g., +1 (555) 123-4567)",
+        "Use a professional email address that includes your name",
+      ],
+      summary: [
+        "Start with your years of experience and key expertise areas",
+        "Include 2-3 specific achievements with quantifiable results",
+        "Mention your career objective or what you're seeking",
+        "Keep it concise - aim for 3-4 sentences maximum",
+        "Use action verbs and industry-specific keywords",
+      ],
+      experience: [
+        "Start each bullet point with a strong action verb (Led, Developed, Implemented)",
+        "Quantify your achievements with numbers, percentages, or dollar amounts",
+        "Focus on results and impact rather than just responsibilities",
+        "Use industry-specific keywords from job postings you're targeting",
+        "Keep descriptions concise but impactful - 1-2 lines per bullet point",
+      ],
+      education: [
+        "Include relevant coursework if you're a recent graduate",
+        "Add academic achievements like Dean's List, honors, or scholarships",
+        "Mention relevant projects or thesis work if applicable",
+        "Include study abroad or exchange programs if relevant",
+        "Add certifications or professional development courses",
+      ],
+      skills: [
+        "Group skills by category (Technical, Soft Skills, Languages)",
+        "Be specific about skill levels (Beginner, Intermediate, Advanced, Expert)",
+        "Include both hard and soft skills",
+        "Add industry-specific tools and software",
+        "Consider adding skills mentioned in job postings you're targeting",
+      ],
+      projects: [
+        "Include a brief description of the problem you solved",
+        "Mention the technologies and tools you used",
+        "Highlight the impact or results of your project",
+        "Add links to live demos or GitHub repositories",
+        "Include team size and your specific role if it was a group project",
+      ],
+    };
+    const baseSuggestions = suggestions[section] || [];
+    const contextualSuggestions = generateContextualSuggestions(
+      section,
+      currentData
+    );
+    return [...baseSuggestions, ...contextualSuggestions];
+  } catch (error) {
+    console.error("AI suggestions error:", error);
+    throw error;
+  }
+}
+function generateContextualSuggestions(section, currentData) {
+  const suggestions = [];
+  switch (section) {
+    case "personal":
+      if (!currentData.linkedin) {
+        suggestions.push(
+          "Consider adding your LinkedIn profile to increase professional visibility"
+        );
+      }
+      if (!currentData.website) {
+        suggestions.push(
+          "A personal website or portfolio can significantly enhance your application"
+        );
+      }
+      break;
+    case "summary":
+      if (currentData.length < 50) {
+        suggestions.push(
+          "Your summary seems too short. Consider adding more details about your experience and achievements"
+        );
+      }
+      if (currentData.length > 200) {
+        suggestions.push(
+          "Your summary might be too long. Try to keep it concise and impactful"
+        );
+      }
+      break;
+    case "experience":
+      if (currentData.length === 0) {
+        suggestions.push(
+          "Add at least one work experience, even if it's an internship or volunteer work"
+        );
+      }
+      break;
+    case "education":
+      if (currentData.length === 0) {
+        suggestions.push(
+          "Include your educational background, even if you're self-taught or have alternative education"
+        );
+      }
+      break;
+    case "skills":
+      if (currentData.length < 5) {
+        suggestions.push(
+          "Consider adding more skills to showcase your versatility"
+        );
+      }
+      break;
+    case "projects":
+      if (currentData.length === 0) {
+        suggestions.push(
+          "Personal or academic projects can demonstrate your practical skills and initiative"
+        );
+      }
+      break;
+  }
+  return suggestions;
+}
+async function generateOptimizationSuggestions(resumeData, jobDescription) {
+  try {
+    const jobKeywords = extractKeywords(jobDescription);
+    const resumeText = JSON.stringify(resumeData).toLowerCase();
+    const missingKeywords = Object.keys(jobKeywords).filter(
+      (keyword) => !resumeText.includes(keyword.toLowerCase())
+    );
+    const suggestions = [];
+    if (missingKeywords.length > 0) {
+      suggestions.push({
+        type: "missing_keywords",
+        title: "Missing Keywords",
+        description:
+          "These keywords from the job description are not found in your resume:",
+        items: missingKeywords.slice(0, 10),
+        priority: "high",
+      });
+    }
+    suggestions.push({
+      type: "general",
+      title: "General Optimization Tips",
+      description:
+        "Consider these improvements to better match the job requirements:",
+      items: [
+        "Tailor your summary to match the job description",
+        "Highlight relevant experience that aligns with the role",
+        "Use similar terminology and keywords from the job posting",
+        "Quantify your achievements with specific numbers",
+        "Ensure your skills section includes required technologies",
+      ],
+      priority: "medium",
+    });
+    return {
+      matchScore: calculateMatchScore(resumeData, jobDescription),
+      suggestions,
+      jobKeywords: Object.keys(jobKeywords).slice(0, 20),
+    };
+  } catch (error) {
+    console.error("AI optimization error:", error);
+    throw error;
+  }
+}
+function extractKeywords(text) {
+  const commonWords = [
+    "the",
+    "and",
+    "or",
+    "but",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "of",
+    "with",
+    "by",
+    "a",
+    "an",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "have",
+    "has",
+    "had",
+    "do",
+    "does",
+    "did",
+    "will",
+    "would",
+    "could",
+    "should",
+  ];
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 3 && !commonWords.includes(word))
+    .reduce((acc, word) => {
+      acc[word] = (acc[word] || 0) + 1;
+      return acc;
+    }, {});
+}
+function calculateMatchScore(resumeData, jobDescription) {
+  const jobKeywords = Object.keys(extractKeywords(jobDescription));
+  const resumeText = JSON.stringify(resumeData).toLowerCase();
+  const matchedKeywords = jobKeywords.filter((keyword) =>
+    resumeText.includes(keyword.toLowerCase())
+  );
+  const matchPercentage =
+    jobKeywords.length > 0
+      ? Math.round((matchedKeywords.length / jobKeywords.length) * 100)
+      : 0;
+  return {
+    percentage: matchPercentage,
+    matched: matchedKeywords.length,
+    total: jobKeywords.length,
+  };
+}
+
+// Route for analyzing uploaded resume files
+router.post(
+  "/analyze-uploaded",
+  auth,
+  [
+    body("resumeContent").isString().isLength({ min: 50 }),
+    body("jobDescription").isString().isLength({ min: 50 }),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          message: "Validation failed",
+          errors: errors.array(),
+        });
+      }
+
+      const { resumeContent, jobDescription } = req.body;
+
+      // Convert resume content to a format similar to resumeData
+      const resumeData = {
+        summary: resumeContent,
+        experiences: [],
+        skills: [],
+        education: [],
+      };
+
+      const optimization = await generateOptimizationSuggestions(
+        resumeData,
+        jobDescription
+      );
+
+      res.json({
+        optimization,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("AI analyze uploaded error:", error);
+      res
+        .status(500)
+        .json({ message: "Server error while analyzing uploaded resume" });
+    }
+  }
+);
+
+module.exports = router;

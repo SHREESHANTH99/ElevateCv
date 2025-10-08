@@ -1,7 +1,8 @@
 import type { ResumeData } from "../types/auth";
 const API_BASE_URL = "http://localhost:5000/api";
 const getAuthHeader = () => {
-  const token = localStorage.getItem("token");
+  const token =
+    localStorage.getItem("authToken") || localStorage.getItem("token");
   return {
     "Content-Type": "application/json",
     Authorization: token ? `Bearer ${token}` : "",
