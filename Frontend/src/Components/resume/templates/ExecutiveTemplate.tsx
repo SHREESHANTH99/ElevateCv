@@ -1,265 +1,1 @@
-import React from "react";
-import type { ResumeData } from "../../../types/resume";
-
-interface ExecutiveTemplateProps {
-  data: ResumeData;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-const ExecutiveTemplate = React.forwardRef<
-  HTMLDivElement,
-  ExecutiveTemplateProps
->(({ data, className = "", style = {} }, ref) => {
-  const skillsByCategory =
-    data.skills?.reduce<Record<string, string[]>>((acc, skill) => {
-      if (!acc[skill.category]) {
-        acc[skill.category] = [];
-      }
-      acc[skill.category].push(
-        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
-      );
-      return acc;
-    }, {}) || {};
-
-  return (
-    <div
-      ref={ref}
-      className={`bg-white p-8 font-serif text-gray-900 max-w-4xl mx-auto ${className}`}
-      style={style}
-    >
-      {/* Header Section */}
-      <header className="border-b-4 border-blue-800 pb-6 mb-8">
-        <h1 className="text-5xl font-bold text-blue-900 mb-3 tracking-wide">
-          {data.personalInfo.fullName}
-        </h1>
-        {data.personalInfo.headline && (
-          <p className="text-2xl text-blue-700 font-semibold mb-4 italic">
-            {data.personalInfo.headline}
-          </p>
-        )}
-        <div className="flex flex-wrap gap-6 text-gray-700 text-base">
-          <a
-            href={`mailto:${data.personalInfo.email}`}
-            className="flex items-center hover:text-blue-800 transition-colors"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-            </svg>
-            {data.personalInfo.email}
-          </a>
-          {data.personalInfo.phone && (
-            <a
-              href={`tel:${data.personalInfo.phone}`}
-              className="flex items-center hover:text-blue-800 transition-colors"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
-              </svg>
-              {data.personalInfo.phone}
-            </a>
-          )}
-          {data.personalInfo.location && (
-            <span className="flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-              {data.personalInfo.location}
-            </span>
-          )}
-          {data.personalInfo.linkedin && (
-            <a
-              href={data.personalInfo.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center hover:text-blue-800 transition-colors"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-              LinkedIn
-            </a>
-          )}
-        </div>
-      </header>
-
-      <div className="grid grid-cols-3 gap-8">
-        {/* Left Column - Main Content */}
-        <div className="col-span-2 space-y-8">
-          {/* Executive Summary */}
-          {data.summary && (
-            <section>
-              <h2 className="text-2xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">
-                EXECUTIVE SUMMARY
-              </h2>
-              <p className="text-gray-800 leading-relaxed text-lg">
-                {data.summary}
-              </p>
-            </section>
-          )}
-
-          {/* Professional Experience */}
-          {data.experiences && data.experiences.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">
-                LEADERSHIP EXPERIENCE
-              </h2>
-              <div className="space-y-6">
-                {data.experiences.map((exp, index) => (
-                  <div key={index} className="border-l-4 border-blue-300 pl-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900">
-                          {exp.position}
-                        </h3>
-                        <p className="text-lg text-blue-700 font-semibold">
-                          {exp.company}
-                        </p>
-                        {exp.location && (
-                          <p className="text-gray-600">{exp.location}</p>
-                        )}
-                      </div>
-                      <span className="text-gray-600 bg-gray-100 px-3 py-1 rounded font-semibold">
-                        {exp.startDate} -{" "}
-                        {exp.current ? "Present" : exp.endDate}
-                      </span>
-                    </div>
-                    {exp.description && exp.description.length > 0 && (
-                      <ul className="space-y-2 text-gray-800">
-                        {exp.description.map((desc, descIndex) => (
-                          <li key={descIndex} className="flex items-start">
-                            <span className="text-blue-600 mr-3 mt-1">▪</span>
-                            <span className="leading-relaxed">{desc}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Projects */}
-          {data.projects && data.projects.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">
-                KEY INITIATIVES
-              </h2>
-              <div className="space-y-4">
-                {data.projects.map((project, index) => (
-                  <div key={index} className="border-l-4 border-blue-300 pl-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold text-gray-900">
-                        {project.name}
-                      </h3>
-                      <span className="text-gray-600 text-sm">
-                        {project.startDate} - {project.endDate || "Present"}
-                      </span>
-                    </div>
-                    <p className="text-gray-800 mb-3 leading-relaxed">
-                      {project.description}
-                    </p>
-                    {project.technologies &&
-                      project.technologies.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {project.technologies.map((tech, techIndex) => (
-                            <span
-                              key={techIndex}
-                              className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-
-        {/* Right Column - Sidebar */}
-        <div className="space-y-6">
-          {/* Education */}
-          {data.education && data.education.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">
-                EDUCATION
-              </h2>
-              <div className="space-y-4">
-                {data.education.map((edu, index) => (
-                  <div key={index}>
-                    <h3 className="font-bold text-gray-900">{edu.degree}</h3>
-                    <p className="text-blue-700 font-semibold">{edu.field}</p>
-                    <p className="text-gray-700">{edu.institution}</p>
-                    <p className="text-gray-600 text-sm">
-                      {edu.startDate} - {edu.current ? "Present" : edu.endDate}
-                    </p>
-                    {edu.gpa && (
-                      <p className="text-gray-600 text-sm">GPA: {edu.gpa}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Core Competencies */}
-          {Object.keys(skillsByCategory).length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">
-                CORE COMPETENCIES
-              </h2>
-              <div className="space-y-3">
-                {Object.entries(skillsByCategory).map(([category, skills]) => (
-                  <div key={category}>
-                    <h3 className="font-bold text-gray-900 mb-2">{category}</h3>
-                    <div className="space-y-1">
-                      {skills.map((skill, skillIndex) => (
-                        <div key={skillIndex} className="flex items-center">
-                          <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-                          <span className="text-gray-800 text-sm">{skill}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-});
-
-ExecutiveTemplate.displayName = "ExecutiveTemplate";
-
-export default ExecutiveTemplate;
+import React from "react";import type { ResumeData } from "../../../types/resume";interface ExecutiveTemplateProps {  data: ResumeData;  className?: string;  style?: React.CSSProperties;}const ExecutiveTemplate = React.forwardRef<  HTMLDivElement,  ExecutiveTemplateProps>(({ data, className = "", style = {} }, ref) => {  const skillsByCategory =    data.skills?.reduce<Record<string, string[]>>((acc, skill) => {      if (!acc[skill.category]) {        acc[skill.category] = [];      }      acc[skill.category].push(        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`      );      return acc;    }, {}) || {};  return (    <div      ref={ref}      className={`bg-white p-8 font-serif text-gray-900 max-w-4xl mx-auto ${className}`}      style={style}    >      {}      <header className="border-b-4 border-blue-800 pb-6 mb-8">        <h1 className="text-5xl font-bold text-blue-900 mb-3 tracking-wide">          {data.personalInfo.fullName}        </h1>        {data.personalInfo.headline && (          <p className="text-2xl text-blue-700 font-semibold mb-4 italic">            {data.personalInfo.headline}          </p>        )}        <div className="flex flex-wrap gap-6 text-gray-700 text-base">          <a            href={`mailto:${data.personalInfo.email}`}            className="flex items-center hover:text-blue-800 transition-colors"          >            <svg              className="w-5 h-5 mr-2"              fill="currentColor"              viewBox="0 0 20 20"            >              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>            </svg>            {data.personalInfo.email}          </a>          {data.personalInfo.phone && (            <a              href={`tel:${data.personalInfo.phone}`}              className="flex items-center hover:text-blue-800 transition-colors"            >              <svg                className="w-5 h-5 mr-2"                fill="currentColor"                viewBox="0 0 20 20"              >                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>              </svg>              {data.personalInfo.phone}            </a>          )}          {data.personalInfo.location && (            <span className="flex items-center">              <svg                className="w-5 h-5 mr-2"                fill="currentColor"                viewBox="0 0 20 20"              >                <path                  fillRule="evenodd"                  d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"                  clipRule="evenodd"                ></path>              </svg>              {data.personalInfo.location}            </span>          )}          {data.personalInfo.linkedin && (            <a              href={data.personalInfo.linkedin}              target="_blank"              rel="noopener noreferrer"              className="flex items-center hover:text-blue-800 transition-colors"            >              <svg                className="w-5 h-5 mr-2"                fill="currentColor"                viewBox="0 0 20 20"              >                <path                  fillRule="evenodd"                  d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z"                  clipRule="evenodd"                ></path>              </svg>              LinkedIn            </a>          )}        </div>      </header>      <div className="grid grid-cols-3 gap-8">        {}        <div className="col-span-2 space-y-8">          {}          {data.summary && (            <section>              <h2 className="text-2xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">                EXECUTIVE SUMMARY              </h2>              <p className="text-gray-800 leading-relaxed text-lg">                {data.summary}              </p>            </section>          )}          {}          {data.experiences && data.experiences.length > 0 && (            <section>              <h2 className="text-2xl font-bold text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">                LEADERSHIP EXPERIENCE              </h2>              <div className="space-y-6">                {data.experiences.map((exp, index) => (                  <div key={index} className="border-l-4 border-blue-300 pl-6">                    <div className="flex justify-between items-start mb-3">                      <div>                        <h3 className="text-xl font-bold text-gray-900">                          {exp.position}                        </h3>                        <p className="text-lg text-blue-700 font-semibold">                          {exp.company}                        </p>                        {exp.location && (                          <p className="text-gray-600">{exp.location}</p>                        )}                      </div>                      <span className="text-gray-600 bg-gray-100 px-3 py-1 rounded font-semibold">                        {exp.startDate} -{" "}                        {exp.current ? "Present" : exp.endDate}                      </span>                    </div>                    {exp.description && exp.description.length > 0 && (                      <ul className="space-y-2 text-gray-800">                        {exp.description.map((desc, descIndex) => (                          <li key={descIndex} className="flex items-start">                            <span className="text-blue-600 mr-3 mt-1">▪</span>                            <span className="leading-relaxed">{desc}</span>                          </li>                        ))}                      </ul>                    )}                  </div>                ))}              </div>            </section>          )}          {}          {data.projects && data.projects.length > 0 && (            <section>              <h2 className="text-2xl font-bold text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">                KEY INITIATIVES              </h2>              <div className="space-y-4">                {data.projects.map((project, index) => (                  <div key={index} className="border-l-4 border-blue-300 pl-6">                    <div className="flex justify-between items-start mb-2">                      <h3 className="text-lg font-bold text-gray-900">                        {project.name}                      </h3>                      <span className="text-gray-600 text-sm">                        {project.startDate} - {project.endDate || "Present"}                      </span>                    </div>                    <p className="text-gray-800 mb-3 leading-relaxed">                      {project.description}                    </p>                    {project.technologies &&                      project.technologies.length > 0 && (                        <div className="flex flex-wrap gap-2">                          {project.technologies.map((tech, techIndex) => (                            <span                              key={techIndex}                              className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium"                            >                              {tech}                            </span>                          ))}                        </div>                      )}                  </div>                ))}              </div>            </section>          )}        </div>        {}        <div className="space-y-6">          {}          {data.education && data.education.length > 0 && (            <section>              <h2 className="text-xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">                EDUCATION              </h2>              <div className="space-y-4">                {data.education.map((edu, index) => (                  <div key={index}>                    <h3 className="font-bold text-gray-900">{edu.degree}</h3>                    <p className="text-blue-700 font-semibold">{edu.field}</p>                    <p className="text-gray-700">{edu.institution}</p>                    <p className="text-gray-600 text-sm">                      {edu.startDate} - {edu.current ? "Present" : edu.endDate}                    </p>                    {edu.gpa && (                      <p className="text-gray-600 text-sm">GPA: {edu.gpa}</p>                    )}                  </div>                ))}              </div>            </section>          )}          {}          {Object.keys(skillsByCategory).length > 0 && (            <section>              <h2 className="text-xl font-bold text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">                CORE COMPETENCIES              </h2>              <div className="space-y-3">                {Object.entries(skillsByCategory).map(([category, skills]) => (                  <div key={category}>                    <h3 className="font-bold text-gray-900 mb-2">{category}</h3>                    <div className="space-y-1">                      {skills.map((skill, skillIndex) => (                        <div key={skillIndex} className="flex items-center">                          <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>                          <span className="text-gray-800 text-sm">{skill}</span>                        </div>                      ))}                    </div>                  </div>                ))}              </div>            </section>          )}        </div>      </div>    </div>  );});ExecutiveTemplate.displayName = "ExecutiveTemplate";export default ExecutiveTemplate;

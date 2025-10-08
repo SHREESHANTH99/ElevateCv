@@ -1,236 +1,159 @@
-# ElevateCV - AI-Powered Resume Builder
+# ElevateCV - Resume Builder
 
-A comprehensive resume building platform with AI-powered suggestions, job matching, and professional templates.
+eb application for creating professional resumes. Build your resume with our easy-to-use builder and choose from multiple templates.
 
-## Features
+## What you can do
 
-- 🚀 **AI-Powered Resume Builder** - Create professional resumes with intelligent suggestions
-- 🎯 **Smart Job Matching** - Optimize your resume for specific job postings
-- 📝 **Cover Letter Generator** - Generate compelling cover letters
-- 📊 **Dashboard Analytics** - Track your job search progress
-- 🔒 **Secure Authentication** - JWT-based user authentication
-- 📄 **PDF Export** - Download your resume as a professional PDF
+- **Build resumes easily** - Use our step-by-step builder to create your resume
+- **Choose from templates** - Pick from 9 different professional templates
+- **Preview in real-time** - See how your resume looks as you type
+- **Works on mobile** - Use it on your phone, tablet, or computer
+- **Download as PDF** - Get your resume as a PDF file
+- **Save multiple resumes** - Create different versions for different jobs
+- **Job matching** - See how well your resume matches job descriptions
+- **User accounts** - Sign up to save your work
 
-## Tech Stack
+## Available Templates
 
-### Frontend
-- React 19 with TypeScript
+We have 9 professional resume templates:
+
+- **ATS Template** - Works well with job application systems
+- **Classic Template** - Traditional and professional look
+- **Corporate Template** - Perfect for business jobs
+- **Creative Template** - Great for creative fields
+- **Engineer Template** - Designed for technical roles
+- **Executive Template** - For leadership positions
+- **Graduate Template** - Perfect for new graduates
+- **Minimalist Template** - Clean and simple design
+- **Tech Template** - Made for tech professionals
+
+### � **Comprehensive Dashboard**
+
+- **Career Analytics**: Track resume views, match scores, and progress
+- **Achievement System**: Gamified experience with milestone badges
+- **Activity Timeline**: Monitor your career development journey
+- **Quick Actions**: Fast access to all platform features
+- **Personalized Greeting**: Dynamic, time-aware welcome messages
+
+### � **User Profile Management**
+
+- **Streamlined Profile**: Clean, focused user information management
+- **Resume Library**: Organized collection of all your resumes
+- **Theme Preferences**: Light/dark mode customization
+- **Account Security**: Secure profile and password management
+
+## Technology used
+
+**Frontend:**
+
+- React with TypeScript
 - Tailwind CSS for styling
-- React Router for navigation
-- Lucide React for icons
-- Vite for build tooling
+- Vite for fast development
 
-### Backend
-- Node.js with Express.js
-- MongoDB with Mongoose
-- JWT for authentication
-- Puppeteer for PDF generation
-- Express Rate Limiting for security
+**Backend:**
 
-## Prerequisites
+- Node.js with Express
+- MongoDB for data storage
+- JWT for user authentication
 
-- Node.js (v16 or higher)
-- MongoDB (local or cloud instance)
+## Setup and Installation
+
+### What you need
+
+- Node.js (version 16 or higher)
+- MongoDB
 - npm or yarn
 
-## Installation
+### Getting started
 
-### 1. Clone the repository
+1. **Download the code**
+
 ```bash
 git clone https://github.com/SHREESHANTH99/ElevateCv.git
 cd ElevateCv
 ```
 
-### 2. Backend Setup
+2. **Setup the backend**
+
 ```bash
 cd Backend
 npm install
 ```
 
-Create a `.env` file in the Backend directory:
-```env
-# Database
+Create a `.env` file in the Backend folder:
+
+```
 MONGODB_URI=mongodb://localhost:27017/elevatecv
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-JWT_EXPIRES_IN=7d
-
-# Server
+JWT_SECRET=your-secret-key-here
 PORT=5000
-NODE_ENV=development
-
-# Frontend
 FRONTEND_URL=http://localhost:5173
-
-# AI Service (Optional)
-OPENAI_API_KEY=your-openai-api-key-here
 ```
 
-### 3. Frontend Setup
+3. **Setup the frontend**
+
 ```bash
 cd Frontend
 npm install
 ```
 
-### 4. Start MongoDB
-Make sure MongoDB is running on your system:
-```bash
-# For local MongoDB
-mongod
+4. **Start the application**
 
-# Or use MongoDB Atlas (cloud)
-# Update MONGODB_URI in .env file
-```
+First, start the backend:
 
-## Running the Application
-
-### Development Mode
-
-1. Start the backend server:
 ```bash
 cd Backend
 npm start
 ```
 
-2. Start the frontend development server:
+Then start the frontend:
+
 ```bash
 cd Frontend
 npm run dev
 ```
 
-3. Open your browser and navigate to `http://localhost:5173`
+5. **Open your browser** and go to `http://localhost:5173`
 
-### Production Mode
+## API Routes
 
-1. Build the frontend:
-```bash
-cd Frontend
-npm run build
-```
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - Login
+- `GET /api/resume` - Get your resumes
+- `POST /api/resume` - Save a resume
+- `DELETE /api/resume/:id` - Delete a resume
+- `POST /api/resume/export` - Download resume as PDF
 
-2. Start the backend server:
-```bash
-cd Backend
-npm start
-```
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user
-- `PUT /api/auth/profile` - Update user profile
-
-### Resume Management
-- `GET /api/resume` - Get user's resumes
-- `GET /api/resume/:id` - Get specific resume
-- `POST /api/resume` - Create or update resume
-- `PUT /api/resume/:id` - Update specific resume
-- `DELETE /api/resume/:id` - Delete resume
-- `POST /api/resume/export` - Export resume as PDF
-
-### AI Features
-- `POST /api/ai/suggestions` - Get AI suggestions for resume improvement
-- `POST /api/ai/optimize` - Optimize resume for specific job
-
-## Project Structure
+## Project structure
 
 ```
 ElevateCv/
-├── Backend/
-│   ├── config/
-│   │   └── db.ts
-│   ├── controllers/
-│   ├── middleware/
-│   │   └── auth.js
-│   ├── models/
-│   │   ├── User.js
-│   │   └── Resume.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── resume.js
-│   │   └── ai.js
-│   ├── utils/
-│   ├── package.json
-│   └── server.js
-├── Frontend/
+├── Backend/           # Server code
+│   ├── models/        # Database models
+│   ├── routes/        # API routes
+│   ├── middleware/    # Auth and other middleware
+│   └── server.js      # Main server file
+├── Frontend/          # Web app code
 │   ├── src/
-│   │   ├── Components/
-│   │   │   └── Navbar.tsx
-│   │   ├── Pages/
-│   │   │   ├── DashBoard.tsx
-│   │   │   ├── ResumeBuilder.tsx
-│   │   │   ├── JobMatcher.tsx
-│   │   │   ├── CoverLetterGenerator.tsx
-│   │   │   ├── Templates.tsx
-│   │   │   └── LandingPage.tsx
-│   │   ├── types/
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── package.json
-│   └── vite.config.ts
+│   │   ├── Components/    # Reusable components
+│   │   ├── Pages/         # Different pages
+│   │   └── types/         # TypeScript types
+│   └── package.json
 └── README.md
 ```
 
-## Features Overview
-
-### Resume Builder
-- Step-by-step resume creation process
-- Real-time preview
-- AI-powered content suggestions
-- Multiple sections: Personal Info, Summary, Experience, Education, Skills, Projects
-- Auto-save functionality
-
-### Job Matcher
-- Upload or select existing resume
-- Paste job description
-- Get match score and optimization suggestions
-- Keyword analysis
-- Section-by-section scoring
-
-### Cover Letter Generator
-- Personalized cover letter creation
-- Company and position-specific content
-- Professional templates
-- PDF export functionality
-
-### Templates
-- Multiple professional templates
-- Category-based filtering
-- Preview functionality
-- Free and premium options
-
-## Security Features
-
-- JWT-based authentication
-- Password hashing with bcrypt
-- Rate limiting
-- CORS configuration
-- Input validation
-- Helmet.js for security headers
-
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+Want to help improve this project?
+
+1. Fork this repository
+2. Create a new branch for your changes
+3. Make your improvements
+4. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is open source and available under the MIT License.
 
-## Support
+## Need help?
 
-For support, email support@elevatecv.com or create an issue in the repository.
-
-## Roadmap
-- [ ] Resume analytics and insights
-- [ ] Application tracking system
-- [ ] Interview preparation tools
-- [ ] Multi-language support
-- [ ] Mobile app
-- [ ] Team collaboration features
+If you run into problems or have questions, please create an issue on GitHub.

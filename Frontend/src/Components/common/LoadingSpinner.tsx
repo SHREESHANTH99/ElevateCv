@@ -1,25 +1,1 @@
-import React from 'react';
-interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-}
-const sizeClasses = {
-  sm: 'h-4 w-4 border-2',
-  md: 'h-8 w-8 border-2',
-  lg: 'h-12 w-12 border-4',
-};
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'md',
-  className = '',
-}) => {
-  const sizeClass = sizeClasses[size] || sizeClasses.md;
-  return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <div
-        className={`animate-spin rounded-full ${sizeClass} border-t-2 border-b-2 border-indigo-500`}
-      ></div>
-      <span className="sr-only">Loading...</span>
-    </div>
-  );
-};
-export default LoadingSpinner;
+import React from 'react';import { motion } from 'framer-motion';interface LoadingSpinnerProps {  size?: 'sm' | 'md' | 'lg' | 'xl';  className?: string;  text?: string;  color?: 'blue' | 'purple' | 'green' | 'orange';}const sizeClasses = {  sm: 'h-6 w-6',  md: 'h-10 w-10',  lg: 'h-16 w-16',  xl: 'h-24 w-24',};const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({  size = 'md',  className = '',  text = 'Loading...',  color = 'blue',}) => {  const sizeClass = sizeClasses[size];  return (    <div className={`flex flex-col items-center justify-center space-y-4 ${className}`}>      <div className="relative">        {}        <motion.div          className={`${sizeClass} rounded-full border-2 border-gray-200`}          animate={{ rotate: 360 }}          transition={{            duration: 1.5,            repeat: Infinity,            ease: "linear"          }}        >          <motion.div            className={`absolute inset-0 rounded-full border-2 border-transparent border-t-${color}-500`}          />        </motion.div>        {}        <motion.div          className={`absolute inset-3 rounded-full bg-${color}-400`}          animate={{            scale: [0.8, 1.2, 0.8],            opacity: [0.5, 1, 0.5],          }}          transition={{            duration: 2,            repeat: Infinity,            ease: "easeInOut"          }}        />      </div>      {text && (        <motion.div          className="text-center"          initial={{ opacity: 0, y: 10 }}          animate={{ opacity: 1, y: 0 }}          transition={{ delay: 0.5 }}        >          <p className={`text-sm font-medium text-${color}-600 mb-2`}>{text}</p>          <motion.div            className="flex space-x-1 justify-center"            initial={{ opacity: 0 }}            animate={{ opacity: 1 }}            transition={{ delay: 0.8 }}          >            {[...Array(3)].map((_, i) => (              <motion.div                key={i}                className={`w-2 h-2 rounded-full bg-${color}-400`}                animate={{                  scale: [0.5, 1, 0.5],                  opacity: [0.3, 1, 0.3],                }}                transition={{                  duration: 1.5,                  repeat: Infinity,                  delay: i * 0.2,                  ease: "easeInOut"                }}              />            ))}          </motion.div>        </motion.div>      )}      <span className="sr-only">{text}</span>    </div>  );};export default LoadingSpinner;

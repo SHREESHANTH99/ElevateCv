@@ -1,82 +1,1 @@
-import React from "react";
-import { generateSampleResumeData } from "../utils/sampleResumeData";
-import { ModernTemplate } from "../Components/resume/templates";
-
-// Simple test component to verify functionality
-const FunctionalityTest: React.FC = () => {
-  const sampleData = generateSampleResumeData();
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1>Functionality Test</h1>
-
-      <div style={{ marginBottom: "20px" }}>
-        <h2>✅ Sample Data Generation Test</h2>
-        <p>Name: {sampleData.personalInfo.fullName}</p>
-        <p>Email: {sampleData.personalInfo.email}</p>
-        <p>Experiences: {sampleData.experiences.length} items</p>
-        <p>Skills: {sampleData.skills.length} items</p>
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <h2>✅ Template Rendering Test</h2>
-        <div
-          style={{
-            border: "1px solid #ccc",
-            padding: "10px",
-            maxHeight: "300px",
-            overflow: "auto",
-          }}
-        >
-          <ModernTemplate data={sampleData} />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <h2>✅ LocalStorage Test</h2>
-        <button
-          onClick={() => {
-            localStorage.setItem("selectedTemplate", "modern");
-            alert("Template saved to localStorage");
-          }}
-        >
-          Test Template Storage
-        </button>
-        <button
-          onClick={() => {
-            const template = localStorage.getItem("selectedTemplate");
-            alert(`Stored template: ${template}`);
-          }}
-        >
-          Check Stored Template
-        </button>
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <h2>✅ Download Test</h2>
-        <button
-          onClick={() => {
-            const data = {
-              test: "sample data",
-              timestamp: new Date().toISOString(),
-            };
-            const element = document.createElement("a");
-            const file = new Blob([JSON.stringify(data, null, 2)], {
-              type: "application/json",
-            });
-            element.href = URL.createObjectURL(file);
-            element.download = "test-download.json";
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-            alert("Download test completed");
-          }}
-        >
-          Test Download
-        </button>
-      </div>
-    </div>
-  );
-};
-
-export default FunctionalityTest;
+import React from "react";import { generateSampleResumeData } from "../utils/sampleResumeData";import { ModernTemplate } from "../Components/resume/templates";const FunctionalityTest: React.FC = () => {  const sampleData = generateSampleResumeData();  return (    <div style={{ padding: "20px" }}>      <h1>Functionality Test</h1>      <div style={{ marginBottom: "20px" }}>        <h2>✅ Sample Data Generation Test</h2>        <p>Name: {sampleData.personalInfo.fullName}</p>        <p>Email: {sampleData.personalInfo.email}</p>        <p>Experiences: {sampleData.experiences.length} items</p>        <p>Skills: {sampleData.skills.length} items</p>      </div>      <div style={{ marginBottom: "20px" }}>        <h2>✅ Template Rendering Test</h2>        <div          style={{            border: "1px solid #ccc",            padding: "10px",            maxHeight: "300px",            overflow: "auto",          }}        >          <ModernTemplate data={sampleData} />        </div>      </div>      <div style={{ marginBottom: "20px" }}>        <h2>✅ LocalStorage Test</h2>        <button          onClick={() => {            localStorage.setItem("selectedTemplate", "modern");            alert("Template saved to localStorage");          }}        >          Test Template Storage        </button>        <button          onClick={() => {            const template = localStorage.getItem("selectedTemplate");            alert(`Stored template: ${template}`);          }}        >          Check Stored Template        </button>      </div>      <div style={{ marginBottom: "20px" }}>        <h2>✅ Download Test</h2>        <button          onClick={() => {            const data = {              test: "sample data",              timestamp: new Date().toISOString(),            };            const element = document.createElement("a");            const file = new Blob([JSON.stringify(data, null, 2)], {              type: "application/json",            });            element.href = URL.createObjectURL(file);            element.download = "test-download.json";            document.body.appendChild(element);            element.click();            document.body.removeChild(element);            alert("Download test completed");          }}        >          Test Download        </button>      </div>    </div>  );};export default FunctionalityTest;

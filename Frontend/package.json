@@ -10,12 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@react-pdf/renderer": "^3.0.0",
     "@types/react-toastify": "^4.0.2",
     "@types/uuid": "^10.0.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.3.0",
-    "framer-motion": "^12.23.12",
+    "framer-motion": "^12.23.22",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.2",
     "lucide-react": "^0.541.0",

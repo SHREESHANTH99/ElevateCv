@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 import {
   Loader2,
   Eye,
-  EyeOff,
   Plus,
   Trash2,
   CheckCircle,
@@ -146,15 +145,29 @@ const ResumeBuilder: React.FC = () => {
     };
   });
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && showPreview) {
+        setShowPreview(false);
+      }
+    };
+    if (showPreview) {
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
+  }, [showPreview]);
+  useEffect(() => {
     const loadResume = async () => {
       try {
         setIsLoading(true);
-
-        // Check URL parameters for template selection
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTemplate =
           urlParams.get("template") || localStorage.getItem("selectedTemplate");
-
         const data = await ResumeApi.getResume();
         if (data) {
           const apiData = data as unknown as {
@@ -239,32 +252,6 @@ const ResumeBuilder: React.FC = () => {
     };
     loadResume();
   }, []);
-  const ResumePreview = () => {
-    switch (resumeData.template) {
-      case "modern":
-        return <ModernTemplate data={resumeData} />;
-      case "executive":
-        return <ExecutiveTemplate data={resumeData} />;
-      case "creative":
-        return <CreativeTemplate data={resumeData} />;
-      case "minimalist":
-        return <MinimalistTemplate data={resumeData} />;
-      case "ats":
-        return <ATSTemplate data={resumeData} />;
-      case "tech":
-        return <TechTemplate data={resumeData} />;
-      case "classic":
-        return <ClassicTemplate data={resumeData} />;
-      case "corporate":
-        return <CorporateTemplate data={resumeData} />;
-      case "engineer":
-        return <EngineerTemplate data={resumeData} />;
-      case "graduate":
-        return <GraduateTemplate data={resumeData} />;
-      default:
-        return <ModernTemplate data={resumeData} />;
-    }
-  };
   const addExperience = () => {
     const newExp: Experience = {
       id: uuidv4(),
@@ -715,51 +702,50 @@ const ResumeBuilder: React.FC = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 pb-20 lg:pb-0">
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
-            <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Resume Builder
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setShowPreview(!showPreview)}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex-1 sm:flex-none justify-center"
               >
-                {showPreview ? (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-2" />
-                    Hide Preview
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Show Preview
-                  </>
-                )}
+                <Eye className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Full Preview</span>
+                <span className="sm:hidden">Preview</span>
               </button>
               <button
                 onClick={handleSaveResume}
                 disabled={saveStatus === "saving"}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 flex-1 sm:flex-none justify-center"
               >
                 {saveStatus === "saving" ? (
-                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                  <Loader2 className="animate-spin h-4 w-4 mr-1 sm:mr-2" />
                 ) : (
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="h-4 w-4 mr-1 sm:mr-2" />
                 )}
                 {saveStatus === "saving" ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={handleDownloadPDF}
                 disabled={isDownloading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 flex-1 sm:flex-none justify-center"
               >
                 {isDownloading ? (
-                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                  <Loader2 className="animate-spin h-4 w-4 mr-1 sm:mr-2" />
                 ) : (
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="h-4 w-4 mr-1 sm:mr-2" />
                 )}
-                {isDownloading ? "Generating..." : "Download PDF"}
+                <span className="hidden sm:inline">
+                  {isDownloading ? "Generating..." : "Download PDF"}
+                </span>
+                <span className="sm:hidden">
+                  {isDownloading ? "Gen..." : "PDF"}
+                </span>
               </button>
             </div>
           </div>
@@ -795,7 +781,7 @@ const ResumeBuilder: React.FC = () => {
       {}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="max-w-md">
+          <div className="w-full max-w-md">
             <label
               htmlFor="resume-title"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -810,7 +796,7 @@ const ResumeBuilder: React.FC = () => {
                 setResumeData((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder="My Resume"
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
         </div>
@@ -829,29 +815,28 @@ const ResumeBuilder: React.FC = () => {
               An error occurred. Please try again.
             </div>
           )}
-          <div
-            className={`grid ${
-              showPreview ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1"
-            } gap-8`}
-          >
-            <div className={showPreview ? "lg:col-span-2" : "col-span-1"}>
+          <div className="w-full">
+            <div className="w-full">
               {}
-              <div className="bg-white rounded-lg shadow p-6 mb-8">
-                <h2 className="text-xl font-semibold mb-6">Resume Sections</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="bg-white rounded-lg shadow p-4 lg:p-6 mb-4 lg:mb-8">
+                <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
+                  Resume Sections
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-4">
                   <button
                     onClick={() => setActiveSection("personal")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "personal"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
-                    Personal Info
+                    <span className="hidden sm:inline">Personal Info</span>
+                    <span className="sm:hidden">Personal</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("summary")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "summary"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -861,7 +846,7 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveSection("experience")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "experience"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -871,7 +856,7 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveSection("education")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "education"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -881,7 +866,7 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveSection("skills")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "skills"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -891,7 +876,7 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveSection("projects")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "projects"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -901,17 +886,18 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveSection("certifications")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "certifications"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
-                    Certifications
+                    <span className="hidden sm:inline">Certifications</span>
+                    <span className="sm:hidden">Certs</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("awards")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "awards"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -921,27 +907,29 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveSection("languages")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "languages"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
-                    Languages
+                    <span className="hidden sm:inline">Languages</span>
+                    <span className="sm:hidden">Lang</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("publications")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "publications"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
-                    Publications
+                    <span className="hidden sm:inline">Publications</span>
+                    <span className="sm:hidden">Pubs</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("volunteer")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "volunteer"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -951,17 +939,18 @@ const ResumeBuilder: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveSection("references")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "references"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
-                    References
+                    <span className="hidden sm:inline">References</span>
+                    <span className="sm:hidden">Refs</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("template")}
-                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       activeSection === "template"
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -972,27 +961,6 @@ const ResumeBuilder: React.FC = () => {
                 </div>
               </div>
             </div>
-            {showPreview && (
-              <div className="lg:col-span-1">
-                <div className="sticky top-8">
-                  <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                    <h2 className="text-lg font-semibold mb-4">
-                      Resume Preview
-                    </h2>
-                    <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                      <div
-                        id="resume-preview"
-                        ref={previewRef}
-                        className="p-6 bg-white"
-                        style={{ width: "100%", minHeight: "800px" }}
-                      >
-                        <ModernTemplate data={resumeData} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
             {saveStatus === "saved" && (
               <span className="text-green-500 flex items-center">
                 <CheckCircle className="h-4 w-4 mr-1" />
@@ -1007,11 +975,11 @@ const ResumeBuilder: React.FC = () => {
             )}
           </div>
           {activeSection === "personal" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-6">
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+              <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                 Personal Information
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Full Name
@@ -1092,7 +1060,7 @@ const ResumeBuilder: React.FC = () => {
                     placeholder="City, Country"
                   />
                 </div>
-                <div className="md:col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Professional Headline
                   </label>
@@ -1108,7 +1076,7 @@ const ResumeBuilder: React.FC = () => {
                         },
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="e.g., Senior Software Engineer"
                   />
                 </div>
@@ -1132,7 +1100,7 @@ const ResumeBuilder: React.FC = () => {
                           },
                         }))
                       }
-                      className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="username"
                     />
                   </div>
@@ -1220,7 +1188,7 @@ const ResumeBuilder: React.FC = () => {
                       summary: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   rows={4}
                   placeholder="Write a brief professional summary highlighting your key skills and experience..."
                 />
@@ -1228,8 +1196,8 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
           {activeSection === "summary" && (
-            <div>
-              <h2 className="text-xl font-semibold mb-6">
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+              <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                 Professional Summary
               </h2>
               <div className="space-y-4">
@@ -1245,7 +1213,7 @@ const ResumeBuilder: React.FC = () => {
                         summary: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     rows={6}
                     placeholder="Write a brief professional summary highlighting your key skills, experience, and career objectives. This should be 2-4 sentences that give employers a quick overview of what you bring to the table..."
                   />
@@ -1258,12 +1226,14 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
           {activeSection === "experience" && (
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Work Experience</h2>
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h2 className="text-lg lg:text-xl font-semibold">
+                  Work Experience
+                </h2>
                 <button
                   onClick={addExperience}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm w-full sm:w-auto justify-center"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Experience
@@ -1308,7 +1278,7 @@ const ResumeBuilder: React.FC = () => {
                           <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Job Title
@@ -1321,7 +1291,7 @@ const ResumeBuilder: React.FC = () => {
                                 title: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             placeholder="e.g., Senior Developer"
                           />
                         </div>
@@ -2661,12 +2631,13 @@ const ResumeBuilder: React.FC = () => {
               )}
             </div>
           )}
-
-          {/* Template Selection */}
+          {}
           {activeSection === "template" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-6">Choose Template</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+              <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
+                Choose Template
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                 {[
                   {
                     id: "modern",
@@ -2762,25 +2733,164 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
         </div>
-        {showPreview && (
-          <div className="fixed inset-y-0 right-0 w-1/2 bg-white border-l border-gray-200 overflow-auto z-10">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Live Preview</h3>
-              <button
-                onClick={() => setShowPreview(false)}
-                className="text-gray-600 hover:text-red-600"
-                aria-label="Close preview"
-                title="Close Preview"
-              >
-                <X className="w-5 h-5" />
-              </button>
+      </div>
+      {}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden z-20">
+        <div className="flex justify-between items-center gap-2">
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            Preview
+          </button>
+          <button
+            onClick={handleSaveResume}
+            disabled={saveStatus === "saving"}
+            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
+          >
+            {saveStatus === "saving" ? (
+              <Loader2 className="animate-spin h-4 w-4 mr-1" />
+            ) : (
+              <Save className="h-4 w-4 mr-1" />
+            )}
+            {saveStatus === "saving" ? "Saving..." : "Save"}
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+          >
+            {isDownloading ? (
+              <Loader2 className="animate-spin h-4 w-4 mr-1" />
+            ) : (
+              <Download className="h-4 w-4 mr-1" />
+            )}
+            PDF
+          </button>
+        </div>
+      </div>
+      {}
+      {showPreview && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 lg:p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowPreview(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-lg w-full h-full lg:max-w-4xl lg:max-h-[95vh] flex flex-col shadow-2xl">
+            {}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 lg:p-4 border-b border-gray-200 bg-gray-50 gap-3">
+              <div className="flex items-center space-x-3">
+                <Eye className="h-5 lg:h-6 w-5 lg:w-6 text-blue-600" />
+                <h2 className="text-lg lg:text-xl font-semibold text-gray-900">
+                  Resume Preview
+                </h2>
+                <span className="hidden sm:inline px-2 lg:px-3 py-1 bg-blue-100 text-blue-800 text-xs lg:text-sm rounded-full">
+                  {resumeData.template.charAt(0).toUpperCase() +
+                    resumeData.template.slice(1)}{" "}
+                  Template
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
+                <button
+                  onClick={handleDownloadPDF}
+                  disabled={isDownloading}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-3 lg:px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isDownloading ? (
+                    <Loader2 className="animate-spin h-4 w-4 mr-1 lg:mr-2" />
+                  ) : (
+                    <Download className="h-4 w-4 mr-1 lg:mr-2" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {isDownloading ? "Generating..." : "Download PDF"}
+                  </span>
+                  <span className="sm:hidden">
+                    {isDownloading ? "Gen..." : "PDF"}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 flex-shrink-0"
+                >
+                  <X className="h-5 lg:h-6 w-5 lg:w-6" />
+                </button>
+              </div>
             </div>
-            <div className="p-4">
-              <ResumePreview />
+            {}
+            <div className="flex-1 overflow-auto bg-gray-100 p-2 lg:p-4">
+              <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+                <div
+                  id="resume-preview-modal"
+                  ref={previewRef}
+                  className="p-4 lg:p-8 bg-white"
+                  style={{ minHeight: "800px" }}
+                >
+                  {(() => {
+                    switch (resumeData.template) {
+                      case "modern":
+                        return <ModernTemplate data={resumeData} />;
+                      case "executive":
+                        return <ExecutiveTemplate data={resumeData} />;
+                      case "creative":
+                        return <CreativeTemplate data={resumeData} />;
+                      case "minimalist":
+                        return <MinimalistTemplate data={resumeData} />;
+                      case "ats":
+                        return <ATSTemplate data={resumeData} />;
+                      case "tech":
+                        return <TechTemplate data={resumeData} />;
+                      case "classic":
+                        return <ClassicTemplate data={resumeData} />;
+                      case "corporate":
+                        return <CorporateTemplate data={resumeData} />;
+                      case "engineer":
+                        return <EngineerTemplate data={resumeData} />;
+                      case "graduate":
+                        return <GraduateTemplate data={resumeData} />;
+                      default:
+                        return <ModernTemplate data={resumeData} />;
+                    }
+                  })()}
+                </div>
+              </div>
+            </div>
+            {}
+            <div className="p-3 lg:p-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 lg:gap-4">
+                <div className="text-xs lg:text-sm text-gray-600">
+                  <span className="font-medium">💡 Tips:</span> This is how your
+                  resume will look when printed or saved as PDF.
+                  <span className="hidden lg:inline">
+                    {" "}
+                    All formatting and styling will be preserved.
+                  </span>
+                </div>
+                <div className="flex space-x-2 lg:space-x-3 w-full sm:w-auto">
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    className="flex-1 sm:flex-none px-3 lg:px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 text-sm"
+                  >
+                    Close Preview
+                  </button>
+                  <button
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloading}
+                    className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
+                  >
+                    {isDownloading ? "Generating..." : "Download PDF"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      {}
+      <div className="h-20 lg:hidden"></div>
     </div>
   );
 };

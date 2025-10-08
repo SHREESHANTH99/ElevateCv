@@ -4,17 +4,13 @@ import { useAuth } from "../contexts/AuthContext";
 import { ResumeApi } from "../services/resumeApi";
 import {
   Lock,
-  X,
   CheckCircle,
-  AlertCircle,
   FileText,
   Pencil,
-  CreditCard,
   LogOut,
   Plus,
   Sun,
   Moon,
-  Info,
   Loader2,
   XCircle,
   Calendar,
@@ -36,37 +32,8 @@ interface Resume {
     fullName?: string;
   };
 }
-type SubscriptionStatus =
-  | "active"
-  | "trial"
-  | "expired"
-  | "past_due"
-  | "canceled"
-  | "paused";
-type BillingStatus = "paid" | "pending" | "failed";
-interface Subscription {
-  id: string;
-  plan: string;
-  status: SubscriptionStatus;
-  nextBillingDate: string;
-  interval: "month" | "year";
-  currentPeriodStart: string;
-  currentPeriodEnd: string;
-  cancelAtPeriodEnd: boolean;
-}
-interface BillingInvoice {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-  currency: string;
-  status: BillingStatus;
-  pdfUrl?: string;
-}
 interface LoadingState {
   profile: boolean;
-  subscription: boolean;
-  billing: boolean;
   resume: boolean;
 }
 const ProfilePage: React.FC = () => {
@@ -83,30 +50,13 @@ const ProfilePage: React.FC = () => {
   >("light");
   const [loading, setLoading] = useState<LoadingState>({
     profile: true,
-    subscription: true,
-    billing: true,
     resume: false,
-  });
-  const [notifications, setNotifications] = useState({
-    email: true,
-    updates: true,
   });
   const [editData, setEditData] = useState<ProfileData>({
     firstName: "",
     lastName: "",
     email: "",
   });
-  const [subscription] = useState<Subscription>({
-    id: "",
-    plan: "Free",
-    status: "active",
-    nextBillingDate: "",
-    interval: "month",
-    currentPeriodStart: "",
-    currentPeriodEnd: "",
-    cancelAtPeriodEnd: false,
-  });
-  const [billingHistory] = useState<BillingInvoice[]>([]);
   useEffect(() => {
     if (!user) return;
     setEditData({
@@ -136,8 +86,6 @@ const ProfilePage: React.FC = () => {
         setLoading((prev) => ({
           ...prev,
           profile: false,
-          subscription: false,
-          billing: false,
           resume: false,
         }));
       }
@@ -230,47 +178,6 @@ const ProfilePage: React.FC = () => {
       return "Invalid date";
     }
   };
-  const getSubscriptionBadge = (status: SubscriptionStatus) => {
-    const statusMap = {
-      active: {
-        label: "Active",
-        color: "bg-green-100 text-green-800",
-        icon: CheckCircle,
-      },
-      trial: {
-        label: "Trial",
-        color: "bg-blue-100 text-blue-800",
-        icon: Info,
-      },
-      expired: {
-        label: "Expired",
-        color: "bg-red-100 text-red-800",
-        icon: AlertCircle,
-      },
-      past_due: {
-        label: "Past Due",
-        color: "bg-amber-100 text-amber-800",
-        icon: AlertCircle,
-      },
-      canceled: {
-        label: "Canceled",
-        color: "bg-gray-100 text-gray-800",
-        icon: X,
-      },
-      paused: {
-        label: "Paused",
-        color: "bg-purple-100 text-purple-800",
-        icon: AlertCircle,
-      },
-    } as const;
-    return (
-      statusMap[status] || {
-        label: "Unknown",
-        color: "bg-gray-100 text-gray-800",
-        icon: Info,
-      }
-    );
-  };
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -346,16 +253,6 @@ const ProfilePage: React.FC = () => {
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
               My Resumes
-            </button>
-            <button
-              onClick={() => setActiveTab("billing")}
-              className={`${
-                activeTab === "billing"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              Billing
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -594,17 +491,6 @@ const ProfilePage: React.FC = () => {
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    navigate(
-                                      `/resume-builder?resumeId=${resume._id}`
-                                    )
-                                  }
-                                  className="text-blue-600 hover:text-blue-900"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
                                   onClick={() => handleDeleteResume(resume._id)}
                                   className="text-red-600 hover:text-red-900"
                                   disabled={loading.resume}
@@ -619,173 +505,6 @@ const ProfilePage: React.FC = () => {
                     </ul>
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-          {}
-          {activeTab === "billing" && (
-            <div className="space-y-6">
-              {}
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
-                    Subscription
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    Your current plan and billing information.
-                  </p>
-                </div>
-                <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-                  <dl className="sm:divide-y sm:divide-gray-200">
-                    <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                      <dt className="text-sm font-medium text-gray-500">
-                        Plan
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        {subscription.plan}
-                      </dd>
-                    </div>
-                    <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                      <dt className="text-sm font-medium text-gray-500">
-                        Status
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            getSubscriptionBadge(subscription.status).color
-                          }`}
-                        >
-                          {getSubscriptionBadge(subscription.status).label}
-                        </span>
-                      </dd>
-                    </div>
-                    {subscription.nextBillingDate && (
-                      <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt className="text-sm font-medium text-gray-500">
-                          Next Billing Date
-                        </dt>
-                        <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                          {formatDate(subscription.nextBillingDate)}
-                        </dd>
-                      </div>
-                    )}
-                    <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                      <dt className="text-sm font-medium text-gray-500">
-                        Billing Interval
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        {subscription.interval === "month"
-                          ? "Monthly"
-                          : "Yearly"}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-                <div className="px-4 py-4 bg-gray-50 text-right sm:px-6">
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Update Plan
-                  </button>
-                </div>
-              </div>
-              {}
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
-                    Billing History
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    Your past invoices and payments.
-                  </p>
-                </div>
-                <div className="border-t border-gray-200">
-                  {billingHistory.length === 0 ? (
-                    <div className="text-center py-12">
-                      <CreditCard className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">
-                        No billing history
-                      </h3>
-                      <p className="mt-1 text-sm text-gray-500">
-                        Your billing history will appear here.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="overflow-hidden">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Date
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Description
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Amount
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Status
-                            </th>
-                            <th scope="col" className="relative px-6 py-3">
-                              <span className="sr-only">View</span>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {billingHistory.map((invoice) => (
-                            <tr key={invoice.id}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {formatDate(invoice.date)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {invoice.description}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${invoice.amount.toFixed(2)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <span
-                                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    invoice.status === "paid"
-                                      ? "bg-green-100 text-green-800"
-                                      : invoice.status === "pending"
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-red-100 text-red-800"
-                                  }`}
-                                >
-                                  {invoice.status.charAt(0).toUpperCase() +
-                                    invoice.status.slice(1)}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a
-                                  href={invoice.pdfUrl}
-                                  className="text-blue-600 hover:text-blue-900"
-                                >
-                                  View
-                                </a>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           )}
@@ -832,109 +551,6 @@ const ProfilePage: React.FC = () => {
                       </dd>
                     </div>
                   </dl>
-                </div>
-              </div>
-              {}
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
-                    Email Notifications
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    Manage your email notification preferences.
-                  </p>
-                </div>
-                <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-                  <dl className="sm:divide-y sm:divide-gray-200">
-                    <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                      <dt className="text-sm font-medium text-gray-500">
-                        Account notifications
-                      </dt>
-                      <dd className="mt-1 flex text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <span className="flex-grow">
-                          Receive account and security notifications
-                        </span>
-                        <span className="ml-4 flex-shrink-0">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setNotifications({
-                                ...notifications,
-                                email: !notifications.email,
-                              })
-                            }
-                            className={`${
-                              notifications.email
-                                ? "bg-blue-600"
-                                : "bg-gray-200"
-                            } relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                            role="switch"
-                            aria-checked={notifications.email}
-                          >
-                            <span className="sr-only">
-                              Toggle email notifications
-                            </span>
-                            <span
-                              aria-hidden="true"
-                              className={`${
-                                notifications.email
-                                  ? "translate-x-5"
-                                  : "translate-x-0"
-                              } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
-                            />
-                          </button>
-                        </span>
-                      </dd>
-                    </div>
-                    <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                      <dt className="text-sm font-medium text-gray-500">
-                        Product updates
-                      </dt>
-                      <dd className="mt-1 flex text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <span className="flex-grow">
-                          Receive product updates and announcements
-                        </span>
-                        <span className="ml-4 flex-shrink-0">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setNotifications({
-                                ...notifications,
-                                updates: !notifications.updates,
-                              })
-                            }
-                            className={`${
-                              notifications.updates
-                                ? "bg-blue-600"
-                                : "bg-gray-200"
-                            } relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                            role="switch"
-                            aria-checked={notifications.updates}
-                          >
-                            <span className="sr-only">
-                              Toggle update notifications
-                            </span>
-                            <span
-                              aria-hidden="true"
-                              className={`${
-                                notifications.updates
-                                  ? "translate-x-5"
-                                  : "translate-x-0"
-                              } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
-                            />
-                          </button>
-                        </span>
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-                <div className="px-4 py-4 bg-gray-50 text-right sm:px-6">
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Save Preferences
-                  </button>
                 </div>
               </div>
               {}
