@@ -142,7 +142,6 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
         <div className="mb-8">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
             <div className="flex items-center justify-between">
@@ -242,7 +241,6 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-8 mb-8">
-
           <div className="bg-white rounded-xl shadow-md border border-gray-100">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">

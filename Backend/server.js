@@ -21,6 +21,12 @@ app.use(
       process.env.FRONTEND_URL || "http://localhost:5173",
       "http://localhost:5173",
       "http://localhost:5174",
+      // Vercel deployment URLs
+      "https://elevate-cv-poob.vercel.app",
+      "https://elevate-cv-poob-git-main-shreeshanth99s-projects.vercel.app",
+      "https://elevate-cv-poob-f4xvs6zft-shreeshanth99s-projects.vercel.app",
+      // Allow all Vercel preview deployments for this project
+      /^https:\/\/elevate-cv-poob.*\.vercel\.app$/,
     ],
     credentials: true,
   })
