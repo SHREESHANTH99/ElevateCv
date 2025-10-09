@@ -311,9 +311,22 @@ export const ResumeApi = {
           "🔍 Blob content (first 500 chars):",
           text.substring(0, 500)
         );
+        
+        // Check if this is a fallback JSON response
+        try {
+          const parsedData = JSON.parse(text);
+          if (parsedData.fallback && parsedData.html && parsedData.success) {
+            console.log("📄 Detected fallback response, using client-side PDF generation");
+            await this.generateClientSidePDF(parsedData.html, filename);
+            return;
+          }
+        } catch (parseError) {
+          // Not valid JSON, continue with error checking
+        }
+        
+        // Check for actual error responses
         if (
-          text.includes("error") ||
-          text.includes("Error") ||
+          text.includes('"success":false') ||
           text.includes("<!DOCTYPE")
         ) {
           throw new Error(
@@ -335,6 +348,15 @@ export const ResumeApi = {
         );
         try {
           const parsedData = JSON.parse(fullText);
+          
+          // Check if this is a fallback response that wasn't caught earlier
+          if (parsedData.fallback && parsedData.html && parsedData.success) {
+            console.log("📄 Fallback response detected in PDF header check, using client-side generation");
+            await this.generateClientSidePDF(parsedData.html, filename);
+            return;
+          }
+          
+          // Check for JSON-stringified buffer (legacy format)
           if (
             typeof parsedData === "object" &&
             parsedData !== null &&
