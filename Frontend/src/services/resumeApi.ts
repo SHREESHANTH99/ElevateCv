@@ -271,6 +271,7 @@ export const ResumeApi = {
         method: "GET",
         headers: getAuthHeader(),
       });
+      
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         console.error("❌ Resume export failed:", {
@@ -281,6 +282,17 @@ export const ResumeApi = {
         throw new Error(
           error.message || `Failed to export resume (${response.status})`
         );
+      }
+
+      // Check if it's a JSON response (fallback mode)
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const fallbackData = await response.json();
+        if (fallbackData.fallback && fallbackData.html) {
+          console.log("📄 Backend PDF generation unavailable, using client-side fallback");
+          await this.generateClientSidePDF(fallbackData.html, filename);
+          return;
+        }
       }
       const blob = await response.blob();
       console.log("🔍 PDF Blob received:", {
@@ -367,6 +379,67 @@ export const ResumeApi = {
       throw new Error(getErrorMessage(error));
     }
   },
+
+  async generateClientSidePDF(html: string, filename?: string): Promise<void> {
+    try {
+      console.log("🔧 Generating PDF on client side...");
+      
+      // Create a temporary container for the HTML
+      const container = document.createElement('div');
+      container.innerHTML = html;
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.width = '210mm';
+      container.style.background = 'white';
+      document.body.appendChild(container);
+
+      // Dynamically import html2canvas and jsPDF
+      const [{ default: html2canvas }, jsPDFModule] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf')
+      ]);
+      const jsPDF = jsPDFModule.default;
+
+      // Generate canvas
+      const canvas = await html2canvas(container, {
+        useCORS: true,
+        allowTaint: true,
+        background: '#ffffff',
+        width: container.scrollWidth,
+        height: container.scrollHeight,
+      });
+
+      // Create PDF
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      let position = 0;
+
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Download the PDF
+      pdf.save(filename || `resume-${Date.now()}.pdf`);
+      
+      // Clean up
+      document.body.removeChild(container);
+      console.log("✅ Client-side PDF generated successfully");
+    } catch (error) {
+      console.error("❌ Client-side PDF generation failed:", error);
+      throw new Error("Failed to generate PDF on client side. Please try again later.");
+    }
+  },
+
   async getResumeBlob(resumeId?: string): Promise<Blob> {
     try {
       const url = resumeId

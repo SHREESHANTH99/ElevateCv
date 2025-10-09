@@ -33,6 +33,7 @@
     "mongoose": "^7.8.7",
     "multer": "^2.0.2",
     "puppeteer": "^24.17.1",
+    "puppeteer-core": "^24.17.1",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
