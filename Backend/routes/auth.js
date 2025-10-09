@@ -216,6 +216,82 @@ router.get("/me", auth, async (req, res) => {
     });
   }
 });
+
+// Update user profile
+router.put("/profile", auth, async (req, res) => {
+  try {
+    const { firstName, lastName, fullName, website, socialLinks } = req.body;
+    
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Update profile fields
+    if (firstName !== undefined) user.profile.firstName = firstName;
+    if (lastName !== undefined) user.profile.lastName = lastName;
+    if (fullName !== undefined) user.profile.fullName = fullName;
+    if (website !== undefined) user.profile.website = website;
+    if (socialLinks !== undefined) user.profile.socialLinks = socialLinks;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: getUserData(user),
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating profile",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
+// Upload profile image
+router.post("/upload", auth, upload.single("avatar"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Convert file to base64 for simple storage
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    
+    user.profile.avatar = base64Image;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Profile image uploaded successfully",
+      user: getUserData(user),
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while uploading image",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
 router.post("/logout", (req, res) => {
   try {
     res.clearCookie("token", {
