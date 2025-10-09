@@ -314,13 +314,25 @@ export const ResumeApi = {
         
         // Check if this is a fallback JSON response
         try {
+          console.log("🔍 Attempting to parse JSON response...");
           const parsedData = JSON.parse(text);
+          console.log("✅ JSON parsed successfully:", {
+            success: parsedData.success,
+            fallback: parsedData.fallback,
+            hasHtml: !!parsedData.html,
+            htmlLength: parsedData.html?.length || 0
+          });
+          
           if (parsedData.fallback && parsedData.html && parsedData.success) {
-            console.log("📄 Detected fallback response, using client-side PDF generation");
+            console.log("📄 Detected fallback response, initiating client-side PDF generation");
             await this.generateClientSidePDF(parsedData.html, filename);
+            console.log("✅ Client-side PDF generation completed successfully");
             return;
+          } else {
+            console.log("❌ JSON response but not a valid fallback:", parsedData);
           }
         } catch (parseError) {
+          console.log("❌ Failed to parse as JSON:", parseError);
           // Not valid JSON, continue with error checking
         }
         
@@ -403,62 +415,133 @@ export const ResumeApi = {
   },
 
   async generateClientSidePDF(html: string, filename?: string): Promise<void> {
+    let container: HTMLElement | null = null;
     try {
-      console.log("🔧 Generating PDF on client side...");
+      console.log("🔧 Starting client-side PDF generation...");
+      console.log("📄 HTML length:", html?.length || 0);
+      
+      if (!html || html.trim().length === 0) {
+        throw new Error("No HTML content provided for PDF generation");
+      }
       
       // Create a temporary container for the HTML
-      const container = document.createElement('div');
+      container = document.createElement('div');
       container.innerHTML = html;
       container.style.position = 'absolute';
       container.style.left = '-9999px';
+      container.style.top = '0';
       container.style.width = '210mm';
       container.style.background = 'white';
-      document.body.appendChild(container);
-
-      // Dynamically import html2canvas and jsPDF
-      const [{ default: html2canvas }, jsPDFModule] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf')
-      ]);
-      const jsPDF = jsPDFModule.default;
-
-      // Generate canvas
-      const canvas = await html2canvas(container, {
-        useCORS: true,
-        allowTaint: true,
-        background: '#ffffff',
-        width: container.scrollWidth,
-        height: container.scrollHeight,
-      });
-
-      // Create PDF
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let position = 0;
-
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      // Download the PDF
-      pdf.save(filename || `resume-${Date.now()}.pdf`);
+      container.style.padding = '20px';
+      container.style.fontFamily = 'Arial, sans-serif';
+      container.style.fontSize = '12px';
+      container.style.lineHeight = '1.4';
+      container.style.color = '#000';
       
-      // Clean up
-      document.body.removeChild(container);
-      console.log("✅ Client-side PDF generated successfully");
+      document.body.appendChild(container);
+      console.log("✅ Container created and added to DOM");
+
+      try {
+        // Import libraries with better error handling
+        console.log("📦 Importing html2canvas and jsPDF...");
+        const html2canvasModule = await import('html2canvas');
+        const jsPDFModule = await import('jspdf');
+        
+        const html2canvas = html2canvasModule.default;
+        const jsPDF = jsPDFModule.default;
+        
+        console.log("✅ Libraries imported successfully");
+        console.log("📏 Container dimensions:", {
+          width: container.offsetWidth,
+          height: container.offsetHeight,
+          scrollWidth: container.scrollWidth,
+          scrollHeight: container.scrollHeight
+        });
+
+        // Generate canvas with better options
+        console.log("🎨 Generating canvas...");
+        const canvas = await html2canvas(container, {
+          useCORS: true,
+          allowTaint: true,
+          background: '#ffffff',
+          logging: false,
+          width: container.scrollWidth,
+          height: container.scrollHeight,
+        });
+        
+        console.log("✅ Canvas generated:", {
+          width: canvas.width,
+          height: canvas.height
+        });
+
+        // Create PDF with proper dimensions
+        console.log("📑 Creating PDF...");
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        let position = 0;
+        let heightLeft = imgHeight;
+
+        // Add first page
+        pdf.addImage(
+          canvas.toDataURL('image/png', 1.0), 
+          'PNG', 
+          0, 
+          position, 
+          imgWidth, 
+          imgHeight
+        );
+        heightLeft -= pageHeight;
+
+        // Add additional pages if needed
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(
+            canvas.toDataURL('image/png', 1.0), 
+            'PNG', 
+            0, 
+            position, 
+            imgWidth, 
+            imgHeight
+          );
+          heightLeft -= pageHeight;
+        }
+
+        // Download the PDF
+        const downloadFilename = filename || `resume-${Date.now()}.pdf`;
+        console.log("💾 Saving PDF as:", downloadFilename);
+        pdf.save(downloadFilename);
+        
+        console.log("✅ Client-side PDF generated and downloaded successfully");
+        
+      } catch (libraryError) {
+        console.error("❌ Library or generation error:", libraryError);
+        const errorMessage = libraryError instanceof Error ? libraryError.message : 'Unknown library error';
+        throw new Error(`PDF generation failed: ${errorMessage}`);
+      }
+      
     } catch (error) {
       console.error("❌ Client-side PDF generation failed:", error);
-      throw new Error("Failed to generate PDF on client side. Please try again later.");
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new Error(`Failed to generate PDF: ${errorMessage}`);
+    } finally {
+      // Clean up - ensure container is removed even if there's an error
+      if (container && document.body.contains(container)) {
+        try {
+          document.body.removeChild(container);
+          console.log("🧹 Cleaned up temporary container");
+        } catch (cleanupError) {
+          console.warn("⚠️ Could not clean up container:", cleanupError);
+        }
+      }
     }
   },
 
