@@ -1,6 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "../contexts/AuthContext";
 import {
   FileText,
   Target,
@@ -17,6 +18,8 @@ import {
   Eye,
 } from "lucide-react";
 const Landing: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const features = [
     {
       icon: FileText,
@@ -210,10 +213,10 @@ const Landing: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  to="/register"
+                  to={user ? "/dashboard" : "/register"}
                   className="bg-gradient-to-r from-yellow-400 to-orange-500 text-blue-900 px-10 py-4 rounded-xl font-bold text-lg hover:from-yellow-300 hover:to-orange-400 transition-all duration-300 flex items-center justify-center shadow-2xl"
                 >
-                  Get Started Free
+                  {user ? "Go to Dashboard" : "Get Started Free"}
                   <ArrowRight className="w-6 h-6 ml-2" />
                 </Link>
               </motion.div>
@@ -222,7 +225,7 @@ const Landing: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  to="/templates"
+                  to={user ? "/templates" : "/templates"}
                   className="border-2 border-white text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-blue-900 transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
                 >
                   <Eye className="w-6 h-6 mr-2" />
@@ -470,16 +473,16 @@ const Landing: React.FC = () => {
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
-                to="/register"
+                to={user ? "/dashboard" : "/register"}
                 className="bg-white text-blue-600 px-12 py-4 rounded-xl font-bold text-xl hover:bg-gray-100 transition-all duration-300 flex items-center justify-center shadow-2xl"
               >
-                Start Building Now
+                {user ? "Go to Dashboard" : "Start Building Now"}
                 <Sparkles className="w-6 h-6 ml-2" />
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
-                to="/templates"
+                to={user ? "/templates" : "/templates"}
                 className="border-2 border-white text-white px-12 py-4 rounded-xl font-bold text-xl hover:bg-white hover:text-blue-600 transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
               >
                 <Download className="w-6 h-6 mr-2" />

@@ -221,7 +221,7 @@ router.get("/me", auth, async (req, res) => {
 router.put("/profile", auth, async (req, res) => {
   try {
     const { firstName, lastName, fullName, website, socialLinks } = req.body;
-    
+
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({
@@ -273,8 +273,10 @@ router.post("/upload", auth, upload.single("avatar"), async (req, res) => {
     }
 
     // Convert file to base64 for simple storage
-    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-    
+    const base64Image = `data:${
+      req.file.mimetype
+    };base64,${req.file.buffer.toString("base64")}`;
+
     user.profile.avatar = base64Image;
     await user.save();
 

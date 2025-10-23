@@ -33,7 +33,7 @@ coverage/
 
 # NYC test coverage
 .nyc_output
-
+remove-comments.js
 # ESLint cache
 .eslintcache
 

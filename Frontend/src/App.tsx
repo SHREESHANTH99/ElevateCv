@@ -34,6 +34,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   return <>{children}</>;
 };
+
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+  
+  // If user is logged in, redirect to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-gray-50">
     <Navbar />
@@ -47,22 +67,40 @@ function App() {
         <Routes>
 
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            } 
+          />
           <Route
             path="/resume/builder"
             element={
-              <AppLayout>
-                <ResumeBuilder />
-              </AppLayout>
+              <ProtectedRoute>
+                <AppLayout>
+                  <ResumeBuilder />
+                </AppLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/resume/builder/:id"
             element={
-              <AppLayout>
-                <ResumeBuilder />
-              </AppLayout>
+              <ProtectedRoute>
+                <AppLayout>
+                  <ResumeBuilder />
+                </AppLayout>
+              </ProtectedRoute>
             }
           />
 

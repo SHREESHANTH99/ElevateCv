@@ -269,7 +269,7 @@ router.get("/export/:id?", auth, async (req, res) => {
           "PDF export is not available in in-memory storage mode. Please connect to MongoDB to use this feature.",
       });
     }
-    
+
     // Check if Puppeteer is available in this environment
     try {
       await puppeteer.executablePath();
@@ -277,8 +277,10 @@ router.get("/export/:id?", auth, async (req, res) => {
       console.error("Puppeteer executable not found:", execError);
       return res.status(503).json({
         success: false,
-        message: "PDF generation service is temporarily unavailable. The server environment doesn't support browser automation.",
-        fallback: "Please try downloading your resume later or contact support.",
+        message:
+          "PDF generation service is temporarily unavailable. The server environment doesn't support browser automation.",
+        fallback:
+          "Please try downloading your resume later or contact support.",
       });
     }
 
@@ -301,7 +303,7 @@ router.get("/export/:id?", auth, async (req, res) => {
         console.error("HTML generation error:", htmlError);
         throw new Error("Failed to generate resume content");
       }
-      
+
       console.log("🚀 Attempting to launch browser...");
       const browser = await puppeteer.launch({
         headless: "new",
@@ -368,15 +370,19 @@ router.get("/export/:id?", auth, async (req, res) => {
       }
     } catch (pdfError) {
       console.error("PDF generation error:", pdfError);
-      
+
       // Fallback: return HTML for client-side PDF generation
-      if (pdfError.message.includes("browser") || pdfError.message.includes("executable")) {
+      if (
+        pdfError.message.includes("browser") ||
+        pdfError.message.includes("executable")
+      ) {
         try {
           const html = generateResumeHTML(resume);
           return res.status(200).json({
             success: true,
             fallback: true,
-            message: "PDF generation unavailable. Returning HTML for client-side generation.",
+            message:
+              "PDF generation unavailable. Returning HTML for client-side generation.",
             html: html,
             resumeData: resume,
           });
@@ -384,7 +390,7 @@ router.get("/export/:id?", auth, async (req, res) => {
           console.error("Fallback HTML generation error:", fallbackError);
         }
       }
-      
+
       return res.status(500).json({
         success: false,
         message: "Failed to generate PDF. Please try again later.",
