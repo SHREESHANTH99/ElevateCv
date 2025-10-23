@@ -25,6 +25,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           setLoading(false);
           return;
         }
+        
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
         const response = await fetch(
           `${
             import.meta.env.VITE_API_URL || "http://localhost:5000"
@@ -36,8 +41,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               Accept: "application/json",
             },
             credentials: "include",
+            signal: controller.signal,
           }
         );
+        
+        clearTimeout(timeoutId);
+        
         const data = await response.json();
         if (response.ok && data.success) {
           setUser(data.user);
@@ -81,7 +90,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         }
         localStorage.setItem("token", data.token);
         setUser(data.user);
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } catch (error) {
         console.error("Login error:", error);
         throw error;
@@ -119,7 +128,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         }
         localStorage.setItem("token", data.token);
         setUser(data.user);
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } catch (error) {
         console.error("Registration error:", error);
         throw error;
@@ -131,27 +140,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       setLoading(true);
       console.log("Starting Google authentication...");
+      
       const result = await FirebaseAuthService.signInWithGoogle();
       console.log("Firebase authentication successful, contacting backend...");
+      
       const backendData = await FirebaseAuthService.authenticateWithBackend(
         result.user,
         result.token,
         result.isNewUser
       );
+      
       if (!backendData.token || !backendData.user) {
         throw new Error("Invalid response from server. Please try again.");
       }
+      
       localStorage.setItem("token", backendData.token);
       setUser(backendData.user);
+      setLoading(false);
+      
       console.log("Google login successful, redirecting to dashboard...");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
+      
     } catch (error: any) {
       console.error("Google login error:", error);
+      setLoading(false);
+      
       try {
         await FirebaseAuthService.signOut();
       } catch (signOutError) {
         console.error("Error signing out from Firebase:", signOutError);
       }
+      
       if (error.message && error.message.includes("Server error")) {
         throw new Error(
           "Unable to connect to our servers. Please try again later."
@@ -162,8 +181,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         );
       }
       throw error;
-    } finally {
-      setLoading(false);
     }
   }, [navigate]);
   const logout = useCallback(async (): Promise<void> => {

@@ -24,8 +24,11 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       await new Promise((resolve) => setTimeout(resolve, 100));
       await loginWithGoogle();
       console.log("Google login completed successfully");
+      // Set loading to false before navigation to prevent white screen
+      setIsLoading(false);
     } catch (error: any) {
       console.error("Google login failed:", error);
+      setIsLoading(false);
       let errorMessage = "Failed to sign in with Google. Please try again.";
       if (error.message) {
         errorMessage = error.message;
@@ -34,8 +37,6 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       setTimeout(() => {
         setError("");
       }, 5000);
-    } finally {
-      setIsLoading(false);
     }
   };
   const buttonText =

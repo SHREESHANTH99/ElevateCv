@@ -37,7 +37,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -45,12 +45,12 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  
+
   // If user is logged in, redirect to dashboard
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
@@ -65,23 +65,29 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-
-          <Route path="/" element={<Landing />} />
           <Route 
-            path="/login" 
+            path="/" 
+            element={
+              <PublicRoute>
+                <Landing />
+              </PublicRoute>
+            } 
+          />
+          <Route
+            path="/login"
             element={
               <PublicRoute>
                 <LoginPage />
               </PublicRoute>
-            } 
+            }
           />
-          <Route 
-            path="/register" 
+          <Route
+            path="/register"
             element={
               <PublicRoute>
                 <RegisterPage />
               </PublicRoute>
-            } 
+            }
           />
           <Route
             path="/resume/builder"

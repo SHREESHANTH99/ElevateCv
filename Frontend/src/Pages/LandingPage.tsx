@@ -136,7 +136,6 @@ const Landing: React.FC = () => {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-
       <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-20"></div>
 
