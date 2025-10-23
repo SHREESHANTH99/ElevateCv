@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 const Landing: React.FC = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const features = [
     {
       icon: FileText,
