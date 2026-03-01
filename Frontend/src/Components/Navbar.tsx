@@ -33,7 +33,6 @@ const Navbar: React.FC = () => {
     { path: "/job-matcher", icon: Target, label: "Job Matcher" },
     { path: "/cover-letter", icon: Mail, label: "Cover Letter" },
     { path: "/templates", icon: FileText, label: "Templates" },
-    { path: "/profile", icon: User, label: "Profile" },
   ];
   return (
     <motion.nav
@@ -92,11 +91,10 @@ const Navbar: React.FC = () => {
               >
                 <Link
                   to={path}
-                  className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 group ${
-                    location.pathname === path
-                      ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-                  }`}
+                  className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 group ${location.pathname === path
+                    ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg"
+                    : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                    }`}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1, rotate: 5 }}
@@ -166,14 +164,6 @@ const Navbar: React.FC = () => {
                 </motion.button>
               </div>
             )}
-            <div className="relative">
-              <Link
-                to="/profile"
-                className="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-50"
-              >
-                <User className="w-5 h-5 text-gray-600" />
-              </Link>
-            </div>
             <motion.button
               className="md:hidden p-3 rounded-xl hover:bg-blue-50 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -212,11 +202,10 @@ const Navbar: React.FC = () => {
                 >
                   <Link
                     to={path}
-                    className={`flex items-center space-x-3 px-6 py-4 text-base font-semibold transition-all duration-300 ${
-                      location.pathname === path
-                        ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 mx-4 rounded-xl shadow-lg"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-white/50 mx-4 rounded-xl"
-                    }`}
+                    className={`flex items-center space-x-3 px-6 py-4 text-base font-semibold transition-all duration-300 ${location.pathname === path
+                      ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 mx-4 rounded-xl shadow-lg"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-white/50 mx-4 rounded-xl"
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Icon className="w-5 h-5" />

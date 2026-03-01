@@ -36,7 +36,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       setError(errorMessage);
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 4000);
     }
   };
   const buttonText =

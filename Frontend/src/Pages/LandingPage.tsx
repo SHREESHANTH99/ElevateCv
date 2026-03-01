@@ -6,11 +6,7 @@ import {
   FileText,
   Target,
   Mail,
-  Star,
   ArrowRight,
-  Users,
-  Trophy,
-  Clock,
   Sparkles,
   Zap,
   Shield,
@@ -61,58 +57,7 @@ const Landing: React.FC = () => {
       color: "from-indigo-500 to-blue-600",
     },
   ];
-  const stats = [
-    {
-      icon: Users,
-      value: "50K+",
-      label: "Active Users",
-      color: "text-blue-500",
-    },
-    {
-      icon: Trophy,
-      value: "85%",
-      label: "Success Rate",
-      color: "text-green-500",
-    },
-    {
-      icon: Clock,
-      value: "5 Min",
-      label: "Setup Time",
-      color: "text-yellow-500",
-    },
-    {
-      icon: Star,
-      value: "4.9/5",
-      label: "User Rating",
-      color: "text-purple-500",
-    },
-  ];
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Software Engineer",
-      company: "Google",
-      text: "ElevateCv helped me land my dream job at Google. The AI suggestions were spot-on!",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b7bb?w=100",
-    },
-    {
-      name: "Michael Chen",
-      role: "Product Manager",
-      company: "Meta",
-      text: "The job matching feature saved me hours of tailoring resumes. Highly recommended!",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
-    },
-    {
-      name: "Emily Davis",
-      role: "UX Designer",
-      company: "Apple",
-      text: "Beautiful templates and professional results. Got interviews within a week!",
-      avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
-    },
-  ];
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -236,56 +181,6 @@ const Landing: React.FC = () => {
       </div>
 
       <motion.div
-        className="bg-white py-20 shadow-lg"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {stats.map(({ icon: Icon, value, label, color }, index) => (
-              <motion.div
-                key={label}
-                className="text-center group"
-                variants={itemVariants}
-                whileHover={{ scale: 1.1 }}
-              >
-                <motion.div
-                  className="mb-4"
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 2,
-                    delay: index * 0.2,
-                    repeat: Infinity,
-                    repeatDelay: 3,
-                  }}
-                >
-                  <Icon className={`w-12 h-12 ${color} mx-auto`} />
-                </motion.div>
-                <motion.div
-                  className="text-4xl md:text-5xl font-bold text-gray-900 mb-2"
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  {value}
-                </motion.div>
-                <div className="text-gray-600 text-lg">{label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.div>
-
-      <motion.div
         className="py-24 bg-gradient-to-br from-gray-50 to-blue-50"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -345,82 +240,6 @@ const Landing: React.FC = () => {
       </motion.div>
 
       <motion.div
-        className="py-24 bg-white"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Loved by{" "}
-              <span className="bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                Professionals
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600">
-              Join thousands who landed their dream jobs with ElevateCv
-            </p>
-          </motion.div>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {testimonials.map((testimonial) => (
-              <motion.div
-                key={testimonial.name}
-                className="group"
-                variants={itemVariants}
-                whileHover={{ y: -10, scale: 1.02 }}
-              >
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-blue-100 h-full">
-                  <div className="flex items-center mb-6">
-                    <img
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      className="w-16 h-16 rounded-full object-cover mr-4 ring-4 ring-blue-200"
-                    />
-                    <div>
-                      <h4 className="text-xl font-bold text-gray-900">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-blue-600 font-semibold">
-                        {testimonial.role}
-                      </p>
-                      <p className="text-gray-500 text-sm">
-                        {testimonial.company}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 italic leading-relaxed">
-                    "{testimonial.text}"
-                  </p>
-                  <div className="flex mt-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-5 h-5 text-yellow-400 fill-current"
-                      />
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.div>
-
-      <motion.div
         className="py-24 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-800 text-white relative overflow-hidden"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -459,8 +278,7 @@ const Landing: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            Join thousands of professionals who have transformed their careers
-            with ElevateCv
+            Start building your professional resume today with AI-powered tools
           </motion.p>
           <motion.div
             className="flex flex-col sm:flex-row gap-6 justify-center"

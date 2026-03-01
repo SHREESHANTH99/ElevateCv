@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeApi } from "../services/resumeApi";
 import {
   Lock,
   CheckCircle,
   FileText,
-  Pencil,
   LogOut,
   Plus,
   Sun,
@@ -15,11 +15,24 @@ import {
   XCircle,
   Calendar,
   Download,
+  Mail,
+  Github,
+  Linkedin,
+  Globe,
+  Sparkles,
+  Edit3,
+  Save,
 } from "lucide-react";
 interface ProfileData {
   firstName: string;
   lastName: string;
   email: string;
+  role?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  github?: string;
+  linkedin?: string;
 }
 interface Resume {
   _id: string;
@@ -43,7 +56,6 @@ const ProfilePage: React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [themePreference, setThemePreference] = useState<
     "light" | "dark" | "system"
@@ -56,6 +68,12 @@ const ProfilePage: React.FC = () => {
     firstName: "",
     lastName: "",
     email: "",
+    role: "",
+    bio: "",
+    location: "",
+    website: "",
+    github: "",
+    linkedin: "",
   });
   useEffect(() => {
     if (!user) return;
@@ -63,6 +81,12 @@ const ProfilePage: React.FC = () => {
       firstName: user.profile?.firstName || "",
       lastName: user.profile?.lastName || "",
       email: user.email,
+      role: user.profile?.role || "",
+      bio: user.profile?.bio || "",
+      location: user.profile?.location || "",
+      website: user.profile?.website || "",
+      github: user.profile?.github || "",
+      linkedin: user.profile?.linkedin || "",
     });
     const loadUserData = async () => {
       try {
@@ -81,7 +105,6 @@ const ProfilePage: React.FC = () => {
         setResumes(formattedResumes);
       } catch (error) {
         console.error("Error loading user data:", error);
-        setError("Failed to load profile data. Please try again later.");
       } finally {
         setLoading((prev) => ({
           ...prev,
@@ -210,411 +233,516 @@ const ProfilePage: React.FC = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-
-        <div className="md:flex md:items-center md:justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Manage your account settings and preferences
-            </p>
-          </div>
-          <div className="mt-4 flex items-center space-x-3 md:mt-0">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <LogOut className="-ml-1 mr-2 h-5 w-5 text-gray-500" />
-              Sign out
-            </button>
-          </div>
-        </div>
-
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab("profile")}
-              className={`${
-                activeTab === "profile"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              Profile
-            </button>
-            <button
-              onClick={() => setActiveTab("resumes")}
-              className={`${
-                activeTab === "resumes"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              My Resumes
-            </button>
-            <button
-              onClick={() => setActiveTab("settings")}
-              className={`${
-                activeTab === "settings"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              Settings
-            </button>
-          </nav>
-        </div>
-
-        <div className="mt-8">
-
-          {activeTab === "profile" && (
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Profile Information
-                </h3>
-                <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                  Personal details and information.
-                </p>
-              </div>
-              <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-                {isEditing ? (
-                  <form onSubmit={handleSaveProfile} className="space-y-6 p-6">
-                    <div className="grid grid-cols-6 gap-6">
-                      <div className="col-span-6 sm:col-span-3">
-                        <label
-                          htmlFor="first-name"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          First name
-                        </label>
-                        <input
-                          type="text"
-                          name="first-name"
-                          id="first-name"
-                          value={editData.firstName}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              firstName: e.target.value,
-                            })
-                          }
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="col-span-6 sm:col-span-3">
-                        <label
-                          htmlFor="last-name"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Last name
-                        </label>
-                        <input
-                          type="text"
-                          name="last-name"
-                          id="last-name"
-                          value={editData.lastName}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              lastName: e.target.value,
-                            })
-                          }
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="col-span-6 sm:col-span-4">
-                        <label
-                          htmlFor="email-address"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Email address
-                        </label>
-                        <input
-                          type="email"
-                          name="email-address"
-                          id="email-address"
-                          value={editData.email}
-                          disabled
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end space-x-3">
-                      <button
-                        type="button"
-                        onClick={() => setIsEditing(false)}
-                        className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isSaving}
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSaving ? (
-                          <>
-                            <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                            Saving...
-                          </>
-                        ) : (
-                          "Save Changes"
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="px-4 py-5 sm:px-6">
-                    <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                      <div className="sm:col-span-1">
-                        <dt className="text-sm font-medium text-gray-500">
-                          First name
-                        </dt>
-                        <dd className="mt-1 text-sm text-gray-900">
-                          {editData.firstName || "Not set"}
-                        </dd>
-                      </div>
-                      <div className="sm:col-span-1">
-                        <dt className="text-sm font-medium text-gray-500">
-                          Last name
-                        </dt>
-                        <dd className="mt-1 text-sm text-gray-900">
-                          {editData.lastName || "Not set"}
-                        </dd>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <dt className="text-sm font-medium text-gray-500">
-                          Email address
-                        </dt>
-                        <dd className="mt-1 text-sm text-gray-900">
-                          {editData.email}
-                        </dd>
-                      </div>
-                    </dl>
-                    <div className="mt-8">
-                      <button
-                        type="button"
-                        onClick={() => setIsEditing(true)}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        <Pencil className="-ml-1 mr-2 h-4 w-4" />
-                        Edit Profile
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === "resumes" && (
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
-                    My Resumes
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    Manage your saved resumes.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => navigate("/resume-builder")}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <Plus className="-ml-1 mr-2 h-4 w-4" />
-                  New Resume
-                </button>
-              </div>
-              <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-                {resumes.length === 0 ? (
-                  <div className="text-center py-12">
-                    <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">
-                      No resumes
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Get started by creating a new resume.
-                    </p>
-                    <div className="mt-6">
-                      <button
-                        type="button"
-                        onClick={() => navigate("/resume-builder")}
-                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        <Plus className="-ml-1 mr-2 h-4 w-4" />
-                        New Resume
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="overflow-hidden bg-white shadow sm:rounded-md">
-                    <ul className="divide-y divide-gray-200">
-                      {resumes.map((resume) => (
-                        <li key={resume._id}>
-                          <div className="px-4 py-4 sm:px-6">
-                            <div className="flex items-center justify-between">
-                              <p className="truncate text-sm font-medium text-blue-600">
-                                {resume.title}
-                              </p>
-                              <div className="ml-2 flex flex-shrink-0">
-                                <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                                  {resume.isPublic ? "Public" : "Private"}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="mt-2 sm:flex sm:justify-between">
-                              <div className="sm:flex">
-                                <p className="flex items-center text-sm text-gray-500">
-                                  <Calendar className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-                                  Updated {formatDate(resume.updatedAt)}
-                                </p>
-                              </div>
-                              <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 space-x-4">
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleDownloadResume(
-                                      resume._id,
-                                      resume.title
-                                    )
-                                  }
-                                  className="text-green-600 hover:text-green-900 inline-flex items-center"
-                                  disabled={loading.resume}
-                                >
-                                  <Download className="mr-1 h-4 w-4" />
-                                  Download
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteResume(resume._id)}
-                                  className="text-red-600 hover:text-red-900"
-                                  disabled={loading.resume}
-                                >
-                                  {loading.resume ? "Deleting..." : "Delete"}
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === "settings" && (
-            <div className="space-y-6">
-
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
-                    Theme Preferences
-                  </h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    Customize how the app looks on your device.
-                  </p>
-                </div>
-                <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-                  <dl className="sm:divide-y sm:divide-gray-200">
-                    <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                      <dt className="text-sm font-medium text-gray-500">
-                        Theme
-                      </dt>
-                      <dd className="mt-1 flex text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <span className="flex-grow">
-                          {themePreference === "light" ? "Light" : "Dark"} mode
-                        </span>
-                        <span className="ml-4 flex-shrink-0">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setThemePreference(
-                                themePreference === "light" ? "dark" : "light"
-                              )
-                            }
-                            className="bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                          >
-                            {themePreference === "light" ? (
-                              <Moon className="h-5 w-5" />
-                            ) : (
-                              <Sun className="h-5 w-5" />
-                            )}
-                          </button>
-                        </span>
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
-
-              <div className="bg-white shadow sm:rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <h3 className="text-lg leading-6 font-medium text-red-700">
-                    Danger Zone
-                  </h3>
-                  <div className="mt-2 max-w-xl text-sm text-gray-500">
-                    <p>
-                      Permanently delete your account and all associated data.
-                    </p>
-                  </div>
-                  <div className="mt-5">
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm"
-                    >
-                      Delete Account
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Notifications */}
+      <AnimatePresence>
         {error && (
-          <div className="mt-6">
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <XCircle
-                    className="h-5 w-5 text-red-400"
-                    aria-hidden="true"
-                  />
-                </div>
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-4 right-4 z-50 max-w-md"
+          >
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-lg">
+              <div className="flex items-start">
+                <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                  <p className="text-sm font-medium text-red-800">{error}</p>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
         {success && (
-          <div className="mt-6">
-            <div className="rounded-md bg-green-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <CheckCircle
-                    className="h-5 w-5 text-green-400"
-                    aria-hidden="true"
-                  />
-                </div>
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-4 right-4 z-50 max-w-md"
+          >
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 shadow-lg">
+              <div className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-green-800">
-                    {success}
-                  </p>
+                  <p className="text-sm font-medium text-green-800">{success}</p>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
+
+      {/* Hero Section */}
+      <section className="relative pt-20 pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0">
+          <motion.div
+            className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+          />
+          <motion.div
+            className="absolute bottom-0 left-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, 50, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+          />
+        </div>
+
+        <div className="relative max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            {/* Profile Avatar */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.6, type: "spring" }}
+              className="relative inline-block mb-8"
+            >
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl font-bold shadow-2xl ring-4 ring-white">
+                {editData.firstName?.charAt(0) || "U"}
+              </div>
+              {!isEditing && (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsEditing(true)}
+                  className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <Edit3 className="w-4 h-4 text-blue-600" />
+                </motion.button>
+              )}
+            </motion.div>
+
+            {/* Name and Role */}
+            {isEditing ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="max-w-2xl mx-auto space-y-4 mb-8"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    value={editData.firstName}
+                    onChange={(e) =>
+                      setEditData({ ...editData, firstName: e.target.value })
+                    }
+                    className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    value={editData.lastName}
+                    onChange={(e) =>
+                      setEditData({ ...editData, lastName: e.target.value })
+                    }
+                    className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Your Role"
+                  value={editData.role}
+                  onChange={(e) =>
+                    setEditData({ ...editData, role: e.target.value })
+                  }
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center"
+                />
+                <textarea
+                  placeholder="Short bio..."
+                  value={editData.bio}
+                  onChange={(e) =>
+                    setEditData({ ...editData, bio: e.target.value })
+                  }
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center resize-none"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Location"
+                    value={editData.location}
+                    onChange={(e) =>
+                      setEditData({ ...editData, location: e.target.value })
+                    }
+                    className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={editData.email}
+                    disabled
+                    className="px-4 py-3 rounded-xl border-2 border-gray-200 bg-gray-50 text-center"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <input
+                    type="url"
+                    placeholder="Website URL"
+                    value={editData.website}
+                    onChange={(e) =>
+                      setEditData({ ...editData, website: e.target.value })
+                    }
+                    className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center"
+                  />
+                  <input
+                    type="url"
+                    placeholder="GitHub URL"
+                    value={editData.github}
+                    onChange={(e) =>
+                      setEditData({ ...editData, github: e.target.value })
+                    }
+                    className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center"
+                  />
+                  <input
+                    type="url"
+                    placeholder="LinkedIn URL"
+                    value={editData.linkedin}
+                    onChange={(e) =>
+                      setEditData({ ...editData, linkedin: e.target.value })
+                    }
+                    className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-center"
+                  />
+                </div>
+                <div className="flex justify-center gap-4">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-shadow disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="inline-block w-4 h-4 mr-2" />
+                        Save Changes
+                      </>
+                    )}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsEditing(false)}
+                    className="px-8 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              </motion.div>
+            ) : (
+              <>
+                <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-4">
+                  {editData.firstName} {editData.lastName}
+                </h1>
+                <div className="flex items-center justify-center gap-2 mb-6">
+                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <p className="text-xl md:text-2xl text-blue-600 font-semibold">
+                    {editData.role}
+                  </p>
+                </div>
+                <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+                  {editData.bio}
+                </p>
+                {editData.location && (
+                  <p className="text-gray-500 mb-8">{editData.location}</p>
+                )}
+
+                {/* Social Links */}
+                <div className="flex items-center justify-center gap-4 mb-8">
+                  {editData.email && (
+                    <motion.a
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      href={`mailto:${editData.email}`}
+                      className="p-3 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <Mail className="w-5 h-5 text-gray-700" />
+                    </motion.a>
+                  )}
+                  {editData.github && (
+                    <motion.a
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      href={editData.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-3 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <Github className="w-5 h-5 text-gray-700" />
+                    </motion.a>
+                  )}
+                  {editData.linkedin && (
+                    <motion.a
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      href={editData.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-3 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <Linkedin className="w-5 h-5 text-gray-700" />
+                    </motion.a>
+                  )}
+                  {editData.website && (
+                    <motion.a
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      href={editData.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-3 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <Globe className="w-5 h-5 text-gray-700" />
+                    </motion.a>
+                  )}
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate("/resume/builder")}
+                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-shadow flex items-center justify-center"
+                  >
+                    <FileText className="w-5 h-5 mr-2" />
+                    Create Resume
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() =>
+                      document
+                        .getElementById("contact")
+                        ?.scrollIntoView({ behavior: "smooth" })
+                    }
+                    className="px-8 py-4 bg-white text-gray-700 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center border-2 border-gray-200"
+                  >
+                    <Mail className="w-5 h-5 mr-2" />
+                    Get in Touch
+                  </motion.button>
+                </div>
+              </>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* My Resumes Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              My <span className="text-blue-600">Resumes</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+              Manage and download your resumes
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/resume/builder")}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-shadow inline-flex items-center"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Create New Resume
+            </motion.button>
+          </motion.div>
+
+          {loading.resume ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-12 h-12 mx-auto animate-spin text-blue-600 mb-4" />
+              <p className="text-gray-600">Loading resumes...</p>
+            </div>
+          ) : resumes.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-16 bg-white rounded-2xl shadow-lg border border-gray-100"
+            >
+              <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No resumes yet
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Start building your professional resume today
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/resume/builder")}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg inline-flex items-center"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Create Your First Resume
+              </motion.button>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {resumes.map((resume, index) => (
+                <motion.div
+                  key={resume._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -5 }}
+                  className="group"
+                >
+                  <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all border border-gray-100 h-full flex flex-col">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                          {resume.title}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {resume.personalInfo?.fullName || "No name"}
+                        </p>
+                      </div>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${resume.isPublic
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-700"
+                          }`}
+                      >
+                        {resume.isPublic ? "Public" : "Private"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center text-sm text-gray-500 mb-4">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>
+                        Updated {new Date(resume.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <div className="mt-auto flex gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() =>
+                          handleDownloadResume(resume._id, resume.title)
+                        }
+                        disabled={loading.resume}
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-shadow flex items-center justify-center disabled:opacity-50"
+                      >
+                        <Download className="w-4 h-4 mr-1" />
+                        Download
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleDeleteResume(resume._id)}
+                        disabled={loading.resume}
+                        className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-100 transition-colors disabled:opacity-50"
+                      >
+                        Delete
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-900 text-white relative overflow-hidden"
+      >
+        <div className="absolute inset-0">
+          <motion.div
+            className="absolute -top-40 -right-40 w-80 h-80 bg-white rounded-full opacity-10"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full opacity-10"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Let's Work <span className="text-yellow-300">Together</span>
+            </h2>
+            <p className="text-xl text-blue-100 mb-12 max-w-2xl mx-auto">
+              Have a project in mind? Let's discuss how we can collaborate
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href={`mailto:${editData.email}`}
+                className="px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transition-shadow inline-flex items-center justify-center"
+              >
+                <Mail className="w-5 h-5 mr-2" />
+                Send Email
+              </motion.a>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogout}
+                className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all inline-flex items-center justify-center"
+              >
+                <LogOut className="w-5 h-5 mr-2" />
+                Sign Out
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Settings Quick Access (Floating Button) */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setThemePreference(themePreference === "light" ? "dark" : "light")}
+        className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-3xl transition-shadow z-40"
+      >
+        {themePreference === "light" ? (
+          <Moon className="w-6 h-6" />
+        ) : (
+          <Sun className="w-6 h-6" />
+        )}
+      </motion.button>
     </div>
   );
 };

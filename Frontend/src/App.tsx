@@ -65,13 +65,13 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               <PublicRoute>
                 <Landing />
               </PublicRoute>
-            } 
+            }
           />
           <Route
             path="/login"
