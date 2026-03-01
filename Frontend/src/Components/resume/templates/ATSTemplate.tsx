@@ -13,7 +13,7 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
           acc[skill.category] = [];
         }
         acc[skill.category].push(
-          `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+          `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
         );
         return acc;
       }, {}) || {};
@@ -33,14 +33,50 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
             </p>
           )}
           <div className="text-black">
-            <p>{data.personalInfo.email}</p>
-            {data.personalInfo.phone && <p>{data.personalInfo.phone}</p>}
+            <p>
+              <a
+                href={`mailto:${data.personalInfo.email}`}
+                className="hover:underline"
+              >
+                {data.personalInfo.email}
+              </a>
+            </p>
+            {data.personalInfo.phone && (
+              <p>
+                <a
+                  href={`tel:${data.personalInfo.phone}`}
+                  className="hover:underline"
+                >
+                  {data.personalInfo.phone}
+                </a>
+              </p>
+            )}
             {data.personalInfo.location && <p>{data.personalInfo.location}</p>}
             {data.personalInfo.linkedin && (
-              <p>LinkedIn: {data.personalInfo.linkedin}</p>
+              <p>
+                LinkedIn:{" "}
+                <a
+                  href={data.personalInfo.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  {data.personalInfo.linkedin}
+                </a>
+              </p>
             )}
             {data.personalInfo.website && (
-              <p>Website: {data.personalInfo.website}</p>
+              <p>
+                Website:{" "}
+                <a
+                  href={data.personalInfo.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  {data.personalInfo.website}
+                </a>
+              </p>
             )}
           </div>
         </header>
@@ -202,7 +238,7 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
         )}
       </div>
     );
-  }
+  },
 );
 ATSTemplate.displayName = "ATSTemplate";
 export default ATSTemplate;

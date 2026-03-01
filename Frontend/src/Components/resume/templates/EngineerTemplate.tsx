@@ -15,7 +15,7 @@ const EngineerTemplate = React.forwardRef<
         acc[skill.category] = [];
       }
       acc[skill.category].push(
-        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
       );
       return acc;
     }, {}) || {};
@@ -42,12 +42,22 @@ const EngineerTemplate = React.forwardRef<
             <div className="space-y-1 text-sm">
               <p className="text-gray-300">
                 <span className="text-green-400">email:</span>{" "}
-                {data.personalInfo.email}
+                <a
+                  href={`mailto:${data.personalInfo.email}`}
+                  className="text-cyan-400 hover:text-cyan-300"
+                >
+                  {data.personalInfo.email}
+                </a>
               </p>
               {data.personalInfo.phone && (
                 <p className="text-gray-300">
                   <span className="text-green-400">phone:</span>{" "}
-                  {data.personalInfo.phone}
+                  <a
+                    href={`tel:${data.personalInfo.phone}`}
+                    className="text-cyan-400 hover:text-cyan-300"
+                  >
+                    {data.personalInfo.phone}
+                  </a>
                 </p>
               )}
               {data.personalInfo.location && (

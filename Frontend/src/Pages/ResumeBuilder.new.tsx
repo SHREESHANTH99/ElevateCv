@@ -97,6 +97,7 @@ const ResumeBuilder: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [showPreview, setShowPreview] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>("personal");
@@ -112,6 +113,12 @@ const ResumeBuilder: React.FC = () => {
   const [resumeData, setResumeData] = useState<ResumeData>(() => {
     const profile = user?.profile || ({} as UserProfile);
     const socialLinks = profile?.socialLinks || ({} as SocialLinks);
+
+    // Read template from URL or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedTemplate =
+      urlParams.get("template") || localStorage.getItem("selectedTemplate") || "modern";
+
     return {
       title: "My Resume",
       personalInfo: {
@@ -140,7 +147,7 @@ const ResumeBuilder: React.FC = () => {
       publications: [],
       volunteerExperience: [],
       references: [],
-      template: "modern",
+      template: selectedTemplate as TemplateType,
       lastUpdated: new Date(),
     };
   });
@@ -247,6 +254,12 @@ const ResumeBuilder: React.FC = () => {
       } catch (error) {
         console.error("Error loading resume:", error);
       } finally {
+        // Clear the selected template from localStorage after using it
+        const urlParams = new URLSearchParams(window.location.search);
+        const templateParam = urlParams.get("template") || localStorage.getItem("selectedTemplate");
+        if (templateParam) {
+          localStorage.removeItem("selectedTemplate");
+        }
         setIsLoading(false);
       }
     };
@@ -546,29 +559,42 @@ const ResumeBuilder: React.FC = () => {
     }));
   };
   const handleDownloadPDF = useCallback(async () => {
-    if (!resumeData.personalInfo?.fullName?.trim()) {
-      alert("Please enter your full name before downloading.");
-      return;
-    }
     if (!user) {
-      alert("Please log in to download your resume.");
+      setErrorMessage("Please log in to download your resume");
+      setSaveStatus("error");
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setErrorMessage("");
+      }, 5000);
       return;
     }
-    if (!resumeData.personalInfo?.email?.trim()) {
-      alert("Please enter your email address before downloading.");
+
+    // Validate resume before download
+    const validation = validateResume();
+    if (!validation.isValid) {
+      setErrorMessage(validation.message);
+      setSaveStatus("error");
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setErrorMessage("");
+      }, 8000);
       return;
     }
-    if (!resumeData.personalInfo?.phone?.trim()) {
-      alert("Please enter your phone number before downloading.");
-      return;
-    }
+
     if (!resumeData.personalInfo?.location?.trim()) {
-      alert("Please enter your location before downloading.");
+      setErrorMessage("Location is required for PDF download");
+      setSaveStatus("error");
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setErrorMessage("");
+      }, 5000);
       return;
     }
+
     try {
       setIsDownloading(true);
       setSaveStatus("saving");
+      setErrorMessage("");
       const resumeToSave = {
         title:
           resumeData.title ||
@@ -633,22 +659,109 @@ const ResumeBuilder: React.FC = () => {
         throw new Error("Failed to get resume ID for export");
       }
       setSaveStatus("saved");
+      setErrorMessage("");
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch (error) {
       console.error("Error in handleDownloadPDF:", error);
       setSaveStatus("error");
-      alert("Failed to generate PDF. Please try again.");
+      setErrorMessage("Failed to generate PDF. Please make sure all required fields are filled and try again.");
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setErrorMessage("");
+      }, 5000);
     } finally {
       setIsDownloading(false);
     }
   }, [resumeData, user]);
+
+  const validateResume = (): { isValid: boolean; message: string } => {
+    const errors: string[] = [];
+
+    // Basic personal info validation
+    if (!resumeData.personalInfo?.fullName?.trim()) {
+      errors.push("Full name is required");
+    }
+    if (!resumeData.personalInfo?.email?.trim()) {
+      errors.push("Email address is required");
+    }
+    if (!resumeData.personalInfo?.phone?.trim()) {
+      errors.push("Phone number is required");
+    }
+
+    // Professional summary validation
+    if (!resumeData.summary?.trim()) {
+      errors.push("Professional summary is required");
+    }
+
+    // Experience validation
+    if (resumeData.experiences.length === 0) {
+      errors.push("At least one work experience is required");
+    } else {
+      resumeData.experiences.forEach((exp, index) => {
+        if (!exp.company?.trim()) {
+          errors.push(`Work experience #${index + 1}: Company name is required`);
+        }
+        if (!exp.title?.trim()) {
+          errors.push(`Work experience #${index + 1}: Job title is required`);
+        }
+      });
+    }
+
+    // Education validation
+    if (resumeData.education.length === 0) {
+      errors.push("At least one education entry is required");
+    } else {
+      resumeData.education.forEach((edu, index) => {
+        if (!edu.institution?.trim()) {
+          errors.push(`Education #${index + 1}: Institution name is required`);
+        }
+        if (!edu.degree?.trim()) {
+          errors.push(`Education #${index + 1}: Degree is required`);
+        }
+      });
+    }
+
+    // Skills validation
+    if (resumeData.skills.length === 0) {
+      errors.push("At least one skill is required");
+    }
+
+    if (errors.length > 0) {
+      return {
+        isValid: false,
+        message: errors.join("; ")
+      };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
   const handleSaveResume = useCallback(async () => {
     if (!user) {
-      alert("Please log in to save your resume.");
+      setErrorMessage("Please log in to save your resume");
+      setSaveStatus("error");
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setErrorMessage("");
+      }, 5000);
       return;
     }
+
+    // Validate resume data
+    const validation = validateResume();
+    if (!validation.isValid) {
+      setErrorMessage(validation.message);
+      setSaveStatus("error");
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setErrorMessage("");
+      }, 8000);
+      return;
+    }
+
     try {
       setSaveStatus("saving");
+      setErrorMessage("");
       const resumeToSave = {
         title:
           resumeData.title ||
@@ -687,11 +800,16 @@ const ResumeBuilder: React.FC = () => {
         await ResumeApi.createResume(resumeToSave);
       }
       setSaveStatus("saved");
+      setErrorMessage("");
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch (error) {
       console.error("Error saving resume:", error);
       setSaveStatus("error");
-      alert("Failed to save resume. Please try again.");
+      setErrorMessage("Failed to save resume. Please check your internet connection and try again.");
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setErrorMessage("");
+      }, 5000);
     }
   }, [resumeData, user]);
   if (isLoading) {
@@ -810,9 +928,14 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
           {saveStatus === "error" && (
-            <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md flex items-center">
-              <AlertCircle className="h-5 w-5 mr-2" />
-              An error occurred. Please try again.
+            <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
+              <div className="flex items-start">
+                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-medium mb-1">Unable to save resume</p>
+                  <p className="text-sm">{errorMessage || "An error occurred. Please try again."}</p>
+                </div>
+              </div>
             </div>
           )}
           <div className="w-full">
@@ -825,136 +948,123 @@ const ResumeBuilder: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-4">
                   <button
                     onClick={() => setActiveSection("personal")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "personal"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "personal"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     <span className="hidden sm:inline">Personal Info</span>
                     <span className="sm:hidden">Personal</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("summary")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "summary"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "summary"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Summary
                   </button>
                   <button
                     onClick={() => setActiveSection("experience")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "experience"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "experience"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Experience
                   </button>
                   <button
                     onClick={() => setActiveSection("education")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "education"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "education"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Education
                   </button>
                   <button
                     onClick={() => setActiveSection("skills")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "skills"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "skills"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Skills
                   </button>
                   <button
                     onClick={() => setActiveSection("projects")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "projects"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "projects"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Projects
                   </button>
                   <button
                     onClick={() => setActiveSection("certifications")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "certifications"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "certifications"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     <span className="hidden sm:inline">Certifications</span>
                     <span className="sm:hidden">Certs</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("awards")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "awards"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "awards"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Awards
                   </button>
                   <button
                     onClick={() => setActiveSection("languages")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "languages"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "languages"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     <span className="hidden sm:inline">Languages</span>
                     <span className="sm:hidden">Lang</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("publications")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "publications"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "publications"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     <span className="hidden sm:inline">Publications</span>
                     <span className="sm:hidden">Pubs</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("volunteer")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "volunteer"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "volunteer"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Volunteer
                   </button>
                   <button
                     onClick={() => setActiveSection("references")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "references"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "references"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     <span className="hidden sm:inline">References</span>
                     <span className="sm:hidden">Refs</span>
                   </button>
                   <button
                     onClick={() => setActiveSection("template")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-                      activeSection === "template"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "template"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     Template
                   </button>
@@ -1356,9 +1466,8 @@ const ResumeBuilder: React.FC = () => {
                                 })
                               }
                               disabled={exp.current}
-                              className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                exp.current ? "bg-gray-100" : ""
-                              }`}
+                              className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${exp.current ? "bg-gray-100" : ""
+                                }`}
                             />
                           </div>
                         </div>
@@ -1547,9 +1656,8 @@ const ResumeBuilder: React.FC = () => {
                               })
                             }
                             disabled={edu.current}
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                              edu.current ? "bg-gray-100" : ""
-                            }`}
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${edu.current ? "bg-gray-100" : ""
+                              }`}
                           />
                         </div>
                         <div>
@@ -2693,11 +2801,10 @@ const ResumeBuilder: React.FC = () => {
                 ].map((template) => (
                   <div
                     key={template.id}
-                    className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      resumeData.template === template.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${resumeData.template === template.id
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
                     onClick={() => {
                       setResumeData((prev) => ({
                         ...prev,

@@ -76,6 +76,11 @@ export type UserProfile = {
   avatar?: string;
   website?: string;
   resume?: ResumeData;
+  role?: string;
+  bio?: string;
+  location?: string;
+  github?: string;
+  linkedin?: string;
 };
 export type Subscription = {
   plan: string;
@@ -101,7 +106,7 @@ export type AuthContextType = {
     email: string,
     password: string,
     firstName: string,
-    lastName: string
+    lastName: string,
   ) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => void;

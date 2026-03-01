@@ -15,7 +15,7 @@ const GraduateTemplate = React.forwardRef<
         acc[skill.category] = [];
       }
       acc[skill.category].push(
-        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
       );
       return acc;
     }, {}) || {};
@@ -25,7 +25,6 @@ const GraduateTemplate = React.forwardRef<
       className={`bg-white p-8 font-sans text-gray-900 max-w-4xl mx-auto ${className}`}
       style={style}
     >
-
       <header className="text-center mb-8 pb-6 border-b-2 border-teal-600">
         <h1 className="text-4xl font-bold text-gray-900 mb-3">
           {data.personalInfo.fullName}
@@ -36,7 +35,10 @@ const GraduateTemplate = React.forwardRef<
           </p>
         )}
         <div className="flex flex-wrap justify-center gap-4 text-gray-700">
-          <span className="flex items-center">
+          <a
+            href={`mailto:${data.personalInfo.email}`}
+            className="flex items-center hover:text-teal-800 transition-colors"
+          >
             <svg
               className="w-4 h-4 mr-2 text-teal-600"
               fill="currentColor"
@@ -46,9 +48,12 @@ const GraduateTemplate = React.forwardRef<
               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
             </svg>
             {data.personalInfo.email}
-          </span>
+          </a>
           {data.personalInfo.phone && (
-            <span className="flex items-center">
+            <a
+              href={`tel:${data.personalInfo.phone}`}
+              className="flex items-center hover:text-teal-800 transition-colors"
+            >
               <svg
                 className="w-4 h-4 mr-2 text-teal-600"
                 fill="currentColor"
@@ -57,7 +62,7 @@ const GraduateTemplate = React.forwardRef<
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
               </svg>
               {data.personalInfo.phone}
-            </span>
+            </a>
           )}
           {data.personalInfo.location && (
             <span className="flex items-center">
@@ -78,9 +83,7 @@ const GraduateTemplate = React.forwardRef<
         </div>
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         <div className="lg:col-span-2 space-y-8">
-
           {data.summary && (
             <section>
               <h2 className="text-2xl font-bold text-teal-700 mb-4 pb-2 border-b border-teal-200">
@@ -227,7 +230,6 @@ const GraduateTemplate = React.forwardRef<
         </div>
 
         <div className="space-y-6">
-
           {Object.keys(skillsByCategory).length > 0 && (
             <section className="bg-teal-50 p-6 rounded-lg border border-teal-200">
               <h2 className="text-xl font-bold text-teal-700 mb-4">SKILLS</h2>

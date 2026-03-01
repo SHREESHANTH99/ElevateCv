@@ -13,7 +13,7 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
           acc[skill.category] = [];
         }
         acc[skill.category].push(
-          `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+          `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
         );
         return acc;
       }, {}) || {};
@@ -42,9 +42,27 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
               </p>
             )}
             <div className="space-y-1 text-sm">
-              <p>{`email: "${data.personalInfo.email}"`}</p>
+              <p>
+                {`email: "`}
+                <a
+                  href={`mailto:${data.personalInfo.email}`}
+                  className="text-cyan-400 hover:text-cyan-300"
+                >
+                  {data.personalInfo.email}
+                </a>
+                {`"`}
+              </p>
               {data.personalInfo.phone && (
-                <p>{`phone: "${data.personalInfo.phone}"`}</p>
+                <p>
+                  {`phone: "`}
+                  <a
+                    href={`tel:${data.personalInfo.phone}`}
+                    className="text-cyan-400 hover:text-cyan-300"
+                  >
+                    {data.personalInfo.phone}
+                  </a>
+                  {`"`}
+                </p>
               )}
               {data.personalInfo.location && (
                 <p>{`location: "${data.personalInfo.location}"`}</p>
@@ -146,9 +164,9 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
                               {exp.description.map((desc, descIndex) => (
                                 <p key={descIndex} className="text-green-300">
                                   "{desc}"
-                                  {descIndex < exp.description!.length - 1
-                                    ? ","
-                                    : ""}
+                                  {descIndex < exp.description!.length - 1 ?
+                                    ","
+                                  : ""}
                                 </p>
                               ))}
                             </div>
@@ -215,10 +233,12 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
                                     className="text-green-300"
                                   >
                                     "{tech}"
-                                    {techIndex <
-                                    project.technologies!.length - 1
-                                      ? ", "
-                                      : ""}
+                                    {(
+                                      techIndex <
+                                      project.technologies!.length - 1
+                                    ) ?
+                                      ", "
+                                    : ""}
                                   </span>
                                 ))}
                               </div>
@@ -268,7 +288,7 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
                             <span className="text-white">,</span>
                           )}
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                   <div className="text-yellow-400">{`}`}</div>
@@ -354,7 +374,7 @@ const TechTemplate = React.forwardRef<HTMLDivElement, TechTemplateProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 TechTemplate.displayName = "TechTemplate";
 export default TechTemplate;

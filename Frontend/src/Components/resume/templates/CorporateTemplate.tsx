@@ -15,7 +15,7 @@ const CorporateTemplate = React.forwardRef<
         acc[skill.category] = [];
       }
       acc[skill.category].push(
-        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
       );
       return acc;
     }, {}) || {};
@@ -38,8 +38,24 @@ const CorporateTemplate = React.forwardRef<
             )}
           </div>
           <div className="text-right text-slate-200 space-y-1">
-            <p>{data.personalInfo.email}</p>
-            {data.personalInfo.phone && <p>{data.personalInfo.phone}</p>}
+            <p>
+              <a
+                href={`mailto:${data.personalInfo.email}`}
+                className="hover:text-slate-100 transition-colors"
+              >
+                {data.personalInfo.email}
+              </a>
+            </p>
+            {data.personalInfo.phone && (
+              <p>
+                <a
+                  href={`tel:${data.personalInfo.phone}`}
+                  className="hover:text-slate-100 transition-colors"
+                >
+                  {data.personalInfo.phone}
+                </a>
+              </p>
+            )}
             {data.personalInfo.location && <p>{data.personalInfo.location}</p>}
           </div>
         </div>

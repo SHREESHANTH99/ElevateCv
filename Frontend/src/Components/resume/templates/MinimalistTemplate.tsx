@@ -15,7 +15,7 @@ const MinimalistTemplate = React.forwardRef<
         acc[skill.category] = [];
       }
       acc[skill.category].push(
-        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
       );
       return acc;
     }, {}) || {};
@@ -35,8 +35,20 @@ const MinimalistTemplate = React.forwardRef<
           </p>
         )}
         <div className="flex flex-wrap gap-6 text-sm text-gray-700">
-          <span>{data.personalInfo.email}</span>
-          {data.personalInfo.phone && <span>{data.personalInfo.phone}</span>}
+          <a
+            href={`mailto:${data.personalInfo.email}`}
+            className="hover:text-blue-600 transition-colors"
+          >
+            {data.personalInfo.email}
+          </a>
+          {data.personalInfo.phone && (
+            <a
+              href={`tel:${data.personalInfo.phone}`}
+              className="hover:text-blue-600 transition-colors"
+            >
+              {data.personalInfo.phone}
+            </a>
+          )}
           {data.personalInfo.location && (
             <span>{data.personalInfo.location}</span>
           )}

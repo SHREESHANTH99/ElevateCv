@@ -184,23 +184,6 @@ const ProfilePage: React.FC = () => {
       setLoading((prev) => ({ ...prev, resume: false }));
     }
   };
-  const formatDate = (dateString: string): string => {
-    if (!dateString) return "N/A";
-    try {
-      const options: Intl.DateTimeFormatOptions = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "UTC",
-      };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return "Invalid date";
-    }
-  };
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

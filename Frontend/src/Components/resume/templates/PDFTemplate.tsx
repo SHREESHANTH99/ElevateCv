@@ -10,7 +10,7 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
         acc[skill.category] = [];
       }
       acc[skill.category].push(
-        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+        `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
       );
       return acc;
     }, {}) || {};
@@ -29,23 +29,34 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
           </p>
         )}
         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-          <div className="flex items-center">
+          <a
+            href={`mailto:${data.personalInfo.email}`}
+            className="flex items-center hover:text-blue-600 transition-colors"
+          >
             <span className="mr-1">📧</span>
             {data.personalInfo.email}
-          </div>
-          <div className="flex items-center">
+          </a>
+          <a
+            href={`tel:${data.personalInfo.phone}`}
+            className="flex items-center hover:text-blue-600 transition-colors"
+          >
             <span className="mr-1">📱</span>
             {data.personalInfo.phone}
-          </div>
+          </a>
           <div className="flex items-center">
             <span className="mr-1">📍</span>
             {data.personalInfo.location}
           </div>
           {data.personalInfo.linkedin && (
-            <div className="flex items-center text-blue-600">
+            <a
+              href={data.personalInfo.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+            >
               <span className="mr-1">🔗</span>
               LinkedIn
-            </div>
+            </a>
           )}
           {data.personalInfo.website && (
             <div className="flex items-center text-blue-600">
@@ -149,7 +160,7 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
                     ))}
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
         </section>

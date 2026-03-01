@@ -13,7 +13,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
           acc[skill.category] = [];
         }
         acc[skill.category].push(
-          `${skill.name}${skill.level ? ` (${skill.level})` : ""}`
+          `${skill.name}${skill.level ? ` (${skill.level})` : ""}`,
         );
         return acc;
       }, {}) || {};
@@ -23,7 +23,6 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
         className={`bg-white p-10 font-sans text-gray-800 max-w-4xl mx-auto ${className}`}
         style={style}
       >
-
         <header className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 -mx-8 -mt-8 mb-8 rounded-b-lg shadow-sm">
           <h1 className="text-4xl font-bold text-gray-800 mb-2 tracking-tight">
             {data.personalInfo.fullName}
@@ -49,7 +48,10 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
               </svg>
               {data.personalInfo.email}
             </a>
-            <span className="flex items-center">
+            <a
+              href={`tel:${data.personalInfo.phone}`}
+              className="flex items-center hover:text-blue-600 transition-colors"
+            >
               <svg
                 className="w-4 h-4 mr-2"
                 fill="currentColor"
@@ -59,7 +61,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
               </svg>
               {data.personalInfo.phone}
-            </span>
+            </a>
             <span className="flex items-center">
               <svg
                 className="w-4 h-4 mr-2"
@@ -226,7 +228,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                       ))}
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
           </section>
@@ -387,13 +389,13 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                   <div className="text-sm text-gray-600">
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                        language.proficiency === "Native"
-                          ? "bg-green-100 text-green-800"
-                          : language.proficiency === "Fluent"
-                          ? "bg-blue-100 text-blue-800"
-                          : language.proficiency === "Conversational"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
+                        language.proficiency === "Native" ?
+                          "bg-green-100 text-green-800"
+                        : language.proficiency === "Fluent" ?
+                          "bg-blue-100 text-blue-800"
+                        : language.proficiency === "Conversational" ?
+                          "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
                       }`}
                     >
                       {language.proficiency}
@@ -516,7 +518,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
         )}
       </div>
     );
-  }
+  },
 );
 ModernTemplate.displayName = "ModernTemplate";
 export default ModernTemplate;
