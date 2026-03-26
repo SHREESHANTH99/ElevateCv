@@ -13,9 +13,6 @@ import {
   Download,
   Eye,
   ChevronRight,
-  Star,
-  Users,
-  TrendingUp,
 } from "lucide-react";
 
 const Landing: React.FC = () => {

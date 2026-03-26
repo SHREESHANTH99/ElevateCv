@@ -17,7 +17,6 @@ import {
   Github,
   Linkedin,
   Globe,
-  Sparkles,
   Edit3,
   Save,
   MapPin,

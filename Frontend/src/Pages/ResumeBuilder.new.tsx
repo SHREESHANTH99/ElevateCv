@@ -117,6 +117,15 @@ const ResumeBuilder: React.FC = () => {
       matchDetails: any;
     };
     context?: string;
+    metadata?: {
+      timings: {
+        foundation: number;
+        heavy_alignment: number;
+        total: number;
+      };
+      cached: boolean;
+      engine: string;
+    };
   } | null>(null);
   const [showPreview, setShowPreview] = useState(true);
   const [isLoading, setIsLoading] = useState(true);

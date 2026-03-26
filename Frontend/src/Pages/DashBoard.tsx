@@ -6,17 +6,12 @@ import {
   FileText,
   Target,
   Mail,
-  TrendingUp,
   Calendar,
-  Award,
-  Eye,
   Clock,
   Zap,
   Lightbulb,
   CheckCircle,
-  Star,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -313,7 +308,7 @@ const Dashboard: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="text-right mr-2">
-                        <div className={`text-sm font-bold ${resume.score >= 80 ? 'text-emerald-500' : resume.score >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                        <div className={`text-sm font-bold ${(resume.score || 0) >= 80 ? 'text-emerald-500' : (resume.score || 0) >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
                           {resume.score || 0}
                         </div>
                         <div className="text-[10px] text-zinc-600 uppercase tracking-wider">ATS Score</div>
