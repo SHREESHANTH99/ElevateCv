@@ -16,6 +16,9 @@ import {
   X,
   Download,
   Save,
+  Sparkles,
+  Target,
+  BarChart3,
 } from "lucide-react";
 import {
   ModernTemplate,
@@ -98,6 +101,23 @@ const ResumeBuilder: React.FC = () => {
     "idle" | "saving" | "saved" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [targetJobDescription, setTargetJobDescription] = useState("");
+  const [analysisResults, setAnalysisResults] = useState<{
+    score: number;
+    label: string;
+    color: string;
+    feedback: string[];
+    analysisBreakdown: any;
+    sectionScores: { [key: string]: number };
+    reasoning: { type: string; section: string; message: string }[];
+    match?: {
+      score: number;
+      missingSkills: string[];
+      matchDetails: any;
+    };
+    context?: string;
+  } | null>(null);
   const [showPreview, setShowPreview] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>("personal");
@@ -736,6 +756,88 @@ const ResumeBuilder: React.FC = () => {
     return { isValid: true, message: "" };
   };
 
+  const [analysisStatus, setAnalysisStatus] = useState("");
+
+  const handleAnalyze = async () => {
+    if (isAnalyzing || targetJobDescription.length < 50) return;
+    
+    setIsAnalyzing(true);
+    setAnalysisStatus("Initializing Intelligence Pipeline...");
+    
+    const statusTimers = [
+      setTimeout(() => setAnalysisStatus("Extracting Semantic Requirements..."), 800),
+      setTimeout(() => setAnalysisStatus("Calculating Role Alignment..."), 2200),
+      setTimeout(() => setAnalysisStatus("Calibrating Final Scoring..."), 4000)
+    ];
+
+    try {
+      const token = localStorage.getItem("authToken") || localStorage.getItem("token");
+      const url = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/ai/analyze-resume`;
+      
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          resumeData,
+          jobDescription: targetJobDescription 
+        })
+      });
+      
+      statusTimers.forEach(clearTimeout);
+      setAnalysisStatus("Finalizing Analysis...");
+
+      if (response.ok) {
+        const data = await response.json();
+        setAnalysisResults(data);
+        setActiveSection("analysis");
+      }
+    } catch (error) {
+      console.error("Analysis Pipeline Error:", error);
+      setAnalysisStatus("Connection Error. Retrying...");
+    } finally {
+      setIsAnalyzing(false);
+      setTimeout(() => setAnalysisStatus(""), 2000);
+    }
+  };
+
+  const improveBulletWithAI = async (experienceId: string, bulletIndex: number) => {
+    const experience = resumeData.experiences.find(e => e.id === experienceId);
+    if (!experience) return;
+    
+    const bullet = experience.description[bulletIndex];
+    if (!bullet || bullet.length < 10) return;
+
+    try {
+      const token = localStorage.getItem("authToken") || localStorage.getItem("token");
+      const resp = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/ai/improve-smart`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          section: "experience_bullet",
+          content: { bullet },
+          feedbackContext: analysisResults?.context || "Rewrite this bullet point to be more professional, using strong action verbs and including metrics or results if possible."
+        })
+      });
+      
+      if (resp.ok) {
+        const data = await resp.json();
+        const improvedBullet = data.improvedContent.bullet;
+        const newExperiences = [...resumeData.experiences];
+        const expIndex = newExperiences.findIndex(e => e.id === experienceId);
+        newExperiences[expIndex].description[bulletIndex] = improvedBullet;
+        setResumeData({ ...resumeData, experiences: newExperiences });
+      }
+    } catch (err) {
+      console.error("AI Improvement Error:", err);
+    }
+  };
+
   const handleSaveResume = useCallback(async () => {
     if (!user) {
       setErrorMessage("Please log in to save your resume");
@@ -969,6 +1071,7 @@ const ResumeBuilder: React.FC = () => {
                     { id: "volunteer", label: "Volunteer", short: "Volunteer" },
                     { id: "references", label: "References", short: "Refs" },
                     { id: "template", label: "Template", short: "Template" },
+                    { id: "analysis", label: "AI Analysis", short: "AI" },
                   ].map((section) => (
                     <button
                       key={section.id}
@@ -1392,24 +1495,58 @@ const ResumeBuilder: React.FC = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-zinc-400 mb-1">
-                          Job Description
-                        </label>
-                        <textarea
-                          value={exp.description.join("\n")}
-                          onChange={(e) => {
-                            const descriptions = e.target.value
-                              .split("\n")
-                              .filter((desc) => desc.trim() !== "");
-                            updateExperience(exp.id, {
-                              description:
-                                descriptions.length > 0 ? descriptions : [""],
-                            });
-                          }}
-                          className="input-dark"
-                          rows={4}
-                          placeholder="• Describe your key responsibilities and achievements&#10;• Use bullet points for better readability&#10;• Focus on quantifiable results when possible"
-                        />
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="block text-sm font-medium text-zinc-400">
+                            Job Description
+                          </label>
+                          <button 
+                            onClick={() => {
+                              const newDescriptions = [...exp.description, ""];
+                              updateExperience(exp.id, { description: newDescriptions });
+                            }}
+                            className="text-[10px] text-emerald-500 hover:text-emerald-400 uppercase font-bold tracking-widest flex items-center"
+                          >
+                            <Plus className="w-3 h-3 mr-1" /> Add Bullet
+                          </button>
+                        </div>
+                        <div className="space-y-3">
+                          {exp.description.map((bullet, bIdx) => (
+                            <div key={bIdx} className="relative group">
+                              <textarea
+                                value={bullet}
+                                onChange={(e) => {
+                                  const newDescriptions = [...exp.description];
+                                  newDescriptions[bIdx] = e.target.value;
+                                  updateExperience(exp.id, { description: newDescriptions });
+                                }}
+                                className="input-dark !pr-12 text-sm"
+                                rows={2}
+                                placeholder="Describe impact (e.g., Increased sales by 20%...)"
+                              />
+                              <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => improveBulletWithAI(exp.id, bIdx)}
+                                  className="p-1.5 bg-zinc-800 rounded-lg text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-lg"
+                                  title="Improve with AI"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                </button>
+                                {exp.description.length > 1 && (
+                                  <button
+                                    onClick={() => {
+                                      const newDescriptions = exp.description.filter((_, i) => i !== bIdx);
+                                      updateExperience(exp.id, { description: newDescriptions });
+                                    }}
+                                    className="p-1.5 bg-zinc-800 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                                    title="Remove Bullet"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -2740,6 +2877,193 @@ const ResumeBuilder: React.FC = () => {
                   the right.
                 </p>
               </div>
+            </div>
+          )}
+
+          {activeSection === "analysis" && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {/* Target Job Input Block */}
+              <div className="glass-card rounded-3xl p-6 lg:p-8 border-emerald-500/10 transition-all hover:border-emerald-500/30">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100">Specify Target Job</h2>
+                    <p className="text-zinc-500 text-xs">AI will align your scoring and matching to this role.</p>
+                  </div>
+                </div>
+                <textarea
+                  value={targetJobDescription}
+                  onChange={(e) => setTargetJobDescription(e.target.value)}
+                  placeholder="Paste the Job Description here (Min 50 chars for deep analysis)..."
+                  className="input-dark min-h-[120px] text-sm leading-relaxed"
+                />
+                <div className="mt-4 flex justify-end">
+                   <button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || targetJobDescription.length < 50}
+                    className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-xl font-bold shadow-xl hover:shadow-emerald-500/20 transition-all disabled:opacity-30 flex items-center group overflow-hidden relative"
+                  >
+                    <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
+                    {isAnalyzing ? (
+                      <div className="flex flex-col items-center">
+                        <Loader2 className="w-5 h-5 mb-2 animate-spin text-white" />
+                        <span className="text-[10px] font-medium tracking-widest uppercase opacity-70">{analysisStatus}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        <span>{isAnalyzing ? "Processing..." : "Analyze & Align Resume"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {analysisResults ? (
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                  {/* Left Column: ATS Score & Breakdown */}
+                    <div className="xl:col-span-4 space-y-6">
+                    <div className="glass-card p-8 rounded-3xl text-center relative overflow-hidden group border-emerald-500/20">
+                      {analysisResults.metadata?.cached && (
+                        <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                          <CheckCircle className="w-3 h-3 text-emerald-500" />
+                          <span className="text-[9px] font-black uppercase text-emerald-500 tracking-wider">Instant Cached</span>
+                        </div>
+                      )}
+                      
+                      {analysisResults.metadata?.timings && (
+                        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 text-[9px] font-mono text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span>Total: {analysisResults.metadata.timings.total}ms</span>
+                          <span>Align: {analysisResults.metadata.timings.heavy_alignment}ms</span>
+                        </div>
+                      )}
+                      
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors" />
+                      <div className="relative w-48 h-48 mx-auto mb-6">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                          <circle className="text-zinc-800" strokeWidth="6" stroke="currentColor" fill="transparent" r="44" cx="50" cy="50" />
+                          <circle 
+                            className="transition-all duration-1000 ease-out" 
+                            style={{ color: analysisResults.color || '#10b981' }}
+                            strokeWidth="6" 
+                            strokeDasharray={276.4}
+                            strokeDashoffset={276.4 - (276.4 * (analysisResults?.match?.score || analysisResults.score)) / 100}
+                            strokeLinecap="round" 
+                            stroke="currentColor" 
+                            fill="transparent" 
+                            r="44" cx="50" cy="50" 
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-5xl font-black text-white">{analysisResults?.match?.score || analysisResults.score}</span>
+                          <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mt-1">Intelligence Score</span>
+                        </div>
+                      </div>
+                      <div className="px-5 py-2 rounded-2xl border transition-all inline-block" 
+                           style={{ backgroundColor: `${analysisResults.color}15`, borderColor: `${analysisResults.color}30`, color: analysisResults.color }}>
+                        <span className="text-xs font-black uppercase tracking-[0.15em]">{analysisResults.label || 'Analyzing...'}</span>
+                      </div>
+                    </div>
+
+                    <div className="glass-card p-6 rounded-3xl space-y-4">
+                      <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-6 px-1">Section Analysis</h3>
+                      {Object.entries(analysisResults.sectionScores || {}).map(([section, val], i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-zinc-400 capitalize">{section}</span>
+                            <span className={val > 70 ? 'text-emerald-400' : 'text-amber-400'}>{val}%</span>
+                          </div>
+                          <div className="h-1.5 bg-zinc-800/50 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full transition-all duration-1000" 
+                              style={{ 
+                                width: `${val}%`, 
+                                backgroundColor: val > 70 ? '#10b98199' : '#f59e0b99'
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Feedback & Skills Gap */}
+                  <div className="xl:col-span-8 space-y-8">
+                    {/* Job Match Module */}
+                    {analysisResults?.match && (
+                      <div className="glass-card rounded-3xl p-6 border-cyan-500/10">
+                        <div className="flex items-center justify-between mb-6">
+                           <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-cyan-500/10 rounded-xl flex items-center justify-center">
+                                <Target className="w-4 h-4 text-cyan-500" />
+                              </div>
+                              <h3 className="text-sm font-black uppercase tracking-widest text-cyan-500">Semantic Accuracy</h3>
+                           </div>
+                          <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest">{analysisResults.match.score}% match</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                           <div className="p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                            <p className="text-[10px] font-bold text-emerald-500 uppercase mb-3 px-1">Verified Skills</p>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResults.match.matchDetails?.["Job Skills"]?.filter((s: string) => !analysisResults.match?.missingSkills.includes(s)).map((skill: string, i: number) => (
+                                <span key={i} className="px-2 py-1 bg-emerald-400/10 text-emerald-400 rounded text-[10px] font-bold border border-emerald-400/10">{skill}</span>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="p-4 bg-rose-500/5 rounded-2xl border border-rose-500/10">
+                            <p className="text-[10px] font-bold text-rose-500 uppercase mb-3 px-1">Detected Skill Gaps</p>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResults.match.missingSkills.map((skill: string, i: number) => (
+                                <span key={i} className="px-2 py-1 bg-rose-500/10 text-rose-400 rounded text-[10px] font-bold border border-rose-500/10 flex items-center">
+                                  <Plus className="w-2.5 h-2.5 mr-1" /> {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Explainability Layer */}
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 px-1">Score Reasoning & Roadmap</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        {(analysisResults.reasoning || []).map((reason, i) => (
+                          <div key={i} className="flex items-start p-5 bg-zinc-900/40 rounded-3xl border border-zinc-800/50 hover:border-blue-500/20 transition-all group">
+                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0 transition-colors ${
+                                reason.type === 'critical' ? 'bg-rose-500/10' : 'bg-blue-500/10'
+                            }`}>
+                              {reason.type === 'critical' ? 
+                                <AlertCircle className="w-5 h-5 text-rose-500" /> : 
+                                <BarChart3 className="w-5 h-5 text-blue-500" />
+                              }
+                            </div>
+                            <div className="flex-1">
+                               <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{reason.section}</span>
+                                  {reason.type === 'critical' && <span className="text-[8px] bg-rose-500 text-white px-1.5 py-0.5 rounded-full font-bold uppercase">Critical</span>}
+                               </div>
+                              <p className="text-sm text-zinc-300 leading-relaxed font-medium">{reason.message}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Intelligent Loop - Copy text */}
+                    <div className="p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 relative group">
+                       <Sparkles className="absolute top-4 right-4 w-5 h-5 text-emerald-500/20 group-hover:text-emerald-500/40 transition-colors" />
+                       <h4 className="text-[11px] font-black uppercase text-emerald-500 mb-2">Optimization Context</h4>
+                       <p className="text-xs text-zinc-400 italic">"Use this context when clicking 'Improve with AI' in the editor for better results."</p>
+                       <div className="mt-3 p-3 bg-zinc-950 rounded-xl text-[11px] text-emerald-400/70 font-mono border border-emerald-500/5">
+                          {analysisResults.context}
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
         </div>

@@ -19,7 +19,9 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@types/uuid": "^10.0.0",
+    "axios": "^1.13.6",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",

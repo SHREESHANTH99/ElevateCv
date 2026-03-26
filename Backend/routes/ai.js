@@ -1,1 +1,279 @@
-const express = require("express");const { body, validationResult } = require("express-validator");const auth = require("../middleware/auth");const router = express.Router();router.post(  "/suggestions",  auth,  [    body("section").isIn([      "personal",      "summary",      "experience",      "education",      "skills",      "projects",    ]),    body("currentData").isObject(),  ],  async (req, res) => {    try {      const errors = validationResult(req);      if (!errors.isEmpty()) {        return res.status(400).json({          message: "Validation failed",          errors: errors.array(),        });      }      const { section, currentData } = req.body;      const suggestions = await generateAISuggestions(section, currentData);      res.json({        suggestions,        section,        timestamp: new Date().toISOString(),      });    } catch (error) {      console.error("AI suggestions error:", error);      res        .status(500)        .json({ message: "Server error while generating suggestions" });    }  });router.post(  "/optimize",  auth,  [    body("resumeData").isObject(),    body("jobDescription").isString().isLength({ min: 50 }),  ],  async (req, res) => {    try {      const errors = validationResult(req);      if (!errors.isEmpty()) {        return res.status(400).json({          message: "Validation failed",          errors: errors.array(),        });      }      const { resumeData, jobDescription } = req.body;      const optimization = await generateOptimizationSuggestions(        resumeData,        jobDescription      );      res.json({        optimization,        timestamp: new Date().toISOString(),      });    } catch (error) {      console.error("AI optimization error:", error);      res.status(500).json({ message: "Server error while optimizing resume" });    }  });async function generateAISuggestions(section, currentData) {  try {    const suggestions = {      personal: [        "Consider adding a professional LinkedIn profile URL to increase your online presence",        "Include a personal website or portfolio if you have one to showcase your work",        "Make sure your phone number is formatted consistently (e.g., +1 (555) 123-4567)",        "Use a professional email address that includes your name",      ],      summary: [        "Start with your years of experience and key expertise areas",        "Include 2-3 specific achievements with quantifiable results",        "Mention your career objective or what you're seeking",        "Keep it concise - aim for 3-4 sentences maximum",        "Use action verbs and industry-specific keywords",      ],      experience: [        "Start each bullet point with a strong action verb (Led, Developed, Implemented)",        "Quantify your achievements with numbers, percentages, or dollar amounts",        "Focus on results and impact rather than just responsibilities",        "Use industry-specific keywords from job postings you're targeting",        "Keep descriptions concise but impactful - 1-2 lines per bullet point",      ],      education: [        "Include relevant coursework if you're a recent graduate",        "Add academic achievements like Dean's List, honors, or scholarships",        "Mention relevant projects or thesis work if applicable",        "Include study abroad or exchange programs if relevant",        "Add certifications or professional development courses",      ],      skills: [        "Group skills by category (Technical, Soft Skills, Languages)",        "Be specific about skill levels (Beginner, Intermediate, Advanced, Expert)",        "Include both hard and soft skills",        "Add industry-specific tools and software",        "Consider adding skills mentioned in job postings you're targeting",      ],      projects: [        "Include a brief description of the problem you solved",        "Mention the technologies and tools you used",        "Highlight the impact or results of your project",        "Add links to live demos or GitHub repositories",        "Include team size and your specific role if it was a group project",      ],    };    const baseSuggestions = suggestions[section] || [];    const contextualSuggestions = generateContextualSuggestions(      section,      currentData    );    return [...baseSuggestions, ...contextualSuggestions];  } catch (error) {    console.error("AI suggestions error:", error);    throw error;  }}function generateContextualSuggestions(section, currentData) {  const suggestions = [];  switch (section) {    case "personal":      if (!currentData.linkedin) {        suggestions.push(          "Consider adding your LinkedIn profile to increase professional visibility"        );      }      if (!currentData.website) {        suggestions.push(          "A personal website or portfolio can significantly enhance your application"        );      }      break;    case "summary":      if (currentData.length < 50) {        suggestions.push(          "Your summary seems too short. Consider adding more details about your experience and achievements"        );      }      if (currentData.length > 200) {        suggestions.push(          "Your summary might be too long. Try to keep it concise and impactful"        );      }      break;    case "experience":      if (currentData.length === 0) {        suggestions.push(          "Add at least one work experience, even if it's an internship or volunteer work"        );      }      break;    case "education":      if (currentData.length === 0) {        suggestions.push(          "Include your educational background, even if you're self-taught or have alternative education"        );      }      break;    case "skills":      if (currentData.length < 5) {        suggestions.push(          "Consider adding more skills to showcase your versatility"        );      }      break;    case "projects":      if (currentData.length === 0) {        suggestions.push(          "Personal or academic projects can demonstrate your practical skills and initiative"        );      }      break;  }  return suggestions;}async function generateOptimizationSuggestions(resumeData, jobDescription) {  try {    const jobKeywords = extractKeywords(jobDescription);    const resumeText = JSON.stringify(resumeData).toLowerCase();    const missingKeywords = Object.keys(jobKeywords).filter(      (keyword) => !resumeText.includes(keyword.toLowerCase())    );    const suggestions = [];    if (missingKeywords.length > 0) {      suggestions.push({        type: "missing_keywords",        title: "Missing Keywords",        description:          "These keywords from the job description are not found in your resume:",        items: missingKeywords.slice(0, 10),        priority: "high",      });    }    suggestions.push({      type: "general",      title: "General Optimization Tips",      description:        "Consider these improvements to better match the job requirements:",      items: [        "Tailor your summary to match the job description",        "Highlight relevant experience that aligns with the role",        "Use similar terminology and keywords from the job posting",        "Quantify your achievements with specific numbers",        "Ensure your skills section includes required technologies",      ],      priority: "medium",    });    return {      matchScore: calculateMatchScore(resumeData, jobDescription),      suggestions,      jobKeywords: Object.keys(jobKeywords).slice(0, 20),    };  } catch (error) {    console.error("AI optimization error:", error);    throw error;  }}function extractKeywords(text) {  const commonWords = [    "the",    "and",    "or",    "but",    "in",    "on",    "at",    "to",    "for",    "of",    "with",    "by",    "a",    "an",    "is",    "are",    "was",    "were",    "be",    "been",    "have",    "has",    "had",    "do",    "does",    "did",    "will",    "would",    "could",    "should",  ];  return text    .toLowerCase()    .replace(/[^\w\s]/g, " ")    .split(/\s+/)    .filter((word) => word.length > 3 && !commonWords.includes(word))    .reduce((acc, word) => {      acc[word] = (acc[word] || 0) + 1;      return acc;    }, {});}function calculateMatchScore(resumeData, jobDescription) {  const jobKeywords = Object.keys(extractKeywords(jobDescription));  const resumeText = JSON.stringify(resumeData).toLowerCase();  const matchedKeywords = jobKeywords.filter((keyword) =>    resumeText.includes(keyword.toLowerCase())  );  const matchPercentage =    jobKeywords.length > 0      ? Math.round((matchedKeywords.length / jobKeywords.length) * 100)      : 0;  return {    percentage: matchPercentage,    matched: matchedKeywords.length,    total: jobKeywords.length,  };}router.post(  "/analyze-uploaded",  auth,  [    body("resumeContent").isString().isLength({ min: 50 }),    body("jobDescription").isString().isLength({ min: 50 }),  ],  async (req, res) => {    try {      const errors = validationResult(req);      if (!errors.isEmpty()) {        return res.status(400).json({          message: "Validation failed",          errors: errors.array(),        });      }      const { resumeContent, jobDescription } = req.body;      const resumeData = {        summary: resumeContent,        experiences: [],        skills: [],        education: [],      };      const optimization = await generateOptimizationSuggestions(        resumeData,        jobDescription      );      res.json({        optimization,        timestamp: new Date().toISOString(),      });    } catch (error) {      console.error("AI analyze uploaded error:", error);      res        .status(500)        .json({ message: "Server error while analyzing uploaded resume" });    }  });module.exports = router;
+const express = require("express");
+const { body, validationResult } = require("express-validator");
+const auth = require("../middleware/auth");
+const { parseResumeWithAI } = require("../utils/geminiParser");
+const { getEmbedding, getSimilarity } = require("../utils/aiServiceConnector");
+const { scoreResume } = require("../utils/resumeScorer");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const router = express.Router();
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const { normalizeSkills } = require("../utils/skillExtractor");
+
+router.get("/test", (req, res) => {
+  res.json({ status: "Route verified", context: "AI Routes Online" });
+});
+
+const { getCachedResult } = require("../utils/resultCache");
+
+/**
+ * 👑 THE CENTRAL ORCHESTRATOR (PHASE 1.75 UPGRADE)
+ * Highly optimized, parallelized, and cached intelligence pipeline.
+ */
+router.post("/analyze-resume", auth, async (req, res) => {
+  const startTime = Date.now();
+  const timings = {};
+
+  try {
+    const { resumeData, jobDescription } = req.body;
+    if (!resumeData) return res.status(400).json({ message: "Resume data is required" });
+
+    // Use Result Caching (Hash of Resume + Job)
+    const finalResult = await getCachedResult(resumeData, jobDescription, async () => {
+      // 1. Light Processing (Scoring & Normalization)
+      const sectionStart = Date.now();
+      const analysis = scoreResume(resumeData, jobDescription);
+      const rawSkills = resumeData.skills?.map(s => s.name) || [];
+      const normalizedSkills = normalizeSkills(rawSkills);
+      timings.foundation = Date.now() - sectionStart;
+
+      let jobMatchInfo = null;
+      let matchScore = 0;
+      let missingSkills = [];
+
+      // 2. Heavy Processing (Parallelize LLM and Similarity)
+      if (jobDescription) {
+        const heavyStart = Date.now();
+        
+        // Parallelized tasks: LLM skill extraction AND semantic embedding match
+        const [llmResult, similarity] = await Promise.all([
+          // Task A: Skill Extraction via Gemini
+          (async () => {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const prompt = `Extract skills/reqs from: ${jobDescription}. Return EXCLUSIVELY JSON: {"Job Skills":[], "Experience":""}`;
+            const res = await model.generateContent(prompt);
+            const text = (await res.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
+            return JSON.parse(text);
+          })(),
+          // Task B: Semantic Similarity via Python service (Cached in aiServiceConnector)
+          getSimilarity(JSON.stringify(resumeData), jobDescription)
+        ]);
+
+        jobMatchInfo = llmResult;
+        const jobSkills = normalizeSkills(jobMatchInfo["Job Skills"] || []);
+        const matched = jobSkills.filter(s => normalizedSkills.includes(s));
+        missingSkills = jobSkills.filter(s => !normalizedSkills.includes(s));
+
+        const skillScore = jobSkills.length > 0 ? (matched.length / jobSkills.length) : 1;
+        matchScore = Math.round((similarity * 0.5 + skillScore * 0.5) * 100);
+        
+        timings.heavy_alignment = Date.now() - heavyStart;
+      }
+
+      // 3. Assemble Suggestion Context
+      const improvementContext = `
+        ATS Score: ${analysis.score} (${analysis.label})
+        Feedback: ${analysis.feedback.slice(0, 2).join(". ")}
+        ${missingSkills.length > 0 ? "Missing: " + missingSkills.slice(0, 3).join(", ") : ""}
+      `;
+
+      return {
+        score: analysis.score,
+        label: analysis.label,
+        color: analysis.color,
+        sectionScores: analysis.sectionScores,
+        reasoning: analysis.reasoning,
+        feedback: analysis.feedback,
+        match: jobDescription ? {
+          score: matchScore,
+          missingSkills,
+          matchDetails: jobMatchInfo
+        } : null,
+        context: improvementContext
+      };
+    });
+
+    // Add Latency Metadata
+    timings.total = Date.now() - startTime;
+    res.json({
+      ...finalResult,
+      pipelineId: Date.now(),
+      metadata: {
+        timings,
+        cached: finalResult.cached || false,
+        engine: "ElevateCV-v1.75-Parallel"
+      }
+    });
+
+  } catch (error) {
+    console.error("Orchestration Pipeline Error:", error);
+    res.status(500).json({ message: "Intelligence pipeline failure" });
+  }
+});
+
+/**
+ * 🔗 SMART IMPROVEMENT: Score-Aware Generator
+ */
+router.post("/improve-smart", auth, async (req, res) => {
+  try {
+    const { section, content, feedbackContext } = req.body;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    // Inject the intelligent "feedback loop" into the prompt
+    const prompt = `
+      You are a professional resume optimizer.
+      Section: ${section}
+      Current Content: ${JSON.stringify(content)}
+      
+      CRITICAL FEEDBACK TO ADDRESS:
+      ${feedbackContext || "General optimization for professional quality."}
+      
+      Task: Improve the content specifically to address the feedback. 
+      Use stronger action verbs, add metrics where requested, and ensure professional phrasing.
+      Return EXCLUSIVELY the improved JSON object.
+    `;
+    
+    const result = await model.generateContent(prompt);
+    const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
+    res.json({ improvedContent: JSON.parse(text) });
+  } catch (error) {
+    console.error("Smart Improve Error:", error);
+    res.status(500).json({ message: "Failed to improve with context" });
+  }
+});
+
+/**
+ * 🧩 1. RESUME PARSING LAYER
+ */
+router.post("/parse-resume", auth, async (req, res) => {
+  try {
+    const { rawText } = req.body;
+    if (!rawText) return res.status(400).json({ message: "Raw text is required" });
+    const parsedData = await parseResumeWithAI(rawText);
+    res.json({ parsedData });
+  } catch (error) {
+    console.error("AI Parse Error:", error);
+    res.status(500).json({ message: "Failed to parse resume" });
+  }
+});
+
+/**
+ * 🔍 3. JOB MATCHER ENGINE (CORE FEATURE)
+ */
+router.post(
+  "/match-job",
+  auth,
+  [
+    body("resumeData").isObject(),
+    body("jobDescription").isString().isLength({ min: 50 }),
+  ],
+  async (req, res) => {
+    try {
+      const { resumeData, jobDescription } = req.body;
+
+      // 1. Extract job keywords using LLM
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const prompt = `
+        Job Description:
+        ${jobDescription}
+
+        Extract EXACTLY:
+        1. "Job Skills": array of technical skills
+        2. "Experience": Required years or level
+        3. "Primary Responsibilities": top 3 bullets
+        Return JSON format.
+      `;
+      const result = await model.generateContent(prompt);
+      const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
+      const jobMatchInfo = JSON.parse(text);
+
+      // 2. Semantic Similarity via Python Service
+      const similarity = await getSimilarity(JSON.stringify(resumeData), jobDescription);
+
+      // 3. Keyword Overlap
+      const resumeSkills = resumeData.skills?.map(s => s.name.toLowerCase()) || [];
+      const jobSkills = jobMatchInfo["Job Skills"]?.map(s => s.toLowerCase()) || [];
+      const matchedSkills = jobSkills.filter(s => resumeSkills.some(rs => rs.includes(s) || s.includes(rs)));
+      const missingSkills = jobSkills.filter(s => !matchedSkills.includes(s));
+
+      res.json({
+        matchScore: Math.round(similarity * 100),
+        matchedSkills,
+        missingSkills,
+        jobMatchInfo,
+        suggestions: [
+          `Focus on ${missingSkills.slice(0, 3).join(", ")} to improve your match score.`,
+          "Tailor your profile using these extracted job responsibilities."
+        ]
+      });
+    } catch (error) {
+      console.error("AI Job Match Error:", error);
+      res.status(500).json({ message: "Failed to match job" });
+    }
+  }
+);
+
+/**
+ * 📊 4. RESUME SCORING ENGINE (ATS SIMULATION)
+ */
+router.post("/score-resume", auth, async (req, res) => {
+  try {
+    const { resumeData, jobDescription } = req.body;
+    const analysis = scoreResume(resumeData, jobDescription);
+    res.json(analysis);
+  } catch (error) {
+    console.error("AI Scoring Error:", error);
+    res.status(500).json({ message: "Failed to score resume" });
+  }
+});
+
+/**
+ * 🤖 5. CONTROLLED AI GENERATION PIPELINE
+ */
+router.post("/improve-resume", auth, async (req, res) => {
+  try {
+    const { section, content, context } = req.body;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const prompt = `
+      Task: Improve this resume section.
+      Section: ${section}
+      Content: ${JSON.stringify(content)}
+      Context: ${context || "Optimize for impact and professional clarity."}
+
+      Output: EXCLUSIVELY a JSON object with the improved content.
+      Format: Same as the input JSON.
+    `;
+    
+    const result = await model.generateContent(prompt);
+    const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
+    const improvedContent = JSON.parse(text);
+    
+    res.json({ improvedContent });
+  } catch (error) {
+    console.error("AI Improve Error:", error);
+    res.status(500).json({ message: "Failed to improve content" });
+  }
+});
+
+/**
+ * Compatibility Aliases for Frontend (if any)
+ */
+router.post("/optimize", auth, async (req, res) => {
+  // Alias for match-job to avoid breaking mobile/old web
+  res.redirect(307, "./match-job");
+});
+
+router.post("/suggestions", auth, async (req, res) => {
+  // Mock generic suggestions as before but using the new scorer logic
+  try {
+    const { section, currentData } = req.body;
+    const analysis = scoreResume({ [section]: currentData });
+    res.json({ suggestions: analysis.feedback, section });
+  } catch (error) {
+    res.status(500).json({ message: "Failure in suggestions" });
+  }
+});
+
+module.exports = router;

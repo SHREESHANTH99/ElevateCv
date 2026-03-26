@@ -31,6 +31,11 @@ interface Resume {
   matchScore?: number;
   updatedAt: string;
   createdAt: string;
+  score?: number;
+  analysis?: {
+    feedback: string[];
+    breakdown: any;
+  };
 }
 
 class DashboardAPI {
@@ -308,10 +313,10 @@ const Dashboard: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="text-right mr-2">
-                        <div className="text-sm font-semibold text-zinc-300">
-                          {resume.matchScore ? `${resume.matchScore}%` : "N/A"}
+                        <div className={`text-sm font-bold ${resume.score >= 80 ? 'text-emerald-500' : resume.score >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                          {resume.score || 0}
                         </div>
-                        <div className="text-xs text-zinc-600">Match</div>
+                        <div className="text-[10px] text-zinc-600 uppercase tracking-wider">ATS Score</div>
                       </div>
                       <Link
                         to={`/resume/builder/${resume._id}`}
