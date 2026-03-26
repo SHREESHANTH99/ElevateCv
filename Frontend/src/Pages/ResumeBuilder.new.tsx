@@ -814,55 +814,62 @@ const ResumeBuilder: React.FC = () => {
   }, [resumeData, user]);
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="flex flex-col items-center justify-center h-screen bg-zinc-950">
+        <div className="relative w-16 h-16 mb-4">
+          <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="text-zinc-400 font-medium animate-pulse">Loading Builder...</p>
       </div>
     );
   }
+
   return (
-    <div className="min-h-screen bg-gray-100 pb-20 lg:pb-0">
-      <div className="bg-white shadow-sm">
+    <div className="min-h-screen bg-zinc-950 pb-20 lg:pb-0 text-zinc-100 pt-20">
+      <div className="glass sticky top-20 z-40 border-b border-zinc-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Resume Builder
-            </h1>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold gradient-text">
+                Resume Builder
+              </h1>
+              <p className="text-xs text-zinc-500 mt-1">Design your professional future</p>
+            </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setShowPreview(!showPreview)}
-                className="inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex-1 sm:flex-none justify-center"
+                className="inline-flex items-center px-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all duration-300 flex-1 sm:flex-none justify-center group"
               >
-                <Eye className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Full Preview</span>
-                <span className="sm:hidden">Preview</span>
+                <Eye className="h-4 w-4 mr-2 group-hover:text-emerald-500 transition-colors" />
+                Preview
               </button>
               <button
                 onClick={handleSaveResume}
                 disabled={saveStatus === "saving"}
-                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 flex-1 sm:flex-none justify-center"
+                className="inline-flex items-center px-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all duration-300 disabled:opacity-50 flex-1 sm:flex-none justify-center group"
               >
                 {saveStatus === "saving" ? (
-                  <Loader2 className="animate-spin h-4 w-4 mr-1 sm:mr-2" />
+                  <Loader2 className="animate-spin h-4 w-4 mr-2 text-emerald-500" />
                 ) : (
-                  <Save className="h-4 w-4 mr-1 sm:mr-2" />
+                  <Save className="h-4 w-4 mr-2 group-hover:text-emerald-500 transition-colors" />
                 )}
                 {saveStatus === "saving" ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={handleDownloadPDF}
                 disabled={isDownloading}
-                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 flex-1 sm:flex-none justify-center"
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 rounded-xl text-sm font-semibold text-white transition-all duration-300 disabled:opacity-50 flex-1 sm:flex-none justify-center group"
               >
                 {isDownloading ? (
-                  <Loader2 className="animate-spin h-4 w-4 mr-1 sm:mr-2" />
+                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
                 ) : (
-                  <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                  <Download className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
                 )}
                 <span className="hidden sm:inline">
                   {isDownloading ? "Generating..." : "Download PDF"}
                 </span>
                 <span className="sm:hidden">
-                  {isDownloading ? "Gen..." : "PDF"}
+                  {isDownloading ? "..." : "PDF"}
                 </span>
               </button>
             </div>
@@ -897,12 +904,12 @@ const ResumeBuilder: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white border-b border-gray-200">
+      <div className="glass border-b border-zinc-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="w-full max-w-md">
             <label
               htmlFor="resume-title"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-zinc-400 mb-2"
             >
               Resume Title
             </label>
@@ -914,184 +921,80 @@ const ResumeBuilder: React.FC = () => {
                 setResumeData((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder="My Resume"
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="input-dark !py-2.5"
             />
           </div>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <div className="max-w-7xl mx-auto py-4 lg:py-8">
           {saveStatus === "saved" && (
-            <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-md flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2" />
-              Resume saved successfully!
+            <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center animate-in fade-in slide-in-from-top-4">
+              <CheckCircle className="h-5 w-5 mr-3" />
+              <span className="text-sm font-medium">Resume saved successfully!</span>
             </div>
           )}
           {saveStatus === "error" && (
-            <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl animate-in fade-in slide-in-from-top-4">
               <div className="flex items-start">
-                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="font-medium mb-1">Unable to save resume</p>
-                  <p className="text-sm">{errorMessage || "An error occurred. Please try again."}</p>
+                  <p className="font-semibold text-sm mb-1">Unable to save resume</p>
+                  <p className="text-xs opacity-80">{errorMessage || "An error occurred. Please try again."}</p>
                 </div>
               </div>
             </div>
           )}
+
           <div className="w-full">
             <div className="w-full">
-
-              <div className="bg-white rounded-lg shadow p-4 lg:p-6 mb-4 lg:mb-8">
-                <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
+              <div className="glass-card rounded-2xl p-4 lg:p-6 mb-6 lg:mb-10">
+                <h2 className="text-lg lg:text-xl font-bold mb-6 flex items-center">
+                  <div className="w-1.5 h-6 bg-emerald-500 rounded-full mr-3" />
                   Resume Sections
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-4">
-                  <button
-                    onClick={() => setActiveSection("personal")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "personal"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
+                  {[
+                    { id: "personal", label: "Personal Info", short: "Personal" },
+                    { id: "summary", label: "Summary", short: "Summary" },
+                    { id: "experience", label: "Experience", short: "Experience" },
+                    { id: "education", label: "Education", short: "Education" },
+                    { id: "skills", label: "Skills", short: "Skills" },
+                    { id: "projects", label: "Projects", short: "Projects" },
+                    { id: "certifications", label: "Certifications", short: "Certs" },
+                    { id: "awards", label: "Awards", short: "Awards" },
+                    { id: "languages", label: "Languages", short: "Lang" },
+                    { id: "publications", label: "Publications", short: "Pubs" },
+                    { id: "volunteer", label: "Volunteer", short: "Volunteer" },
+                    { id: "references", label: "References", short: "Refs" },
+                    { id: "template", label: "Template", short: "Template" },
+                  ].map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => setActiveSection(section.id)}
+                      className={`p-3 rounded-xl text-xs lg:text-sm font-semibold transition-all duration-300 border ${
+                        activeSection === section.id
+                          ? "bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border-emerald-500/50 text-emerald-400 shadow-lg shadow-emerald-500/10"
+                          : "bg-zinc-900/50 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
                       }`}
-                  >
-                    <span className="hidden sm:inline">Personal Info</span>
-                    <span className="sm:hidden">Personal</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("summary")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "summary"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Summary
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("experience")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "experience"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Experience
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("education")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "education"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Education
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("skills")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "skills"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Skills
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("projects")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "projects"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Projects
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("certifications")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "certifications"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    <span className="hidden sm:inline">Certifications</span>
-                    <span className="sm:hidden">Certs</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("awards")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "awards"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Awards
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("languages")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "languages"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    <span className="hidden sm:inline">Languages</span>
-                    <span className="sm:hidden">Lang</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("publications")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "publications"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    <span className="hidden sm:inline">Publications</span>
-                    <span className="sm:hidden">Pubs</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("volunteer")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "volunteer"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Volunteer
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("references")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "references"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    <span className="hidden sm:inline">References</span>
-                    <span className="sm:hidden">Refs</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("template")}
-                    className={`p-2 lg:p-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${activeSection === "template"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    Template
-                  </button>
+                    >
+                      <span className="hidden sm:inline">{section.label}</span>
+                      <span className="sm:hidden">{section.short}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
-            {saveStatus === "saved" && (
-              <span className="text-green-500 flex items-center">
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Saved at {new Date().toLocaleTimeString()}
-              </span>
-            )}
-            {saveStatus === "error" && (
-              <span className="text-red-500 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                Error saving changes
-              </span>
-            )}
-          </div>
+
           {activeSection === "personal" && (
-            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
-              <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
+            <div className="glass-card rounded-2xl p-6 lg:p-8 animate-in fade-in duration-500">
+              <h2 className="text-lg lg:text-xl font-bold mb-8 flex items-center text-zinc-100">
+                <div className="w-1 h-5 bg-emerald-500 rounded-full mr-3" />
                 Personal Information
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     Full Name
                   </label>
                   <input
@@ -1106,12 +1009,12 @@ const ResumeBuilder: React.FC = () => {
                         },
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="input-dark"
                     placeholder="John Doe"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     Email
                   </label>
                   <input
@@ -1126,12 +1029,12 @@ const ResumeBuilder: React.FC = () => {
                         },
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="input-dark"
                     placeholder="john@example.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     Phone
                   </label>
                   <input
@@ -1146,12 +1049,12 @@ const ResumeBuilder: React.FC = () => {
                         },
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="input-dark"
                     placeholder="(123) 456-7890"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     Location
                   </label>
                   <input
@@ -1166,12 +1069,12 @@ const ResumeBuilder: React.FC = () => {
                         },
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="input-dark"
                     placeholder="City, Country"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     Professional Headline
                   </label>
                   <input
@@ -1186,16 +1089,16 @@ const ResumeBuilder: React.FC = () => {
                         },
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="input-dark text-sm"
                     placeholder="e.g., Senior Software Engineer"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     LinkedIn
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-zinc-500 text-sm">
                       linkedin.com/in/
                     </span>
                     <input
@@ -1210,13 +1113,13 @@ const ResumeBuilder: React.FC = () => {
                           },
                         }))
                       }
-                      className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="input-dark !rounded-l-none text-sm"
                       placeholder="username"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     Website
                   </label>
                   <input
@@ -1231,16 +1134,16 @@ const ResumeBuilder: React.FC = () => {
                         },
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="input-dark"
                     placeholder="https://example.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     GitHub
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-zinc-500 text-sm">
                       github.com/
                     </span>
                     <input
@@ -1261,11 +1164,11 @@ const ResumeBuilder: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">
                     Twitter
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-zinc-500 text-sm">
                       twitter.com/
                     </span>
                     <input
@@ -1287,7 +1190,7 @@ const ResumeBuilder: React.FC = () => {
                 </div>
               </div>
               <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-zinc-400 mb-1">
                   Professional Summary
                 </label>
                 <textarea
@@ -1298,7 +1201,7 @@ const ResumeBuilder: React.FC = () => {
                       summary: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="input-dark text-sm"
                   rows={4}
                   placeholder="Write a brief professional summary highlighting your key skills and experience..."
                 />
@@ -1306,13 +1209,13 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
           {activeSection === "summary" && (
-            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-4 lg:p-6">
               <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                 Professional Summary
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">
                     Professional Summary
                   </label>
                   <textarea
@@ -1323,11 +1226,11 @@ const ResumeBuilder: React.FC = () => {
                         summary: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="input-dark text-sm"
                     rows={6}
                     placeholder="Write a brief professional summary highlighting your key skills, experience, and career objectives. This should be 2-4 sentences that give employers a quick overview of what you bring to the table..."
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-zinc-500 mt-1">
                     Tip: Focus on your most relevant skills and achievements
                     that match the job you're applying for.
                   </p>
@@ -1336,26 +1239,26 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
           {activeSection === "experience" && (
-            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-4 lg:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-lg lg:text-xl font-semibold">
                   Work Experience
                 </h2>
                 <button
                   onClick={addExperience}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm w-full sm:w-auto justify-center"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm w-full sm:w-auto justify-center"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Experience
                 </button>
               </div>
               {resumeData.experiences.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow">
+                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
                   <Briefcase className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">
+                  <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No experience added
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-zinc-500">
                     Add your work experience to get started.
                   </p>
                   <div className="mt-6">
@@ -1373,10 +1276,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.experiences.map((exp) => (
                     <div
                       key={exp.id}
-                      className="bg-white rounded-lg shadow p-6"
+                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Experience
                         </h3>
                         <button
@@ -1390,7 +1293,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Job Title
                           </label>
                           <input
@@ -1401,12 +1304,12 @@ const ResumeBuilder: React.FC = () => {
                                 title: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            className="input-dark text-sm"
                             placeholder="e.g., Senior Developer"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Company
                           </label>
                           <input
@@ -1417,12 +1320,12 @@ const ResumeBuilder: React.FC = () => {
                                 company: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Company Name"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Location
                           </label>
                           <input
@@ -1433,13 +1336,13 @@ const ResumeBuilder: React.FC = () => {
                                 location: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="e.g., San Francisco, CA"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">
                               Start Date
                             </label>
                             <input
@@ -1450,11 +1353,11 @@ const ResumeBuilder: React.FC = () => {
                                   startDate: e.target.value,
                                 })
                               }
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="input-dark"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">
                               End Date
                             </label>
                             <input
@@ -1466,7 +1369,7 @@ const ResumeBuilder: React.FC = () => {
                                 })
                               }
                               disabled={exp.current}
-                              className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${exp.current ? "bg-gray-100" : ""
+                              className={`input-dark ${exp.current ? "bg-zinc-950" : ""
                                 }`}
                             />
                           </div>
@@ -1489,7 +1392,7 @@ const ResumeBuilder: React.FC = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">
                           Job Description
                         </label>
                         <textarea
@@ -1503,7 +1406,7 @@ const ResumeBuilder: React.FC = () => {
                                 descriptions.length > 0 ? descriptions : [""],
                             });
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="input-dark"
                           rows={4}
                           placeholder="• Describe your key responsibilities and achievements&#10;• Use bullet points for better readability&#10;• Focus on quantifiable results when possible"
                         />
@@ -1521,19 +1424,19 @@ const ResumeBuilder: React.FC = () => {
                 <h2 className="text-xl font-semibold">Education</h2>
                 <button
                   onClick={addEducation}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Education
                 </button>
               </div>
               {resumeData.education.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow">
+                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
                   <GraduationCap className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">
+                  <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No education added
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-zinc-500">
                     Add your education history to get started.
                   </p>
                   <div className="mt-6">
@@ -1551,10 +1454,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.education.map((edu) => (
                     <div
                       key={edu.id}
-                      className="bg-white rounded-lg shadow p-6"
+                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Education
                         </h3>
                         <button
@@ -1567,7 +1470,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Institution
                           </label>
                           <input
@@ -1578,12 +1481,12 @@ const ResumeBuilder: React.FC = () => {
                                 institution: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="University Name"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Degree
                           </label>
                           <input
@@ -1594,12 +1497,12 @@ const ResumeBuilder: React.FC = () => {
                                 degree: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="e.g., Bachelor of Science"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Field of Study
                           </label>
                           <input
@@ -1608,12 +1511,12 @@ const ResumeBuilder: React.FC = () => {
                             onChange={(e) =>
                               updateEducation(edu.id, { field: e.target.value })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="e.g., Computer Science"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Location
                           </label>
                           <input
@@ -1624,12 +1527,12 @@ const ResumeBuilder: React.FC = () => {
                                 location: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="e.g., City, Country"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Start Date
                           </label>
                           <input
@@ -1640,11 +1543,11 @@ const ResumeBuilder: React.FC = () => {
                                 startDate: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             End Date
                           </label>
                           <input
@@ -1656,12 +1559,12 @@ const ResumeBuilder: React.FC = () => {
                               })
                             }
                             disabled={edu.current}
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${edu.current ? "bg-gray-100" : ""
+                            className={`input-dark ${edu.current ? "bg-zinc-950" : ""
                               }`}
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             GPA (Optional)
                           </label>
                           <input
@@ -1670,7 +1573,7 @@ const ResumeBuilder: React.FC = () => {
                             onChange={(e) =>
                               updateEducation(edu.id, { gpa: e.target.value })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="e.g., 3.8/4.0"
                           />
                         </div>
@@ -1692,7 +1595,7 @@ const ResumeBuilder: React.FC = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">
                           Description (Optional)
                         </label>
                         <textarea
@@ -1702,7 +1605,7 @@ const ResumeBuilder: React.FC = () => {
                               description: e.target.value,
                             })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="input-dark"
                           rows={3}
                           placeholder="Relevant coursework, achievements, or activities"
                         />
@@ -1720,19 +1623,19 @@ const ResumeBuilder: React.FC = () => {
                 <h2 className="text-xl font-semibold">Skills</h2>
                 <button
                   onClick={addSkill}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Skill
                 </button>
               </div>
               {resumeData.skills.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow">
+                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
                   <Code className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">
+                  <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No skills added
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-zinc-500">
                     Add your skills to showcase your expertise.
                   </p>
                   <div className="mt-6">
@@ -1750,10 +1653,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.skills.map((skill) => (
                     <div
                       key={skill.id}
-                      className="bg-white rounded-lg shadow p-6"
+                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Skill
                         </h3>
                         <button
@@ -1766,7 +1669,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Skill Name
                           </label>
                           <input
@@ -1775,12 +1678,12 @@ const ResumeBuilder: React.FC = () => {
                             onChange={(e) =>
                               updateSkill(skill.id, { name: e.target.value })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="e.g., JavaScript, Python, Project Management"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Category
                           </label>
                           <select
@@ -1790,7 +1693,7 @@ const ResumeBuilder: React.FC = () => {
                                 category: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           >
                             <option value="Technical">Technical</option>
                             <option value="Soft">Soft Skills</option>
@@ -1799,7 +1702,7 @@ const ResumeBuilder: React.FC = () => {
                           </select>
                         </div>
                         <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Proficiency Level
                           </label>
                           <div className="mt-2">
@@ -1824,7 +1727,7 @@ const ResumeBuilder: React.FC = () => {
                                       updateSkill(skill.id, { level })
                                     }
                                   />
-                                  <span className="ml-2 text-sm text-gray-700">
+                                  <span className="ml-2 text-sm text-zinc-400">
                                     {level}
                                   </span>
                                 </label>
@@ -1846,19 +1749,19 @@ const ResumeBuilder: React.FC = () => {
                 <h2 className="text-xl font-semibold">Projects</h2>
                 <button
                   onClick={addProject}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Project
                 </button>
               </div>
               {resumeData.projects.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow">
+                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
                   <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">
+                  <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No projects added
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-zinc-500">
                     Add your projects to showcase your work.
                   </p>
                   <div className="mt-6">
@@ -1876,10 +1779,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.projects.map((project) => (
                     <div
                       key={project.id}
-                      className="bg-white rounded-lg shadow p-6"
+                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Project
                         </h3>
                         <button
@@ -1892,7 +1795,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Project Name
                           </label>
                           <input
@@ -1903,12 +1806,12 @@ const ResumeBuilder: React.FC = () => {
                                 name: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Project Name"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Project URL (Optional)
                           </label>
                           <input
@@ -1917,12 +1820,12 @@ const ResumeBuilder: React.FC = () => {
                             onChange={(e) =>
                               updateProject(project.id, { url: e.target.value })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="https://example.com/project"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             GitHub URL (Optional)
                           </label>
                           <input
@@ -1933,12 +1836,12 @@ const ResumeBuilder: React.FC = () => {
                                 github: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="https://github.com/username/project"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Start Date
                           </label>
                           <input
@@ -1949,11 +1852,11 @@ const ResumeBuilder: React.FC = () => {
                                 startDate: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                         <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             End Date (Leave empty if ongoing)
                           </label>
                           <input
@@ -1964,12 +1867,12 @@ const ResumeBuilder: React.FC = () => {
                                 endDate: e.target.value || undefined,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                       </div>
                       <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">
                           Description
                         </label>
                         <textarea
@@ -1979,13 +1882,13 @@ const ResumeBuilder: React.FC = () => {
                               description: e.target.value,
                             })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="input-dark"
                           rows={3}
                           placeholder="Describe the project, your role, and key achievements"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">
                           Technologies Used (comma-separated)
                         </label>
                         <input
@@ -1998,7 +1901,7 @@ const ResumeBuilder: React.FC = () => {
                               .filter(Boolean);
                             updateProject(project.id, { technologies: techs });
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="input-dark"
                           placeholder="e.g., React, Node.js, MongoDB"
                         />
                       </div>
@@ -2010,7 +1913,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "certifications" && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Certifications</h2>
                 <button
@@ -2022,7 +1925,7 @@ const ResumeBuilder: React.FC = () => {
                 </button>
               </div>
               {resumeData.certifications.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-zinc-500 text-center py-8">
                   No certifications added yet. Click "Add Certification" to get
                   started.
                 </p>
@@ -2031,10 +1934,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.certifications.map((cert) => (
                     <div
                       key={cert.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="border border-zinc-800/50 rounded-lg p-4"
                     >
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Certification
                         </h3>
                         <button
@@ -2047,7 +1950,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Certification Name
                           </label>
                           <input
@@ -2058,12 +1961,12 @@ const ResumeBuilder: React.FC = () => {
                                 name: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="AWS Certified Solutions Architect"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Issuer
                           </label>
                           <input
@@ -2074,12 +1977,12 @@ const ResumeBuilder: React.FC = () => {
                                 issuer: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Amazon Web Services"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Issue Date
                           </label>
                           <input
@@ -2090,11 +1993,11 @@ const ResumeBuilder: React.FC = () => {
                                 issueDate: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Expiry Date (Optional)
                           </label>
                           <input
@@ -2105,11 +2008,11 @@ const ResumeBuilder: React.FC = () => {
                                 expiryDate: e.target.value || undefined,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Credential ID (Optional)
                           </label>
                           <input
@@ -2120,12 +2023,12 @@ const ResumeBuilder: React.FC = () => {
                                 credentialId: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="ABC123456"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Credential URL (Optional)
                           </label>
                           <input
@@ -2136,7 +2039,7 @@ const ResumeBuilder: React.FC = () => {
                                 credentialUrl: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="https://verify.certification.com"
                           />
                         </div>
@@ -2149,7 +2052,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "awards" && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Awards & Honors</h2>
                 <button
@@ -2161,7 +2064,7 @@ const ResumeBuilder: React.FC = () => {
                 </button>
               </div>
               {resumeData.awards.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-zinc-500 text-center py-8">
                   No awards added yet. Click "Add Award" to get started.
                 </p>
               ) : (
@@ -2169,10 +2072,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.awards.map((award) => (
                     <div
                       key={award.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="border border-zinc-800/50 rounded-lg p-4"
                     >
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Award
                         </h3>
                         <button
@@ -2185,7 +2088,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Award Title
                           </label>
                           <input
@@ -2194,12 +2097,12 @@ const ResumeBuilder: React.FC = () => {
                             onChange={(e) =>
                               updateAward(award.id, { title: e.target.value })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Employee of the Year"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Issuer/Organization
                           </label>
                           <input
@@ -2208,12 +2111,12 @@ const ResumeBuilder: React.FC = () => {
                             onChange={(e) =>
                               updateAward(award.id, { issuer: e.target.value })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Company Name"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Date Received
                           </label>
                           <input
@@ -2222,12 +2125,12 @@ const ResumeBuilder: React.FC = () => {
                             onChange={(e) =>
                               updateAward(award.id, { date: e.target.value })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">
                           Description (Optional)
                         </label>
                         <textarea
@@ -2237,7 +2140,7 @@ const ResumeBuilder: React.FC = () => {
                               description: e.target.value,
                             })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="input-dark"
                           rows={3}
                           placeholder="Brief description of the award and achievement"
                         />
@@ -2250,7 +2153,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "languages" && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Languages</h2>
                 <button
@@ -2262,7 +2165,7 @@ const ResumeBuilder: React.FC = () => {
                 </button>
               </div>
               {resumeData.languages.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-zinc-500 text-center py-8">
                   No languages added yet. Click "Add Language" to get started.
                 </p>
               ) : (
@@ -2270,10 +2173,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.languages.map((language) => (
                     <div
                       key={language.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="border border-zinc-800/50 rounded-lg p-4"
                     >
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Language
                         </h3>
                         <button
@@ -2286,7 +2189,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Language Name
                           </label>
                           <input
@@ -2297,12 +2200,12 @@ const ResumeBuilder: React.FC = () => {
                                 name: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Spanish"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Proficiency Level
                           </label>
                           <select
@@ -2312,7 +2215,7 @@ const ResumeBuilder: React.FC = () => {
                                 proficiency: e.target.value as any,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           >
                             <option value="Basic">Basic</option>
                             <option value="Conversational">
@@ -2331,7 +2234,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "publications" && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Publications</h2>
                 <button
@@ -2343,7 +2246,7 @@ const ResumeBuilder: React.FC = () => {
                 </button>
               </div>
               {resumeData.publications.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-zinc-500 text-center py-8">
                   No publications added yet. Click "Add Publication" to get
                   started.
                 </p>
@@ -2352,10 +2255,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.publications.map((publication) => (
                     <div
                       key={publication.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="border border-zinc-800/50 rounded-lg p-4"
                     >
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Publication
                         </h3>
                         <button
@@ -2368,7 +2271,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Publication Title
                           </label>
                           <input
@@ -2379,12 +2282,12 @@ const ResumeBuilder: React.FC = () => {
                                 title: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Research Paper Title"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Publisher/Journal
                           </label>
                           <input
@@ -2395,12 +2298,12 @@ const ResumeBuilder: React.FC = () => {
                                 publisher: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Journal Name"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Publish Date
                           </label>
                           <input
@@ -2411,11 +2314,11 @@ const ResumeBuilder: React.FC = () => {
                                 publishDate: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             URL (Optional)
                           </label>
                           <input
@@ -2426,13 +2329,13 @@ const ResumeBuilder: React.FC = () => {
                                 url: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="https://journal.com/article"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">
                           Description/Abstract (Optional)
                         </label>
                         <textarea
@@ -2442,7 +2345,7 @@ const ResumeBuilder: React.FC = () => {
                               description: e.target.value,
                             })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="input-dark"
                           rows={3}
                           placeholder="Brief description or abstract of the publication"
                         />
@@ -2455,7 +2358,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "volunteer" && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Volunteer Experience</h2>
                 <button
@@ -2467,7 +2370,7 @@ const ResumeBuilder: React.FC = () => {
                 </button>
               </div>
               {resumeData.volunteerExperience.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-zinc-500 text-center py-8">
                   No volunteer experience added yet. Click "Add Volunteer
                   Experience" to get started.
                 </p>
@@ -2476,10 +2379,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.volunteerExperience.map((volunteer) => (
                     <div
                       key={volunteer.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="border border-zinc-800/50 rounded-lg p-4"
                     >
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Volunteer Experience
                         </h3>
                         <button
@@ -2494,7 +2397,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Organization
                           </label>
                           <input
@@ -2505,12 +2408,12 @@ const ResumeBuilder: React.FC = () => {
                                 organization: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Red Cross"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Role/Position
                           </label>
                           <input
@@ -2521,12 +2424,12 @@ const ResumeBuilder: React.FC = () => {
                                 role: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Volunteer Coordinator"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Start Date
                           </label>
                           <input
@@ -2537,11 +2440,11 @@ const ResumeBuilder: React.FC = () => {
                                 startDate: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             End Date
                           </label>
                           <input
@@ -2552,7 +2455,7 @@ const ResumeBuilder: React.FC = () => {
                                 endDate: e.target.value || undefined,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             disabled={volunteer.current}
                           />
                         </div>
@@ -2572,13 +2475,13 @@ const ResumeBuilder: React.FC = () => {
                             }}
                             className="mr-2"
                           />
-                          <span className="text-sm text-gray-700">
+                          <span className="text-sm text-zinc-400">
                             Currently volunteering here
                           </span>
                         </label>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">
                           Description
                         </label>
                         <textarea
@@ -2588,7 +2491,7 @@ const ResumeBuilder: React.FC = () => {
                               description: [e.target.value],
                             })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="input-dark"
                           rows={4}
                           placeholder="Describe your volunteer work and achievements"
                         />
@@ -2601,7 +2504,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "references" && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">References</h2>
                 <button
@@ -2613,7 +2516,7 @@ const ResumeBuilder: React.FC = () => {
                 </button>
               </div>
               {resumeData.references.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-zinc-500 text-center py-8">
                   No references added yet. Click "Add Reference" to get started.
                 </p>
               ) : (
@@ -2621,10 +2524,10 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.references.map((reference) => (
                     <div
                       key={reference.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="border border-zinc-800/50 rounded-lg p-4"
                     >
                       <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-zinc-100">
                           Reference
                         </h3>
                         <button
@@ -2637,7 +2540,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Full Name
                           </label>
                           <input
@@ -2648,12 +2551,12 @@ const ResumeBuilder: React.FC = () => {
                                 name: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="John Smith"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Job Title
                           </label>
                           <input
@@ -2664,12 +2567,12 @@ const ResumeBuilder: React.FC = () => {
                                 title: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Senior Manager"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Company
                           </label>
                           <input
@@ -2680,12 +2583,12 @@ const ResumeBuilder: React.FC = () => {
                                 company: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="ABC Corporation"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Relationship
                           </label>
                           <input
@@ -2696,12 +2599,12 @@ const ResumeBuilder: React.FC = () => {
                                 relationship: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="Former Supervisor"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Email
                           </label>
                           <input
@@ -2712,12 +2615,12 @@ const ResumeBuilder: React.FC = () => {
                                 email: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="john.smith@company.com"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-zinc-400 mb-1">
                             Phone (Optional)
                           </label>
                           <input
@@ -2728,7 +2631,7 @@ const ResumeBuilder: React.FC = () => {
                                 phone: e.target.value,
                               })
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-dark"
                             placeholder="+1 (555) 123-4567"
                           />
                         </div>
@@ -2741,7 +2644,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "template" && (
-            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-4 lg:p-6">
               <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                 Choose Template
               </h2>
@@ -2803,7 +2706,7 @@ const ResumeBuilder: React.FC = () => {
                     key={template.id}
                     className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${resumeData.template === template.id
                       ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      : "border-zinc-800/50 hover:border-gray-300"
                       }`}
                     onClick={() => {
                       setResumeData((prev) => ({
@@ -2824,8 +2727,8 @@ const ResumeBuilder: React.FC = () => {
                     <p className="text-gray-600 text-sm">
                       {template.description}
                     </p>
-                    <div className="mt-4 h-32 bg-gray-100 rounded border flex items-center justify-center">
-                      <span className="text-gray-500 text-xs">Preview</span>
+                    <div className="mt-4 h-32 bg-zinc-950 rounded border flex items-center justify-center">
+                      <span className="text-zinc-500 text-xs">Preview</span>
                     </div>
                   </div>
                 ))}
@@ -2841,12 +2744,11 @@ const ResumeBuilder: React.FC = () => {
           )}
         </div>
       </div>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden z-20">
+      <div className="fixed bottom-0 left-0 right-0 glass border-t border-zinc-800/50 p-4 lg:hidden z-20">
         <div className="flex justify-between items-center gap-2">
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            className="flex-1 inline-flex items-center justify-center px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg text-sm font-medium text-zinc-300 hover:bg-zinc-800"
           >
             <Eye className="h-4 w-4 mr-1" />
             Preview
@@ -2854,7 +2756,7 @@ const ResumeBuilder: React.FC = () => {
           <button
             onClick={handleSaveResume}
             disabled={saveStatus === "saving"}
-            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
+            className="flex-1 inline-flex items-center justify-center px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg text-sm font-bold disabled:opacity-50"
           >
             {saveStatus === "saving" ? (
               <Loader2 className="animate-spin h-4 w-4 mr-1" />
@@ -2866,7 +2768,7 @@ const ResumeBuilder: React.FC = () => {
           <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+            className="flex-1 inline-flex items-center justify-center px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg text-sm font-medium text-zinc-300 hover:bg-zinc-800 disabled:opacity-50"
           >
             {isDownloading ? (
               <Loader2 className="animate-spin h-4 w-4 mr-1" />
@@ -2877,121 +2779,93 @@ const ResumeBuilder: React.FC = () => {
           </button>
         </div>
       </div>
+    </div>
+  </div>
 
       {showPreview && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 lg:p-4"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-2 lg:p-4 animate-in fade-in duration-300"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setShowPreview(false);
             }
           }}
         >
-          <div className="bg-white rounded-lg w-full h-full lg:max-w-4xl lg:max-h-[95vh] flex flex-col shadow-2xl">
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 lg:p-4 border-b border-gray-200 bg-gray-50 gap-3">
+          <div className="glass-card rounded-2xl w-full h-full lg:max-w-5xl lg:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-zinc-800/50">
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800/50 bg-zinc-950/50 backdrop-blur-md">
               <div className="flex items-center space-x-3">
-                <Eye className="h-5 lg:h-6 w-5 lg:w-6 text-blue-600" />
-                <h2 className="text-lg lg:text-xl font-semibold text-gray-900">
-                  Resume Preview
-                </h2>
-                <span className="hidden sm:inline px-2 lg:px-3 py-1 bg-blue-100 text-blue-800 text-xs lg:text-sm rounded-full">
-                  {resumeData.template.charAt(0).toUpperCase() +
-                    resumeData.template.slice(1)}{" "}
-                  Template
-                </span>
+                <div className="p-2 bg-emerald-500/10 rounded-lg">
+                  <Eye className="h-5 w-5 text-emerald-500" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-zinc-100">
+                    Resume Preview
+                  </h2>
+                  <p className="text-xs text-zinc-500">
+                    {resumeData.template.charAt(0).toUpperCase() + resumeData.template.slice(1)} Template
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <div className="flex items-center space-x-2">
                 <button
                   onClick={handleDownloadPDF}
                   disabled={isDownloading}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-3 lg:px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                  className="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 text-sm font-bold"
                 >
                   {isDownloading ? (
-                    <Loader2 className="animate-spin h-4 w-4 mr-1 lg:mr-2" />
+                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
                   ) : (
-                    <Download className="h-4 w-4 mr-1 lg:mr-2" />
+                    <Download className="h-4 w-4 mr-2" />
                   )}
-                  <span className="hidden sm:inline">
-                    {isDownloading ? "Generating..." : "Download PDF"}
-                  </span>
-                  <span className="sm:hidden">
-                    {isDownloading ? "Gen..." : "PDF"}
-                  </span>
+                  {isDownloading ? "Generating..." : "Download PDF"}
                 </button>
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 flex-shrink-0"
+                  className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-xl transition-colors"
                 >
-                  <X className="h-5 lg:h-6 w-5 lg:w-6" />
+                  <X className="h-6 w-6" />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto bg-gray-100 p-2 lg:p-4">
-              <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+            <div className="flex-1 overflow-auto bg-zinc-900/30 p-4 lg:p-8">
+              <div className="max-w-4xl mx-auto shadow-2xl rounded-sm overflow-hidden bg-white">
                 <div
                   id="resume-preview-modal"
                   ref={previewRef}
-                  className="p-4 lg:p-8 bg-white"
-                  style={{ minHeight: "800px" }}
+                  className="p-8 bg-white"
+                  style={{ minHeight: "1122px" }} // A4 aspect ratio approx
                 >
                   {(() => {
                     switch (resumeData.template) {
-                      case "modern":
-                        return <ModernTemplate data={resumeData} />;
-                      case "executive":
-                        return <ExecutiveTemplate data={resumeData} />;
-                      case "creative":
-                        return <CreativeTemplate data={resumeData} />;
-                      case "minimalist":
-                        return <MinimalistTemplate data={resumeData} />;
-                      case "ats":
-                        return <ATSTemplate data={resumeData} />;
-                      case "tech":
-                        return <TechTemplate data={resumeData} />;
-                      case "classic":
-                        return <ClassicTemplate data={resumeData} />;
-                      case "corporate":
-                        return <CorporateTemplate data={resumeData} />;
-                      case "engineer":
-                        return <EngineerTemplate data={resumeData} />;
-                      case "graduate":
-                        return <GraduateTemplate data={resumeData} />;
-                      default:
-                        return <ModernTemplate data={resumeData} />;
+                      case "modern": return <ModernTemplate data={resumeData} />;
+                      case "executive": return <ExecutiveTemplate data={resumeData} />;
+                      case "creative": return <CreativeTemplate data={resumeData} />;
+                      case "minimalist": return <MinimalistTemplate data={resumeData} />;
+                      case "ats": return <ATSTemplate data={resumeData} />;
+                      case "tech": return <TechTemplate data={resumeData} />;
+                      case "classic": return <ClassicTemplate data={resumeData} />;
+                      case "corporate": return <CorporateTemplate data={resumeData} />;
+                      case "engineer": return <EngineerTemplate data={resumeData} />;
+                      case "graduate": return <GraduateTemplate data={resumeData} />;
+                      default: return <ModernTemplate data={resumeData} />;
                     }
                   })()}
                 </div>
               </div>
             </div>
 
-            <div className="p-3 lg:p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 lg:gap-4">
-                <div className="text-xs lg:text-sm text-gray-600">
-                  <span className="font-medium">💡 Tips:</span> This is how your
-                  resume will look when printed or saved as PDF.
-                  <span className="hidden lg:inline">
-                    {" "}
-                    All formatting and styling will be preserved.
-                  </span>
-                </div>
-                <div className="flex space-x-2 lg:space-x-3 w-full sm:w-auto">
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    className="flex-1 sm:flex-none px-3 lg:px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 text-sm"
-                  >
-                    Close Preview
-                  </button>
-                  <button
-                    onClick={handleDownloadPDF}
-                    disabled={isDownloading}
-                    className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
-                  >
-                    {isDownloading ? "Generating..." : "Download PDF"}
-                  </button>
-                </div>
+            <div className="p-4 border-t border-zinc-800/50 bg-zinc-950/50 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-zinc-400 flex items-center">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2" />
+                Formatting and styling will be preserved in the exported PDF.
               </div>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="w-full sm:w-auto px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-colors font-medium"
+              >
+                Close Preview
+              </button>
             </div>
           </div>
         </div>
@@ -3001,4 +2875,5 @@ const ResumeBuilder: React.FC = () => {
     </div>
   );
 };
+
 export default ResumeBuilder;
