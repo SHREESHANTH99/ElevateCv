@@ -190,12 +190,6 @@ const JobMatcher: React.FC = () => {
     return "text-red-400";
   };
 
-  const getScoreBarColor = (score: number) => {
-    if (score >= 80) return "from-emerald-500 to-cyan-500";
-    if (score >= 60) return "from-amber-500 to-orange-500";
-    return "from-red-500 to-rose-500";
-  };
-
   return (
     <div className="max-w-6xl mx-auto py-8">
       {/* Header */}
