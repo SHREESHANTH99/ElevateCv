@@ -285,7 +285,7 @@ const ProfilePage: React.FC = () => {
       {/* Resumes Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-10">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-10">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-zinc-100 mb-1">

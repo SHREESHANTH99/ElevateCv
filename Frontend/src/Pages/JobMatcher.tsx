@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Target,
@@ -409,7 +409,7 @@ const JobMatcher: React.FC = () => {
                       </div>
                       <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                         <motion.div
-                          className={`h-full bg-gradient-to-r ${getScoreBarColor(Number(score))} rounded-full`}
+                          className={`h-full rounded-full ${Number(score) >= 80 ? "bg-emerald-500" : Number(score) >= 60 ? "bg-amber-500" : "bg-rose-500"}`}
                           initial={{ width: 0 }}
                           animate={{ width: `${score}%` }}
                           transition={{ duration: 1, delay: 0.3 }}
@@ -481,4 +481,5 @@ const JobMatcher: React.FC = () => {
 };
 
 export default JobMatcher;
+
 

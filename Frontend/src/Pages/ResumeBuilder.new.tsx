@@ -925,7 +925,7 @@ const ResumeBuilder: React.FC = () => {
   }, [resumeData, user]);
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-[#0d1110]">
+      <div className="flex flex-col items-center justify-center h-screen bg-charcoal">
         <div className="relative w-16 h-16 mb-4">
           <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
@@ -936,7 +936,7 @@ const ResumeBuilder: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1110] pb-20 lg:pb-0 text-zinc-100 pt-20">
+    <div className="min-h-screen bg-charcoal pb-20 lg:pb-0 text-zinc-100 pt-20">
       <div className="glass sticky top-20 z-40 border-b border-zinc-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1070,10 +1070,10 @@ const ResumeBuilder: React.FC = () => {
                     <button
                       key={section.id}
                       onClick={() => setActiveSection(section.id)}
-                      className={`p-3 rounded-xl text-xs lg:text-sm font-semibold transition-all duration-300 border ${
+                      className={`p-3 rounded-lg text-xs lg:text-sm font-semibold transition-all duration-300 border ${
                         activeSection === section.id
                           ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                          : "bg-zinc-900/50 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
+                          : "bg-charcoal/50 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
                       }`}
                     >
                       <span className="hidden sm:inline">{section.label}</span>
@@ -1466,7 +1466,7 @@ const ResumeBuilder: React.FC = () => {
                                 })
                               }
                               disabled={exp.current}
-                              className={`input-dark ${exp.current ? "bg-[#0d1110]" : ""
+                              className={`input-dark ${exp.current ? "bg-charcoal" : ""
                                 }`}
                             />
                           </div>
@@ -1690,7 +1690,7 @@ const ResumeBuilder: React.FC = () => {
                               })
                             }
                             disabled={edu.current}
-                            className={`input-dark ${edu.current ? "bg-[#0d1110]" : ""
+                            className={`input-dark ${edu.current ? "bg-charcoal" : ""
                               }`}
                           />
                         </div>
@@ -2858,7 +2858,7 @@ const ResumeBuilder: React.FC = () => {
                     <p className="text-gray-600 text-sm">
                       {template.description}
                     </p>
-                    <div className="mt-4 h-32 bg-[#0d1110] rounded border flex items-center justify-center">
+                    <div className="mt-4 h-32 bg-charcoal rounded border flex items-center justify-center">
                       <span className="text-zinc-500 text-xs">Preview</span>
                     </div>
                   </div>
@@ -2877,7 +2877,7 @@ const ResumeBuilder: React.FC = () => {
           {activeSection === "analysis" && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {/* Target Job Input Block */}
-              <div className="glass-card rounded-xl p-6 lg:p-8 border-emerald-500/10 transition-all hover:border-emerald-500/30">
+              <div className="glass-card rounded-lg p-6 lg:p-8 border-emerald-500/10 transition-all hover:border-emerald-500/30">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
                     <Target className="w-6 h-6 text-emerald-500" />
@@ -2919,7 +2919,7 @@ const ResumeBuilder: React.FC = () => {
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                   {/* Left Column: ATS Score & Breakdown */}
                     <div className="xl:col-span-4 space-y-6">
-                    <div className="glass-card p-8 rounded-xl text-center relative overflow-hidden group border-emerald-500/20">
+                    <div className="glass-card p-8 rounded-lg text-center relative overflow-hidden group border-emerald-500/20">
                       {analysisResults.metadata?.cached && (
                         <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                           <CheckCircle className="w-3 h-3 text-emerald-500" />
@@ -2961,7 +2961,7 @@ const ResumeBuilder: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="glass-card p-6 rounded-xl space-y-4">
+                    <div className="glass-card p-6 rounded-lg space-y-4">
                       <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-6 px-1">Section Analysis</h3>
                       {Object.entries(analysisResults.sectionScores || {}).map(([section, val], i) => (
                         <div key={i} className="space-y-2">
@@ -2987,7 +2987,7 @@ const ResumeBuilder: React.FC = () => {
                   <div className="xl:col-span-8 space-y-8">
                     {/* Job Match Module */}
                     {analysisResults?.match && (
-                      <div className="glass-card rounded-xl p-6 border-cyan-500/10">
+                      <div className="glass-card rounded-lg p-6 border-emerald-500/10">
                         <div className="flex items-center justify-between mb-6">
                            <div className="flex items-center gap-3">
                               <div className="w-8 h-8 bg-cyan-500/10 rounded-xl flex items-center justify-center">
@@ -3025,7 +3025,7 @@ const ResumeBuilder: React.FC = () => {
                       <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 px-1">Score Reasoning & Roadmap</h3>
                       <div className="grid grid-cols-1 gap-4">
                         {(analysisResults.reasoning || []).map((reason, i) => (
-                          <div key={i} className="flex items-start p-5 bg-zinc-900/40 rounded-xl border border-zinc-800/50 hover:border-blue-500/20 transition-all group">
+                          <div key={i} className="flex items-start p-5 bg-charcoal/40 rounded-lg border border-zinc-800/50 hover:border-emerald-500/20 transition-all group">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 transition-colors ${
                                 reason.type === 'critical' ? 'bg-rose-500/10' : 'bg-blue-500/10'
                             }`}>
@@ -3051,7 +3051,7 @@ const ResumeBuilder: React.FC = () => {
                        <Sparkles className="absolute top-4 right-4 w-5 h-5 text-emerald-500/20 group-hover:text-emerald-500/40 transition-colors" />
                        <h4 className="text-[11px] font-black uppercase text-emerald-500 mb-2">Optimization Context</h4>
                        <p className="text-xs text-zinc-400 italic">"Use this context when clicking 'Improve with AI' in the editor for better results."</p>
-                       <div className="mt-3 p-3 bg-[#0d1110] rounded-xl text-[11px] text-emerald-400/70 font-mono border border-emerald-500/5">
+                       <div className="mt-3 p-3 bg-charcoal rounded-xl text-[11px] text-emerald-400/70 font-mono border border-emerald-500/5">
                           {analysisResults.context}
                        </div>
                     </div>
@@ -3110,7 +3110,7 @@ const ResumeBuilder: React.FC = () => {
           }}
         >
           <div className="glass-card rounded-lg w-full h-full lg:max-w-5xl lg:max-h-[90vh] flex flex-col shadow-lg overflow-hidden border border-zinc-800/50">
-            <div className="flex items-center justify-between p-4 border-b border-zinc-800/50 bg-[#0d1110]/50 backdrop-blur-md">
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800/50 bg-charcoal/50 backdrop-blur-md">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-emerald-500/10 rounded-lg">
                   <Eye className="h-5 w-5 text-emerald-500" />
@@ -3146,7 +3146,7 @@ const ResumeBuilder: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto bg-zinc-900/30 p-4 lg:p-8">
+            <div className="flex-1 overflow-auto bg-charcoal/30 p-4 lg:p-8">
               <div className="max-w-4xl mx-auto shadow-lg rounded-sm overflow-hidden bg-white">
                 <div
                   id="resume-preview-modal"
@@ -3173,7 +3173,7 @@ const ResumeBuilder: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-4 border-t border-zinc-800/50 bg-[#0d1110]/50 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="p-4 border-t border-zinc-800/50 bg-charcoal/50 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="text-sm text-zinc-400 flex items-center">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2" />
                 Formatting and styling will be preserved in the exported PDF.

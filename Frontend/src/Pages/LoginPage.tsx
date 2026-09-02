@@ -73,11 +73,6 @@ const LoginPage = () => {
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
           transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
         />
-        <motion.div
-          className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-cyan-500/8 rounded-full filter blur-[100px]"
-          animate={{ x: [0, -30, 0], y: [0, 20, 0] }}
-          transition={{ duration: 10, repeat: Infinity, repeatType: "reverse", delay: 2 }}
-        />
         <div
           className="absolute inset-0 opacity-[0.02]"
           style={{

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+﻿import React, { useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, Eye, Sparkles } from "lucide-react";
 import { generateSampleResumeData } from "../utils/sampleResumeData";
@@ -110,7 +110,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
         >
           <motion.div
             className="bg-white rounded-lg max-w-7xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-lg"
-            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            initial={{ opacity: 0 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 50 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
@@ -130,11 +130,11 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
                   transition={{ delay: 0.3 }}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center">
                       <Eye className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      <h2 className="text-3xl font-bold text-zinc-100">
                         {templateName}
                       </h2>
                       <div className="flex items-center text-gray-600 mt-1">
@@ -259,5 +259,6 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
   );
 };
 export default PreviewModal;
+
 
 

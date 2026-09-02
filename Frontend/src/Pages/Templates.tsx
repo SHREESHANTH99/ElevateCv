@@ -265,7 +265,7 @@ const Templates: React.FC = () => {
               onClick={() => setSelectedTemplate(null)}
             >
               <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ opacity: 0 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 className="glass-card rounded-lg max-w-3xl w-full max-h-[85vh] overflow-y-auto"

@@ -39,12 +39,7 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <motion.nav
-      className="glass sticky top-0 z-50 border-b border-zinc-800/60"
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-    >
+    <nav className="glass sticky top-0 z-50 border-b border-zinc-800/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-18">
           {/* Logo */}
@@ -248,7 +243,7 @@ const Navbar: React.FC = () => {
           )}
         </AnimatePresence>
       </div>
-    </motion.nav>
+    </nav>
   );
 };
 

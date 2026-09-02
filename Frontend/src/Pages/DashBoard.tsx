@@ -194,7 +194,7 @@ const Dashboard: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="glass-card rounded-xl p-6">
+              <div className="glass-card rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className={`w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center shadow-lg`}>
                     <Icon className="w-5 h-5 text-white" />
@@ -223,7 +223,7 @@ const Dashboard: React.FC = () => {
             >
               <Link
                 to={to}
-                className="group glass-card rounded-xl p-6 block hover:border-emerald-500/30 transition-all duration-300"
+                className="group glass-card rounded-lg p-6 block hover:border-emerald-500/30 transition-all duration-300"
               >
                 <div className={`w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center mb-4 transition-transform shadow-lg`}>
                   <Icon className="w-5 h-5 text-white" />
@@ -240,7 +240,7 @@ const Dashboard: React.FC = () => {
 
         {/* Recent Resumes */}
         <motion.div
-          className="glass-card rounded-xl mb-8"
+          className="glass-card rounded-lg mb-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
@@ -290,7 +290,7 @@ const Dashboard: React.FC = () => {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-800/30 hover:bg-zinc-800/50 transition-all duration-200 border border-zinc-800/60 hover:border-zinc-700/60 group"
+                    className="flex items-center justify-between p-4 rounded-lg bg-charcoal/30 hover:bg-charcoal/50 transition-all duration-200 border border-zinc-800/60 hover:border-zinc-700/60 group"
                   >
                     <div className="flex-1">
                       <h3 className="font-medium text-zinc-200 group-hover:text-emerald-400 transition-colors">
@@ -329,7 +329,7 @@ const Dashboard: React.FC = () => {
 
         {/* Quick Tips */}
         <motion.div
-          className="glass-card rounded-xl mb-8"
+          className="glass-card rounded-lg mb-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
@@ -345,7 +345,7 @@ const Dashboard: React.FC = () => {
               {quickTips.map((tip, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-xl bg-zinc-800/30 border border-zinc-800/60"
+                  className="p-4 rounded-lg bg-charcoal/30 border border-zinc-800/60"
                 >
                   <div className="flex items-center mb-3">
                     <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${tip.gradient} flex items-center justify-center mr-3`}>
