@@ -125,7 +125,7 @@ const ATSTemplate = React.forwardRef<HTMLDivElement, ATSTemplateProps>(
                   <ul className="text-black">
                     {exp.description.map((desc, descIndex) => (
                       <li key={descIndex} className="mb-1">
-                        • {desc}
+                         {desc}
                       </li>
                     ))}
                   </ul>

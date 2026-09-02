@@ -89,8 +89,8 @@ const Toast: React.FC<ToastProps> = ({
         </motion.div>
         <motion.div
           className="ml-4 flex-1"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
           <p className={`text-sm font-semibold leading-relaxed ${styles.text}`}>

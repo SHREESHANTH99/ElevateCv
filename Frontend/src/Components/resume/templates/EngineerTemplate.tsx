@@ -80,7 +80,7 @@ const EngineerTemplate = React.forwardRef<
           {data.summary && (
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="text-green-600 mr-2">▶</span>
+                <span className="text-green-600 mr-2"></span>
                 <span>SYSTEM_OVERVIEW</span>
               </h2>
               <div className="bg-white border-l-4 border-green-500 p-6 rounded-r shadow-sm">
@@ -94,7 +94,7 @@ const EngineerTemplate = React.forwardRef<
           {data.experiences && data.experiences.length > 0 && (
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <span className="text-green-600 mr-2">▶</span>
+                <span className="text-green-600 mr-2"></span>
                 <span>WORK_HISTORY</span>
               </h2>
               <div className="space-y-6">
@@ -134,7 +134,7 @@ const EngineerTemplate = React.forwardRef<
                           {exp.description.map((desc, descIndex) => (
                             <div key={descIndex} className="flex items-start">
                               <span className="text-green-600 mr-3 font-mono">
-                                →
+                                
                               </span>
                               <span className="text-gray-800 text-sm font-mono leading-relaxed">
                                 {desc}
@@ -153,7 +153,7 @@ const EngineerTemplate = React.forwardRef<
           {data.projects && data.projects.length > 0 && (
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <span className="text-green-600 mr-2">▶</span>
+                <span className="text-green-600 mr-2"></span>
                 <span>PROJECTS</span>
               </h2>
               <div className="space-y-6">
@@ -231,7 +231,7 @@ const EngineerTemplate = React.forwardRef<
           {data.education && data.education.length > 0 && (
             <section className="bg-white border border-gray-300 rounded p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <span className="text-green-600 mr-2">▶</span>
+                <span className="text-green-600 mr-2"></span>
                 <span className="font-mono">EDUCATION</span>
               </h2>
               <div className="space-y-4">
@@ -250,7 +250,7 @@ const EngineerTemplate = React.forwardRef<
                       {edu.institution}
                     </p>
                     <p className="text-gray-600 font-mono text-xs">
-                      {edu.startDate} → {edu.current ? "ongoing" : edu.endDate}
+                      {edu.startDate}  {edu.current ? "ongoing" : edu.endDate}
                     </p>
                     {edu.gpa && (
                       <p className="text-green-600 font-mono text-xs">
@@ -313,7 +313,7 @@ const EngineerTemplate = React.forwardRef<
           {data.languages && data.languages.length > 0 && (
             <section className="bg-white border border-gray-300 rounded p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <span className="text-green-600 mr-2">▶</span>
+                <span className="text-green-600 mr-2"></span>
                 <span className="font-mono">LANGUAGES</span>
               </h2>
               <div className="space-y-2">

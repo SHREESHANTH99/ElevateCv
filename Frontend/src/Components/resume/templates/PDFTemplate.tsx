@@ -33,18 +33,18 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
             href={`mailto:${data.personalInfo.email}`}
             className="flex items-center hover:text-blue-600 transition-colors"
           >
-            <span className="mr-1">📧</span>
+            <span className="mr-1"></span>
             {data.personalInfo.email}
           </a>
           <a
             href={`tel:${data.personalInfo.phone}`}
             className="flex items-center hover:text-blue-600 transition-colors"
           >
-            <span className="mr-1">📱</span>
+            <span className="mr-1"></span>
             {data.personalInfo.phone}
           </a>
           <div className="flex items-center">
-            <span className="mr-1">📍</span>
+            <span className="mr-1"></span>
             {data.personalInfo.location}
           </div>
           {data.personalInfo.linkedin && (
@@ -54,13 +54,13 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
               rel="noopener noreferrer"
               className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
             >
-              <span className="mr-1">🔗</span>
+              <span className="mr-1"></span>
               LinkedIn
             </a>
           )}
           {data.personalInfo.website && (
             <div className="flex items-center text-blue-600">
-              <span className="mr-1">🌐</span>
+              <span className="mr-1"></span>
               Website
             </div>
           )}
@@ -93,7 +93,7 @@ const PDFTemplate: React.FC<PDFTemplateProps> = ({ data }) => {
                   </div>
                 </div>
                 <p className="text-gray-600 font-medium mb-2">
-                  {exp.company} • {exp.location}
+                  {exp.company}  {exp.location}
                 </p>
                 <ul className="list-disc pl-5 space-y-1 text-gray-700">
                   {exp.description.map((desc, i) => (

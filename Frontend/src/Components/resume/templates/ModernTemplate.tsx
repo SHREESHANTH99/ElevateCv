@@ -152,12 +152,12 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                     </div>
                   </div>
                   <p className="text-md text-gray-600 font-medium mb-3">
-                    {exp.company} • {exp.location}
+                    {exp.company}  {exp.location}
                   </p>
                   <ul className="space-y-2 text-gray-700">
                     {exp.description.map((desc, i) => (
                       <li key={i} className="flex items-start">
-                        <span className="text-blue-500 mr-2">•</span>
+                        <span className="text-blue-500 mr-2"></span>
                         <span className="leading-relaxed">{desc}</span>
                       </li>
                     ))}
@@ -280,7 +280,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:text-blue-800 text-sm"
                         >
-                          View Project →
+                          View Project 
                         </a>
                       )}
                       {project.github && (
@@ -290,7 +290,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:text-blue-800 text-sm"
                         >
-                          GitHub →
+                          GitHub 
                         </a>
                       )}
                     </div>
@@ -335,7 +335,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800 text-sm"
                     >
-                      View Credential →
+                      View Credential 
                     </a>
                   )}
                 </div>
@@ -440,7 +440,7 @@ const ModernTemplate = React.forwardRef<HTMLDivElement, ModernTemplateProps>(
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800 text-sm"
                     >
-                      View Publication →
+                      View Publication 
                     </a>
                   )}
                 </div>

@@ -85,14 +85,14 @@ const MinimalistTemplate = React.forwardRef<
                     )}
                   </div>
                   <span className="text-sm text-gray-600 font-light">
-                    {exp.startDate} — {exp.current ? "Present" : exp.endDate}
+                    {exp.startDate}  {exp.current ? "Present" : exp.endDate}
                   </span>
                 </div>
                 {exp.description && exp.description.length > 0 && (
                   <ul className="space-y-1 text-gray-700 font-light">
                     {exp.description.map((desc, descIndex) => (
                       <li key={descIndex} className="flex items-start">
-                        <span className="text-gray-400 mr-3 mt-2">—</span>
+                        <span className="text-gray-400 mr-3 mt-2"></span>
                         <span>{desc}</span>
                       </li>
                     ))}
@@ -115,7 +115,7 @@ const MinimalistTemplate = React.forwardRef<
                 <h3 className="text-sm font-medium text-gray-800 mb-2">
                   {category}
                 </h3>
-                <p className="text-gray-700 font-light">{skills.join(" • ")}</p>
+                <p className="text-gray-700 font-light">{skills.join("  ")}</p>
               </div>
             ))}
           </div>
@@ -135,7 +135,7 @@ const MinimalistTemplate = React.forwardRef<
                     {project.name}
                   </h3>
                   <span className="text-sm text-gray-600 font-light">
-                    {project.startDate} — {project.endDate || "Present"}
+                    {project.startDate}  {project.endDate || "Present"}
                   </span>
                 </div>
                 <p className="text-gray-700 font-light mb-2">
@@ -143,7 +143,7 @@ const MinimalistTemplate = React.forwardRef<
                 </p>
                 {project.technologies && project.technologies.length > 0 && (
                   <p className="text-sm text-gray-600 font-light">
-                    {project.technologies.join(" • ")}
+                    {project.technologies.join("  ")}
                   </p>
                 )}
               </div>
@@ -168,7 +168,7 @@ const MinimalistTemplate = React.forwardRef<
                     <p className="text-gray-700">{edu.institution}</p>
                   </div>
                   <span className="text-sm text-gray-600 font-light">
-                    {edu.startDate} — {edu.current ? "Present" : edu.endDate}
+                    {edu.startDate}  {edu.current ? "Present" : edu.endDate}
                   </span>
                 </div>
                 {edu.gpa && (

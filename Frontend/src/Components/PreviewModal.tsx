@@ -109,7 +109,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
           onClick={onClose}
         >
           <motion.div
-            className="bg-white rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-2xl"
+            className="bg-white rounded-lg max-w-7xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-lg"
             initial={{ scale: 0.8, opacity: 0, y: 50 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -119,8 +119,8 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
 
             <motion.div
               className="p-6 border-b border-gray-200/50 bg-gradient-to-r from-blue-50 to-purple-50"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
               <div className="flex justify-between items-center">
@@ -172,13 +172,13 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
             </motion.div>
 
             <motion.div
-              className="flex-1 overflow-auto p-8 bg-gradient-to-br from-gray-50 to-blue-50"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              className="flex-1 overflow-auto p-8 bg-[#0d1110]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
               <motion.div
-                className="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200/50"
+                className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200/50"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
@@ -196,11 +196,11 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
 
               <motion.div
                 className="max-w-5xl mx-auto mt-8"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
               >
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl p-6 shadow-lg">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg p-6 shadow-lg">
                   <div className="flex items-start space-x-4">
                     <motion.div
                       className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center"
@@ -215,7 +215,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
                     </motion.div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-blue-800 mb-2">
-                        ✨ Preview Information
+                         Preview Information
                       </h3>
                       <p className="text-blue-700 leading-relaxed mb-4">
                         This preview shows how the template looks with
@@ -259,3 +259,5 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
   );
 };
 export default PreviewModal;
+
+

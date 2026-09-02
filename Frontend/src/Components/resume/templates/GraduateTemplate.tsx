@@ -216,7 +216,7 @@ const GraduateTemplate = React.forwardRef<
                       <ul className="space-y-2 text-gray-800">
                         {exp.description.map((desc, descIndex) => (
                           <li key={descIndex} className="flex items-start">
-                            <span className="text-teal-600 mr-3 mt-1">•</span>
+                            <span className="text-teal-600 mr-3 mt-1"></span>
                             <span className="leading-relaxed">{desc}</span>
                           </li>
                         ))}
@@ -242,7 +242,7 @@ const GraduateTemplate = React.forwardRef<
                     <div className="space-y-1">
                       {skills.map((skill, skillIndex) => (
                         <div key={skillIndex} className="text-gray-700 text-sm">
-                          • {skill}
+                           {skill}
                         </div>
                       ))}
                     </div>

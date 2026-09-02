@@ -201,12 +201,12 @@ const JobMatcher: React.FC = () => {
       {/* Header */}
       <motion.div
         className="mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
         <div className="flex items-center space-x-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg">
             <Target className="w-5 h-5 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-zinc-100">Job Match Analyzer</h1>
@@ -216,9 +216,9 @@ const JobMatcher: React.FC = () => {
 
       {/* Input Section */}
       <motion.div
-        className="glass-card rounded-2xl p-8 mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        className="glass-card rounded-lg p-8 mb-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         {/* Toggle */}
@@ -349,7 +349,7 @@ const JobMatcher: React.FC = () => {
 
         <div className="mt-8 text-center">
           <motion.button
-            className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center px-8 py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:shadow-md hover:shadow-none transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={handleAnalyze}
             disabled={loading || !jobDescription || (analysisType === "saved" && !selectedResume) || (analysisType === "upload" && !uploadedResume)}
             whileHover={{ scale: loading ? 1 : 1.02 }}
@@ -374,11 +374,11 @@ const JobMatcher: React.FC = () => {
       <AnimatePresence>
         {analysis && (
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
-            className="glass-card rounded-2xl p-8"
+            className="glass-card rounded-lg p-8"
           >
             <div className="flex items-center space-x-3 mb-8">
               <BarChart3 className="w-5 h-5 text-emerald-500" />
@@ -388,7 +388,7 @@ const JobMatcher: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Score */}
               <div className="md:col-span-1">
-                <div className="text-center p-8 rounded-2xl bg-zinc-800/40 border border-zinc-800/60">
+                <div className="text-center p-8 rounded-lg bg-zinc-800/40 border border-zinc-800/60">
                   <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">Match Score</h3>
                   <div className={`text-6xl font-bold mb-3 ${getScoreColor(analysis.matchScore)}`}>
                     {analysis.matchScore}%
@@ -481,3 +481,4 @@ const JobMatcher: React.FC = () => {
 };
 
 export default JobMatcher;
+

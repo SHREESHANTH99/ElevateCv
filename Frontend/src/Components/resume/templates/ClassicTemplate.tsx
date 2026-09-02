@@ -39,7 +39,7 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
             >
               {data.personalInfo.email}
             </a>
-            {data.personalInfo.phone && <span>•</span>}
+            {data.personalInfo.phone && <span></span>}
             {data.personalInfo.phone && (
               <a
                 href={`tel:${data.personalInfo.phone}`}
@@ -48,7 +48,7 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
                 {data.personalInfo.phone}
               </a>
             )}
-            {data.personalInfo.location && <span>•</span>}
+            {data.personalInfo.location && <span></span>}
             {data.personalInfo.location && (
               <span>{data.personalInfo.location}</span>
             )}
@@ -92,7 +92,7 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
                     <ul className="space-y-2 text-gray-800">
                       {exp.description.map((desc, descIndex) => (
                         <li key={descIndex} className="flex items-start">
-                          <span className="text-gray-600 mr-3 mt-1">•</span>
+                          <span className="text-gray-600 mr-3 mt-1"></span>
                           <span className="leading-relaxed">{desc}</span>
                         </li>
                       ))}
@@ -142,7 +142,7 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
                   <h3 className="font-bold text-gray-900 mb-2 text-lg underline">
                     {category}
                   </h3>
-                  <p className="text-gray-800">{skills.join(" • ")}</p>
+                  <p className="text-gray-800">{skills.join("  ")}</p>
                 </div>
               ))}
             </div>
@@ -239,7 +239,7 @@ const ClassicTemplate = React.forwardRef<HTMLDivElement, ClassicTemplateProps>(
               {data.languages.map((lang, index) => (
                 <span key={index} className="text-gray-800">
                   {lang.name}: {lang.proficiency}
-                  {index < data.languages!.length - 1 && " • "}
+                  {index < data.languages!.length - 1 && "  "}
                 </span>
               ))}
             </div>

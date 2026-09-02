@@ -53,8 +53,8 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       {text && (
         <motion.div
           className="text-center"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
           <p className={`text-sm font-medium text-${color}-600 mb-2`}>{text}</p>

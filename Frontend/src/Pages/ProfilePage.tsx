@@ -126,12 +126,12 @@ const ProfilePage: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-        <div className="text-center p-8 glass-card rounded-2xl max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1110]">
+        <div className="text-center p-8 glass-card rounded-lg max-w-md w-full">
           <Lock className="w-12 h-12 mx-auto text-zinc-600 mb-4" />
           <h2 className="text-2xl font-bold text-zinc-100 mb-2">Access Denied</h2>
           <p className="text-zinc-500 mb-6 text-sm">Please log in to view your profile.</p>
-          <button onClick={() => navigate("/login")} className="w-full px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all">
+          <button onClick={() => navigate("/login")} className="w-full px-4 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:shadow-md hover:shadow-none transition-all">
             Go to Login
           </button>
         </div>
@@ -155,14 +155,14 @@ const ProfilePage: React.FC = () => {
       {/* Notifications */}
       <AnimatePresence>
         {error && (
-          <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }} className="fixed top-4 right-4 z-50">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed top-4 right-4 z-50">
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl shadow-lg backdrop-blur-sm">
               <div className="flex items-center"><XCircle className="h-4 w-4 text-red-400 mr-3" /><p className="text-sm text-red-400">{error}</p></div>
             </div>
           </motion.div>
         )}
         {success && (
-          <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }} className="fixed top-4 right-4 z-50">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed top-4 right-4 z-50">
             <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl shadow-lg backdrop-blur-sm">
               <div className="flex items-center"><CheckCircle className="h-4 w-4 text-emerald-400 mr-3" /><p className="text-sm text-emerald-400">{success}</p></div>
             </div>
@@ -173,17 +173,17 @@ const ProfilePage: React.FC = () => {
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute inset-0">
-          <motion.div className="absolute top-0 right-1/4 w-80 h-80 bg-emerald-500/5 rounded-full filter blur-[120px]"
+          <motion.div className="absolute top-0 right-1/4 w-80 h-80 hidden"
             animate={{ x: [0, 40, 0], y: [0, 20, 0] }} transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }} />
-          <motion.div className="absolute bottom-0 left-1/4 w-80 h-80 bg-violet-500/5 rounded-full filter blur-[120px]"
+          <motion.div className="absolute bottom-0 left-1/4 w-80 h-80 hidden"
             animate={{ x: [0, -30, 0], y: [0, 40, 0] }} transition={{ duration: 12, repeat: Infinity, repeatType: "reverse" }} />
         </div>
 
         <div className="relative max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="text-center">
             {/* Avatar */}
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.6, type: "spring" }} className="relative inline-block mb-8">
-              <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-white text-4xl font-bold shadow-2xl shadow-emerald-500/20">
+              <div className="w-28 h-28 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg shadow-none">
                 {editData.firstName?.charAt(0) || "U"}
               </div>
               {!isEditing && (
@@ -213,7 +213,7 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <div className="flex justify-center gap-3 pt-2">
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSaveProfile} disabled={isSaving}
-                    className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50">
+                    className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:shadow-md hover:shadow-none transition-all disabled:opacity-50">
                     {isSaving ? (<><Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />Saving...</>) : (<><Save className="inline-block w-4 h-4 mr-2" />Save Changes</>)}
                   </motion.button>
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setIsEditing(false)}
@@ -268,7 +268,7 @@ const ProfilePage: React.FC = () => {
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => navigate("/resume/builder")}
-                    className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/25 transition-all flex items-center justify-center">
+                    className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:shadow-md hover:shadow-none transition-all flex items-center justify-center">
                     <FileText className="w-4 h-4 mr-2" />Create Resume
                   </motion.button>
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleLogout}
@@ -285,16 +285,16 @@ const ProfilePage: React.FC = () => {
       {/* Resumes Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-10">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-10">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-zinc-100 mb-1">
-                  My <span className="gradient-text">Resumes</span>
+                  My <span className="text-emerald-400">Resumes</span>
                 </h2>
                 <p className="text-zinc-500 text-sm">Manage and download your resumes</p>
               </div>
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => navigate("/resume/builder")}
-                className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/25 transition-all flex items-center">
+                className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:shadow-md hover:shadow-none transition-all flex items-center">
                 <Plus className="w-4 h-4 mr-2" />New Resume
               </motion.button>
             </div>
@@ -307,19 +307,19 @@ const ProfilePage: React.FC = () => {
             </div>
           ) : resumes.length === 0 ? (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-16 glass-card rounded-2xl">
+              className="text-center py-16 glass-card rounded-lg">
               <FileText className="w-12 h-12 mx-auto text-zinc-600 mb-4" />
               <h3 className="text-lg font-semibold text-zinc-200 mb-2">No resumes yet</h3>
               <p className="text-zinc-500 text-sm mb-6">Start building your professional resume today</p>
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => navigate("/resume/builder")}
-                className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold text-sm inline-flex items-center hover:shadow-lg hover:shadow-emerald-500/25 transition-all">
+                className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm inline-flex items-center hover:shadow-md hover:shadow-none transition-all">
                 <Plus className="w-4 h-4 mr-2" />Create Your First Resume
               </motion.button>
             </motion.div>
           ) : (
             <div className="space-y-3">
               {resumes.map((resume, index) => (
-                <motion.div key={resume._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+                <motion.div key={resume._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   transition={{ duration: 0.4, delay: index * 0.08 }} whileHover={{ y: -2 }}>
                   <div className="glass-card rounded-xl p-5 flex items-center justify-between group">
                     <div className="flex-1">
@@ -336,7 +336,7 @@ const ProfilePage: React.FC = () => {
                       </span>
                       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                         onClick={() => handleDownloadResume(resume._id, resume.title)} disabled={loading.resume}
-                        className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg text-xs font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center">
+                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:shadow-md hover:shadow-none transition-all disabled:opacity-50 flex items-center">
                         <Download className="w-3.5 h-3.5 mr-1.5" />Download
                       </motion.button>
                       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
@@ -357,3 +357,4 @@ const ProfilePage: React.FC = () => {
 };
 
 export default ProfilePage;
+

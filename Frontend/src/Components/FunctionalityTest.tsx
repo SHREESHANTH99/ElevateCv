@@ -7,14 +7,14 @@ const FunctionalityTest: React.FC = () => {
     <div style={{ padding: "20px" }}>
       <h1>Functionality Test</h1>
       <div style={{ marginBottom: "20px" }}>
-        <h2>✅ Sample Data Generation Test</h2>
+        <h2> Sample Data Generation Test</h2>
         <p>Name: {sampleData.personalInfo.fullName}</p>
         <p>Email: {sampleData.personalInfo.email}</p>
         <p>Experiences: {sampleData.experiences.length} items</p>
         <p>Skills: {sampleData.skills.length} items</p>
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <h2>✅ Template Rendering Test</h2>
+        <h2> Template Rendering Test</h2>
         <div
           style={{
             border: "1px solid #ccc",
@@ -27,7 +27,7 @@ const FunctionalityTest: React.FC = () => {
         </div>
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <h2>✅ LocalStorage Test</h2>
+        <h2> LocalStorage Test</h2>
         <button
           onClick={() => {
             localStorage.setItem("selectedTemplate", "modern");
@@ -46,7 +46,7 @@ const FunctionalityTest: React.FC = () => {
         </button>
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <h2>✅ Download Test</h2>
+        <h2> Download Test</h2>
         <button
           onClick={() => {
             const data = {

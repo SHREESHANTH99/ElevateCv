@@ -25,7 +25,7 @@ const CreativeTemplate = React.forwardRef<
       className={`bg-white p-8 font-sans text-gray-800 max-w-4xl mx-auto ${className}`}
       style={style}
     >
-      <header className="relative bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-8 -mx-8 -mt-8 mb-8 rounded-bl-3xl shadow-xl">
+      <header className="relative bg-rose-600 p-8 -mx-8 -mt-8 mb-8 rounded-bl-xl shadow-md">
         <div className="relative z-10">
           <h1 className="text-5xl font-bold text-white mb-3 tracking-wide">
             {data.personalInfo.fullName}
@@ -90,10 +90,10 @@ const CreativeTemplate = React.forwardRef<
       {data.summary && (
         <section className="mb-8">
           <div className="relative">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
+            <h2 className="text-3xl font-bold text-rose-600 mb-4">
               Creative Vision
             </h2>
-            <div className="absolute -left-4 top-0 w-1 h-full bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+            <div className="absolute -left-4 top-0 w-1 h-full bg-rose-600 rounded-full"></div>
             <p className="text-gray-700 leading-relaxed text-lg pl-6 italic">
               "{data.summary}"
             </p>
@@ -104,18 +104,18 @@ const CreativeTemplate = React.forwardRef<
         <div className="lg:col-span-2 space-y-8">
           {data.experiences && data.experiences.length > 0 && (
             <section>
-              <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-6">
+              <h2 className="text-3xl font-bold text-rose-600 mb-6">
                 Experience
               </h2>
               <div className="space-y-6">
                 {data.experiences.map((exp, index) => (
                   <div key={index} className="relative">
-                    <div className="absolute -left-4 top-0 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <div className="absolute -left-4 top-0 w-8 h-8 bg-rose-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-bold text-sm">
                         {index + 1}
                       </span>
                     </div>
-                    <div className="pl-8 border-l-2 border-purple-200 pb-6">
+                    <div className="pl-8 border-l-2 border-rose-200 pb-6">
                       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-3">
                         <div>
                           <h3 className="text-xl font-bold text-gray-900">
@@ -128,7 +128,7 @@ const CreativeTemplate = React.forwardRef<
                             <p className="text-gray-600">{exp.location}</p>
                           )}
                         </div>
-                        <span className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-4 py-2 rounded-full text-sm font-bold">
+                        <span className="bg-rose-100 text-rose-800 px-4 py-2 rounded-full text-sm font-bold">
                           {exp.startDate} -{" "}
                           {exp.current ? "Present" : exp.endDate}
                         </span>
@@ -138,7 +138,7 @@ const CreativeTemplate = React.forwardRef<
                           {exp.description.map((desc, descIndex) => (
                             <li key={descIndex} className="flex items-start">
                               <span className="text-purple-500 mr-3 mt-1">
-                                ◆
+                                
                               </span>
                               <span className="leading-relaxed">{desc}</span>
                             </li>
@@ -154,14 +154,14 @@ const CreativeTemplate = React.forwardRef<
 
           {data.projects && data.projects.length > 0 && (
             <section>
-              <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-6">
+              <h2 className="text-3xl font-bold text-rose-600 mb-6">
                 Creative Projects
               </h2>
               <div className="grid gap-6">
                 {data.projects.map((project, index) => (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-200"
+                    className="bg-rose-50 p-6 rounded-lg border border-rose-200"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="text-xl font-bold text-gray-900">
@@ -180,7 +180,7 @@ const CreativeTemplate = React.forwardRef<
                           {project.technologies.map((tech, techIndex) => (
                             <span
                               key={techIndex}
-                              className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm rounded-full font-medium"
+                              className="px-3 py-1 bg-rose-600 text-white text-sm rounded-full font-medium"
                             >
                               {tech}
                             </span>
@@ -197,14 +197,14 @@ const CreativeTemplate = React.forwardRef<
         <div className="space-y-6">
           {Object.keys(skillsByCategory).length > 0 && (
             <section>
-              <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
+              <h2 className="text-2xl font-bold text-rose-600 mb-4">
                 Skills
               </h2>
               <div className="space-y-4">
                 {Object.entries(skillsByCategory).map(([category, skills]) => (
                   <div
                     key={category}
-                    className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200"
+                    className="bg-rose-50 p-4 rounded-xl border border-rose-200"
                   >
                     <h3 className="font-bold text-purple-800 mb-3">
                       {category}
@@ -212,7 +212,7 @@ const CreativeTemplate = React.forwardRef<
                     <div className="space-y-2">
                       {skills.map((skill, skillIndex) => (
                         <div key={skillIndex} className="flex items-center">
-                          <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mr-3"></div>
+                          <div className="w-3 h-3 bg-rose-600 rounded-full mr-3"></div>
                           <span className="text-gray-700 text-sm">{skill}</span>
                         </div>
                       ))}
@@ -225,14 +225,14 @@ const CreativeTemplate = React.forwardRef<
 
           {data.education && data.education.length > 0 && (
             <section>
-              <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
+              <h2 className="text-2xl font-bold text-rose-600 mb-4">
                 Education
               </h2>
               <div className="space-y-4">
                 {data.education.map((edu, index) => (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200"
+                    className="bg-rose-50 p-4 rounded-xl border border-rose-200"
                   >
                     <h3 className="font-bold text-gray-900 text-lg">
                       {edu.degree}
@@ -253,7 +253,7 @@ const CreativeTemplate = React.forwardRef<
             </section>
           )}
 
-          <section className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
+          <section className="bg-rose-50 p-4 rounded-xl border border-rose-200">
             <h3 className="font-bold text-purple-800 mb-3">Connect</h3>
             <div className="space-y-2">
               {data.personalInfo.linkedin && (
@@ -307,3 +307,5 @@ const CreativeTemplate = React.forwardRef<
 });
 CreativeTemplate.displayName = "CreativeTemplate";
 export default CreativeTemplate;
+
+

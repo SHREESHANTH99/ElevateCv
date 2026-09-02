@@ -113,14 +113,14 @@ const Dashboard: React.FC = () => {
       icon: Target,
       title: "Match Job",
       description: "Optimize your resume for specific job postings",
-      gradient: "from-cyan-500 to-blue-500",
+      gradient: "from-emerald-600 to-emerald-500",
     },
     {
       to: "/cover-letter",
       icon: Mail,
       title: "Cover Letter",
       description: "Generate compelling cover letters",
-      gradient: "from-violet-500 to-purple-500",
+      gradient: "bg-emerald-600",
     },
   ];
 
@@ -135,13 +135,13 @@ const Dashboard: React.FC = () => {
       title: "Tailor Your Resume",
       description: "Customize your resume for each job application to increase match scores",
       icon: Target,
-      gradient: "from-cyan-500 to-blue-500",
+      gradient: "from-emerald-600 to-emerald-500",
     },
     {
       title: "Keep It Updated",
       description: "Regular updates ensure your resume reflects your latest achievements",
       icon: Clock,
-      gradient: "from-violet-500 to-purple-500",
+      gradient: "bg-emerald-600",
     },
   ];
 
@@ -158,16 +158,16 @@ const Dashboard: React.FC = () => {
         {/* Hero Greeting */}
         <motion.div
           className="mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="glass-card rounded-2xl p-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full filter blur-[80px]" />
+          <div className="glass-card rounded-lg p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 hidden" />
             <div className="relative flex items-center justify-between">
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-zinc-100 mb-2">
-                  {getCurrentGreeting()}! 👋
+                  {getCurrentGreeting()}! 
                 </h1>
                 <p className="text-zinc-400 text-lg">
                   Ready to take your career to the next level?
@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
                 </p>
               </div>
               <div className="hidden md:block">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-emerald-500/20">
+                <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-emerald-500/20">
                   <Zap className="w-10 h-10 text-emerald-400" />
                 </div>
               </div>
@@ -190,13 +190,13 @@ const Dashboard: React.FC = () => {
           {stats.map(({ label, value, icon: Icon, gradient, description }, index) => (
             <motion.div
               key={label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <div className="glass-card rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${gradient} flex items-center justify-center shadow-lg`}>
+                  <div className={`w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center shadow-lg`}>
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-right">
@@ -217,15 +217,15 @@ const Dashboard: React.FC = () => {
           {quickActions.map(({ to, icon: Icon, title, description, gradient }, index) => (
             <motion.div
               key={to}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
             >
               <Link
                 to={to}
                 className="group glass-card rounded-xl p-6 block hover:border-emerald-500/30 transition-all duration-300"
               >
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
+                <div className={`w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center mb-4 transition-transform shadow-lg`}>
                   <Icon className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-zinc-200 mb-1 group-hover:text-emerald-400 transition-colors flex items-center">
@@ -241,8 +241,8 @@ const Dashboard: React.FC = () => {
         {/* Recent Resumes */}
         <motion.div
           className="glass-card rounded-xl mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <div className="p-6 border-b border-zinc-800/60">
@@ -270,14 +270,14 @@ const Dashboard: React.FC = () => {
                 </div>
               ) : resumes.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-lg bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
                     <FileText className="w-8 h-8 text-zinc-600" />
                   </div>
                   <p className="text-zinc-400 mb-1 font-medium">No resumes found</p>
                   <p className="text-zinc-600 text-sm mb-6">Create your first resume to get started</p>
                   <Link
                     to="/resume/builder"
-                    className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+                    className="inline-flex items-center px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:shadow-md hover:shadow-none transition-all"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Create Resume
@@ -315,7 +315,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       <Link
                         to={`/resume/builder/${resume._id}`}
-                        className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:shadow-md hover:shadow-none transition-all"
                       >
                         Edit
                       </Link>
@@ -330,8 +330,8 @@ const Dashboard: React.FC = () => {
         {/* Quick Tips */}
         <motion.div
           className="glass-card rounded-xl mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
         >
           <div className="p-6 border-b border-zinc-800/60">
@@ -365,3 +365,5 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
+

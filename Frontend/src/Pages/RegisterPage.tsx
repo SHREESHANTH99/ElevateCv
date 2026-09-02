@@ -123,16 +123,16 @@ const RegisterPage = () => {
     ) && formData.password === formData.confirmPassword;
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0d1110] flex items-center justify-center py-12 px-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
         <motion.div
-          className="absolute top-1/3 left-1/3 w-80 h-80 bg-emerald-500/8 rounded-full filter blur-[100px]"
+          className="absolute top-1/3 left-1/3 w-80 h-80 hidden"
           animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
           transition={{ duration: 12, repeat: Infinity, repeatType: "reverse" }}
         />
         <motion.div
-          className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-violet-500/8 rounded-full filter blur-[100px]"
+          className="absolute bottom-1/3 right-1/4 w-80 h-80 hidden"
           animate={{ x: [0, -40, 0], y: [0, 30, 0] }}
           transition={{ duration: 12, repeat: Infinity, repeatType: "reverse", delay: 3 }}
         />
@@ -150,15 +150,15 @@ const RegisterPage = () => {
         {/* Header */}
         <motion.div
           className="text-center mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
         >
           <Link to="/" className="inline-flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-none">
               <FileText className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">ElevateCv</span>
+            <span className="text-xl font-bold text-emerald-400">ElevateCv</span>
           </Link>
           <h1 className="text-3xl font-bold text-zinc-100 mb-2">Create your account</h1>
           <p className="text-zinc-500 text-sm flex items-center justify-center gap-2">
@@ -169,9 +169,9 @@ const RegisterPage = () => {
 
         {/* Form Card */}
         <motion.div
-          className="glass-card rounded-2xl p-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          className="glass-card rounded-lg p-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           {errors.form && (
@@ -275,7 +275,7 @@ const RegisterPage = () => {
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     className={`input-dark !pl-12 pr-10 ${errors.password ? "!border-red-500/50" : ""}`}
-                    placeholder="••••••••"
+                    placeholder=""
                     value={formData.password}
                     onChange={handleChange}
                     onBlur={() => handleBlur("password")}
@@ -311,7 +311,7 @@ const RegisterPage = () => {
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     className={`input-dark !pl-12 ${errors.confirmPassword ? "!border-red-500/50" : ""}`}
-                    placeholder="••••••••"
+                    placeholder=""
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     onBlur={() => handleBlur("confirmPassword")}
@@ -326,7 +326,7 @@ const RegisterPage = () => {
             <motion.button
               type="submit"
               disabled={loading || !isFormValid}
-              className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:shadow-md hover:shadow-none transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
               whileHover={{ scale: loading ? 1 : 1.01 }}
               whileTap={{ scale: loading ? 1 : 0.99 }}
             >
@@ -400,3 +400,4 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
+

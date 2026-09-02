@@ -54,16 +54,10 @@ const Navbar: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <Link to="/dashboard" className="flex items-center space-x-3 group">
-              <motion.div
-                className="relative w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20"
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FileText className="w-5 h-5 text-white" />
-              </motion.div>
+              <motion.img src="/logo.svg" alt="ElevateCV Logo" className="w-10 h-10 rounded-[10px] shadow-sm" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} />
               <div className="flex flex-col">
-                <span className="text-xl font-bold gradient-text">
-                  ElevateCv
+                <span className="text-xl font-bold text-zinc-100">
+                  ElevateCV
                 </span>
                 <motion.div
                   className="flex items-center text-[10px] text-zinc-500 tracking-wider uppercase"
@@ -81,8 +75,8 @@ const Navbar: React.FC = () => {
           {/* Desktop Nav */}
           <motion.div
             className="hidden lg:flex items-center space-x-1"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             {navItems.map(({ path, icon: Icon, label }, index) => {
@@ -90,8 +84,8 @@ const Navbar: React.FC = () => {
               return (
                 <motion.div
                   key={path}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.6 + index * 0.08 }}
                 >
                   <Link
@@ -106,7 +100,7 @@ const Navbar: React.FC = () => {
                     <span>{label}</span>
                     {isActive && (
                       <motion.div
-                        className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full"
+                        className="absolute bottom-0 left-2 right-2 h-0.5 bg-emerald-500 rounded-full"
                         layoutId="navbar-indicator"
                         transition={{
                           type: "spring",
@@ -135,7 +129,7 @@ const Navbar: React.FC = () => {
               >
                 <Link
                   to="/login"
-                  className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 text-sm font-semibold"
+                  className="hidden md:flex items-center space-x-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl hover:shadow-md hover:shadow-none transition-all duration-300 text-sm font-semibold"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>Login</span>
@@ -259,3 +253,6 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+
+
+

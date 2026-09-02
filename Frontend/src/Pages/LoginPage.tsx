@@ -65,11 +65,11 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0d1110] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
         <motion.div
-          className="absolute top-1/4 right-1/4 w-80 h-80 bg-emerald-500/8 rounded-full filter blur-[100px]"
+          className="absolute top-1/4 right-1/4 w-80 h-80 hidden"
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
           transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
         />
@@ -92,15 +92,15 @@ const LoginPage = () => {
         {/* Header */}
         <motion.div
           className="text-center mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
         >
           <Link to="/" className="inline-flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-none">
               <FileText className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">ElevateCv</span>
+            <span className="text-xl font-bold text-emerald-400">ElevateCv</span>
           </Link>
           <h1 className="text-3xl font-bold text-zinc-100 mb-2">Welcome back</h1>
           <p className="text-zinc-500 text-sm">Sign in to access your dashboard</p>
@@ -108,9 +108,9 @@ const LoginPage = () => {
 
         {/* Form Card */}
         <motion.div
-          className="glass-card rounded-2xl p-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          className="glass-card rounded-lg p-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           {error && (
@@ -170,7 +170,7 @@ const LoginPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className="input-dark !pl-12 pr-10"
-                  placeholder="••••••••"
+                  placeholder=""
                 />
                 <button
                   type="button"
@@ -213,7 +213,7 @@ const LoginPage = () => {
             <motion.button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:shadow-md hover:shadow-none transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               whileHover={{ scale: isLoading ? 1 : 1.01 }}
               whileTap={{ scale: isLoading ? 1 : 0.99 }}
             >
@@ -238,7 +238,7 @@ const LoginPage = () => {
                 <div className="w-full border-t border-zinc-800"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-zinc-950 text-zinc-600 text-xs uppercase tracking-wider">
+                <span className="px-3 bg-[#0d1110] text-zinc-600 text-xs uppercase tracking-wider">
                   Or continue with
                 </span>
               </div>
@@ -271,3 +271,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

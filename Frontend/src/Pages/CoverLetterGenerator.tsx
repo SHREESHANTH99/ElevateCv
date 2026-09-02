@@ -87,8 +87,8 @@ ${coverLetterData.yourName}`;
     return (
       <div className="max-w-4xl mx-auto py-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           className="mb-6 flex items-center justify-between"
         >
           <button
@@ -103,7 +103,7 @@ ${coverLetterData.yourName}`;
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={downloadAsPDF}
-              className="flex items-center px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+              className="flex items-center px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:shadow-md hover:shadow-none transition-all"
             >
               <Download className="w-4 h-4 mr-2" />
               Download
@@ -112,10 +112,10 @@ ${coverLetterData.yourName}`;
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-2xl p-12 max-w-3xl mx-auto text-gray-800"
+          className="bg-white rounded-lg shadow-lg p-12 max-w-3xl mx-auto text-gray-800"
           style={{ fontFamily: "'Georgia', serif" }}
         >
           <div className="text-right text-sm text-gray-500 mb-8">{coverLetterData.date}</div>
@@ -139,12 +139,12 @@ ${coverLetterData.yourName}`;
       {/* Header */}
       <motion.div
         className="mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
         <div className="flex items-center space-x-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-r bg-emerald-600 flex items-center justify-center shadow-lg">
             <Mail className="w-5 h-5 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-zinc-100">Cover Letter Generator</h1>
@@ -156,11 +156,11 @@ ${coverLetterData.yourName}`;
         {/* Form */}
         <motion.div
           className="lg:col-span-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <div className="glass-card rounded-2xl p-8">
+          <div className="glass-card rounded-lg p-8">
             <h2 className="text-sm font-semibold text-zinc-300 mb-6 uppercase tracking-wider flex items-center">
               <Sparkles className="w-4 h-4 mr-2 text-violet-500" />
               Cover Letter Details
@@ -269,7 +269,7 @@ ${coverLetterData.yourName}`;
               <motion.button
                 onClick={generateCoverLetter}
                 disabled={isGenerating || !coverLetterData.companyName || !coverLetterData.position}
-                className="flex items-center px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-500 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-violet-500/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-500 text-white rounded-xl font-semibold text-sm hover:shadow-md hover:shadow-violet-500/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 whileHover={{ scale: isGenerating ? 1 : 1.02 }}
                 whileTap={{ scale: isGenerating ? 1 : 0.98 }}
               >
@@ -302,12 +302,12 @@ ${coverLetterData.yourName}`;
         {/* Sidebar */}
         <motion.div
           className="lg:col-span-1 space-y-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           {/* Tips */}
-          <div className="glass-card rounded-2xl p-6">
+          <div className="glass-card rounded-lg p-6">
             <h3 className="text-sm font-semibold text-zinc-300 mb-4 uppercase tracking-wider">
               Tips for Success
             </h3>
@@ -315,7 +315,7 @@ ${coverLetterData.yourName}`;
               {[
                 { title: "Personalize", desc: "Address the hiring manager by name and mention specific company details.", color: "emerald" },
                 { title: "Be Specific", desc: "Include specific examples of achievements related to the job.", color: "cyan" },
-                { title: "Show Enthusiasm", desc: "Express genuine interest in the company and position.", color: "violet" },
+                { title: "Show Enthusiasm", desc: "Express genuine interest in the company and position.", color: "cyan" },
                 { title: "Keep it Concise", desc: "Aim for 3-4 paragraphs and keep it under one page.", color: "amber" },
               ].map(({ title, desc, color }) => (
                 <div key={title} className={`p-3 rounded-xl bg-${color}-500/5 border border-${color}-500/10`}>
@@ -329,9 +329,9 @@ ${coverLetterData.yourName}`;
           {/* Actions */}
           {coverLetterData.content && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass-card rounded-2xl p-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="glass-card rounded-lg p-6"
             >
               <h3 className="text-sm font-semibold text-zinc-300 mb-4 uppercase tracking-wider">Actions</h3>
               <div className="space-y-3">
@@ -353,7 +353,7 @@ ${coverLetterData.yourName}`;
                 </button>
                 <button
                   onClick={downloadAsPDF}
-                  className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-600 to-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+                  className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl text-sm font-medium bg-emerald-600 text-white hover:shadow-md hover:shadow-none transition-all"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
@@ -375,3 +375,4 @@ ${coverLetterData.yourName}`;
 };
 
 export default CoverLetterGenerator;
+

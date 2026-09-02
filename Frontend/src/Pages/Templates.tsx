@@ -87,8 +87,8 @@ const Templates: React.FC = () => {
         {/* Header */}
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
           <motion.span
@@ -100,7 +100,7 @@ const Templates: React.FC = () => {
             Template Gallery
           </motion.span>
           <motion.h1
-            className="text-4xl md:text-6xl font-bold gradient-text mb-6"
+            className="text-4xl md:text-6xl font-bold text-emerald-400 mb-6"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -124,7 +124,7 @@ const Templates: React.FC = () => {
           >
             {[
               { icon: Sparkles, label: "ATS Optimized", color: "emerald" },
-              { icon: Crown, label: "Expert Designed", color: "violet" },
+              { icon: Crown, label: "Expert Designed", color: "cyan" },
               { icon: Zap, label: "Instant Download", color: "amber" },
             ].map(({ icon: Icon, label, color }) => (
               <div key={label} className={`flex items-center text-${color}-500 text-sm`}>
@@ -138,8 +138,8 @@ const Templates: React.FC = () => {
         {/* Categories */}
         <motion.div
           className="mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
           <div className="flex flex-wrap gap-2 justify-center">
@@ -152,8 +152,8 @@ const Templates: React.FC = () => {
                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                     : "text-zinc-500 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-700"
                 }`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 + index * 0.05 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -179,7 +179,7 @@ const Templates: React.FC = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 whileHover={{ y: -8 }}
-                className="glass-card rounded-2xl overflow-hidden cursor-pointer group"
+                className="glass-card rounded-lg overflow-hidden cursor-pointer group"
                 onClick={() => setSelectedTemplate(template)}
               >
                 {/* Preview Area */}
@@ -194,7 +194,7 @@ const Templates: React.FC = () => {
                     <p className="text-xs text-zinc-600">Preview</p>
                   </div>
                   {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-zinc-950/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-[#0d1110]/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                     <div className="flex space-x-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePreview(template); }}
@@ -224,7 +224,7 @@ const Templates: React.FC = () => {
                 <div className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-zinc-200 text-sm group-hover:text-emerald-400 transition-colors">{template.name}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${template.isFree ? "bg-emerald-500/15 text-emerald-400" : "bg-violet-500/15 text-violet-400"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${template.isFree ? "bg-emerald-500/15 text-emerald-400" : "bg-cyan-500/15 text-cyan-400"}`}>
                       {template.isFree ? "Free" : "Pro"}
                     </span>
                   </div>
@@ -241,7 +241,7 @@ const Templates: React.FC = () => {
                   <motion.div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Link
                       to={`/resume/builder?template=${template.id}`}
-                      className="w-full flex items-center justify-center py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg text-xs font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+                      className="w-full flex items-center justify-center py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:shadow-md hover:shadow-none transition-all"
                       onClick={(e) => { e.stopPropagation(); localStorage.setItem("selectedTemplate", template.id); }}
                     >
                       <FileText className="w-3.5 h-3.5 mr-1.5" />
@@ -261,14 +261,14 @@ const Templates: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-[#0d1110]/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
               onClick={() => setSelectedTemplate(null)}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="glass-card rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto"
+                className="glass-card rounded-lg max-w-3xl w-full max-h-[85vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="p-8">
@@ -313,7 +313,7 @@ const Templates: React.FC = () => {
                       <div className="p-5 rounded-xl bg-zinc-800/30 border border-zinc-800/60 mb-6">
                         <div className="flex items-center justify-between">
 
-                          <span className={`px-3 py-1 rounded-lg text-xs font-semibold ${selectedTemplate.isFree ? "bg-emerald-500/15 text-emerald-400" : "bg-violet-500/15 text-violet-400"}`}>
+                          <span className={`px-3 py-1 rounded-lg text-xs font-semibold ${selectedTemplate.isFree ? "bg-emerald-500/15 text-emerald-400" : "bg-cyan-500/15 text-cyan-400"}`}>
                             {selectedTemplate.isFree ? "Free" : "Pro"}
                           </span>
                           {selectedTemplate.isPopular && (
@@ -324,7 +324,7 @@ const Templates: React.FC = () => {
                       <div className="space-y-3">
                         <Link
                           to={`/resume/builder?template=${selectedTemplate.id}`}
-                          className="w-full flex items-center justify-center py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+                          className="w-full flex items-center justify-center py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:shadow-md hover:shadow-none transition-all"
                           onClick={() => localStorage.setItem("selectedTemplate", selectedTemplate.id)}
                         >
                           <FileText className="w-4 h-4 mr-2" />
@@ -376,3 +376,4 @@ const Templates: React.FC = () => {
 };
 
 export default Templates;
+

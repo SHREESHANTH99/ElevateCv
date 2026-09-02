@@ -145,7 +145,7 @@ const ExecutiveTemplate = React.forwardRef<
                       <ul className="space-y-2 text-gray-800">
                         {exp.description.map((desc, descIndex) => (
                           <li key={descIndex} className="flex items-start">
-                            <span className="text-blue-600 mr-3 mt-1">▪</span>
+                            <span className="text-blue-600 mr-3 mt-1"></span>
                             <span className="leading-relaxed">{desc}</span>
                           </li>
                         ))}

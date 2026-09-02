@@ -658,19 +658,19 @@ const ResumeBuilder: React.FC = () => {
       const resumeId = urlParams.get("resumeId");
       let targetResumeId = resumeId;
       if (resumeId) {
-        console.log("🔍 Updating existing resume:", resumeId);
+        console.log(" Updating existing resume:", resumeId);
         await ResumeApi.updateResume(resumeToSave);
         targetResumeId = resumeId;
       } else {
-        console.log("🔍 Creating new resume with data:", resumeToSave);
+        console.log(" Creating new resume with data:", resumeToSave);
         const result = await ResumeApi.createResume(resumeToSave);
-        console.log("🔍 Create resume result:", result);
+        console.log(" Create resume result:", result);
         if (result && (result as any)._id) {
           targetResumeId = (result as any)._id;
         } else if (result && (result as any).id) {
           targetResumeId = (result as any).id;
         } else {
-          console.error("❌ Invalid resume creation result:", result);
+          console.error(" Invalid resume creation result:", result);
           throw new Error("Failed to create resume - no ID returned");
         }
       }
@@ -679,10 +679,10 @@ const ResumeBuilder: React.FC = () => {
         .replace(/[^a-zA-Z0-9]/g, "_")}_Resume.pdf`;
       if (targetResumeId) {
         console.log(
-          "🔍 Attempting PDF download with resume ID:",
+          " Attempting PDF download with resume ID:",
           targetResumeId
         );
-        console.log("🔍 Resume data for PDF:", resumeToSave);
+        console.log(" Resume data for PDF:", resumeToSave);
         await ResumeApi.exportResume(targetResumeId, filename);
       } else {
         throw new Error("Failed to get resume ID for export");
@@ -925,7 +925,7 @@ const ResumeBuilder: React.FC = () => {
   }, [resumeData, user]);
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-zinc-950">
+      <div className="flex flex-col items-center justify-center h-screen bg-[#0d1110]">
         <div className="relative w-16 h-16 mb-4">
           <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
@@ -936,15 +936,21 @@ const ResumeBuilder: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 pb-20 lg:pb-0 text-zinc-100 pt-20">
+    <div className="min-h-screen bg-[#0d1110] pb-20 lg:pb-0 text-zinc-100 pt-20">
       <div className="glass sticky top-20 z-40 border-b border-zinc-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold gradient-text">
-                Resume Builder
-              </h1>
-              <p className="text-xs text-zinc-500 mt-1">Design your professional future</p>
+            <div className="flex flex-col group">
+              <input
+                type="text"
+                value={resumeData.title || ""}
+                onChange={(e) =>
+                  setResumeData((prev) => ({ ...prev, title: e.target.value }))
+                }
+                placeholder="Untitled Resume"
+                className="text-xl sm:text-2xl font-bold text-zinc-100 bg-transparent border-b border-transparent focus:border-zinc-700 hover:border-zinc-800 outline-none focus:ring-0 placeholder:text-zinc-700 p-0 m-0 w-full max-w-xs transition-colors"
+              />
+              <p className="text-xs text-zinc-500 mt-1 flex items-center">Resume Editor</p>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <button
@@ -969,12 +975,12 @@ const ResumeBuilder: React.FC = () => {
               <button
                 onClick={handleDownloadPDF}
                 disabled={isDownloading}
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 rounded-xl text-sm font-semibold text-white transition-all duration-300 disabled:opacity-50 flex-1 sm:flex-none justify-center group"
+                className="inline-flex items-center px-4 py-2 bg-emerald-600 hover:shadow-md hover:shadow-none rounded-xl text-sm font-semibold text-white transition-all duration-300 disabled:opacity-50 flex-1 sm:flex-none justify-center group"
               >
                 {isDownloading ? (
                   <Loader2 className="animate-spin h-4 w-4 mr-2" />
                 ) : (
-                  <Download className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                  <Download className="h-4 w-4 mr-2 transition-transform" />
                 )}
                 <span className="hidden sm:inline">
                   {isDownloading ? "Generating..." : "Download PDF"}
@@ -1015,28 +1021,7 @@ const ResumeBuilder: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass border-b border-zinc-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="w-full max-w-md">
-            <label
-              htmlFor="resume-title"
-              className="block text-sm font-medium text-zinc-400 mb-2"
-            >
-              Resume Title
-            </label>
-            <input
-              id="resume-title"
-              type="text"
-              value={resumeData.title || ""}
-              onChange={(e) =>
-                setResumeData((prev) => ({ ...prev, title: e.target.value }))
-              }
-              placeholder="My Resume"
-              className="input-dark !py-2.5"
-            />
-          </div>
-        </div>
-      </div>
+
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         <div className="max-w-7xl mx-auto py-4 lg:py-8">
@@ -1060,7 +1045,7 @@ const ResumeBuilder: React.FC = () => {
 
           <div className="w-full">
             <div className="w-full">
-              <div className="glass-card rounded-2xl p-4 lg:p-6 mb-6 lg:mb-10">
+              <div className="glass-card rounded-lg p-4 lg:p-6 mb-6 lg:mb-10">
                 <h2 className="text-lg lg:text-xl font-bold mb-6 flex items-center">
                   <div className="w-1.5 h-6 bg-emerald-500 rounded-full mr-3" />
                   Resume Sections
@@ -1087,7 +1072,7 @@ const ResumeBuilder: React.FC = () => {
                       onClick={() => setActiveSection(section.id)}
                       className={`p-3 rounded-xl text-xs lg:text-sm font-semibold transition-all duration-300 border ${
                         activeSection === section.id
-                          ? "bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border-emerald-500/50 text-emerald-400 shadow-lg shadow-emerald-500/10"
+                          ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
                           : "bg-zinc-900/50 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
                       }`}
                     >
@@ -1099,7 +1084,7 @@ const ResumeBuilder: React.FC = () => {
               </div>
 
           {activeSection === "personal" && (
-            <div className="glass-card rounded-2xl p-6 lg:p-8 animate-in fade-in duration-500">
+            <div className="glass-card rounded-lg p-6 lg:p-8 animate-in fade-in duration-500">
               <h2 className="text-lg lg:text-xl font-bold mb-8 flex items-center text-zinc-100">
                 <div className="w-1 h-5 bg-emerald-500 rounded-full mr-3" />
                 Personal Information
@@ -1321,7 +1306,7 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
           {activeSection === "summary" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-4 lg:p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-4 lg:p-6">
               <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                 Professional Summary
               </h2>
@@ -1351,21 +1336,21 @@ const ResumeBuilder: React.FC = () => {
             </div>
           )}
           {activeSection === "experience" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-4 lg:p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-4 lg:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-lg lg:text-xl font-semibold">
                   Work Experience
                 </h2>
                 <button
                   onClick={addExperience}
-                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm w-full sm:w-auto justify-center"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-none transition-all duration-300 font-semibold text-sm w-full sm:w-auto justify-center"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Experience
                 </button>
               </div>
               {resumeData.experiences.length === 0 ? (
-                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
+                <div className="text-center py-12 glass-card rounded-lg shadow-md shadow-black/20">
                   <Briefcase className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No experience added
@@ -1388,7 +1373,7 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.experiences.map((exp) => (
                     <div
                       key={exp.id}
-                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
+                      className="glass-card rounded-lg shadow-md shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="text-lg font-medium text-zinc-100">
@@ -1481,7 +1466,7 @@ const ResumeBuilder: React.FC = () => {
                                 })
                               }
                               disabled={exp.current}
-                              className={`input-dark ${exp.current ? "bg-zinc-950" : ""
+                              className={`input-dark ${exp.current ? "bg-[#0d1110]" : ""
                                 }`}
                             />
                           </div>
@@ -1570,14 +1555,14 @@ const ResumeBuilder: React.FC = () => {
                 <h2 className="text-xl font-semibold">Education</h2>
                 <button
                   onClick={addEducation}
-                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-none transition-all duration-300 font-semibold text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Education
                 </button>
               </div>
               {resumeData.education.length === 0 ? (
-                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
+                <div className="text-center py-12 glass-card rounded-lg shadow-md shadow-black/20">
                   <GraduationCap className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No education added
@@ -1600,7 +1585,7 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.education.map((edu) => (
                     <div
                       key={edu.id}
-                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
+                      className="glass-card rounded-lg shadow-md shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="text-lg font-medium text-zinc-100">
@@ -1705,7 +1690,7 @@ const ResumeBuilder: React.FC = () => {
                               })
                             }
                             disabled={edu.current}
-                            className={`input-dark ${edu.current ? "bg-zinc-950" : ""
+                            className={`input-dark ${edu.current ? "bg-[#0d1110]" : ""
                               }`}
                           />
                         </div>
@@ -1769,14 +1754,14 @@ const ResumeBuilder: React.FC = () => {
                 <h2 className="text-xl font-semibold">Skills</h2>
                 <button
                   onClick={addSkill}
-                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-none transition-all duration-300 font-semibold text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Skill
                 </button>
               </div>
               {resumeData.skills.length === 0 ? (
-                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
+                <div className="text-center py-12 glass-card rounded-lg shadow-md shadow-black/20">
                   <Code className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No skills added
@@ -1799,7 +1784,7 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.skills.map((skill) => (
                     <div
                       key={skill.id}
-                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
+                      className="glass-card rounded-lg shadow-md shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="text-lg font-medium text-zinc-100">
@@ -1895,14 +1880,14 @@ const ResumeBuilder: React.FC = () => {
                 <h2 className="text-xl font-semibold">Projects</h2>
                 <button
                   onClick={addProject}
-                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 font-semibold text-sm"
+                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-none transition-all duration-300 font-semibold text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Project
                 </button>
               </div>
               {resumeData.projects.length === 0 ? (
-                <div className="text-center py-12 glass-card rounded-2xl shadow-xl shadow-black/20">
+                <div className="text-center py-12 glass-card rounded-lg shadow-md shadow-black/20">
                   <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-lg font-medium text-zinc-100">
                     No projects added
@@ -1925,7 +1910,7 @@ const ResumeBuilder: React.FC = () => {
                   {resumeData.projects.map((project) => (
                     <div
                       key={project.id}
-                      className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6"
+                      className="glass-card rounded-lg shadow-md shadow-black/20 p-6"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="text-lg font-medium text-zinc-100">
@@ -2059,7 +2044,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "certifications" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Certifications</h2>
                 <button
@@ -2198,7 +2183,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "awards" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Awards & Honors</h2>
                 <button
@@ -2299,7 +2284,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "languages" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Languages</h2>
                 <button
@@ -2380,7 +2365,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "publications" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Publications</h2>
                 <button
@@ -2504,7 +2489,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "volunteer" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Volunteer Experience</h2>
                 <button
@@ -2650,7 +2635,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "references" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">References</h2>
                 <button
@@ -2790,7 +2775,7 @@ const ResumeBuilder: React.FC = () => {
           )}
 
           {activeSection === "template" && (
-            <div className="glass-card rounded-2xl shadow-xl shadow-black/20 p-4 lg:p-6">
+            <div className="glass-card rounded-lg shadow-md shadow-black/20 p-4 lg:p-6">
               <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">
                 Choose Template
               </h2>
@@ -2873,7 +2858,7 @@ const ResumeBuilder: React.FC = () => {
                     <p className="text-gray-600 text-sm">
                       {template.description}
                     </p>
-                    <div className="mt-4 h-32 bg-zinc-950 rounded border flex items-center justify-center">
+                    <div className="mt-4 h-32 bg-[#0d1110] rounded border flex items-center justify-center">
                       <span className="text-zinc-500 text-xs">Preview</span>
                     </div>
                   </div>
@@ -2892,9 +2877,9 @@ const ResumeBuilder: React.FC = () => {
           {activeSection === "analysis" && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {/* Target Job Input Block */}
-              <div className="glass-card rounded-3xl p-6 lg:p-8 border-emerald-500/10 transition-all hover:border-emerald-500/30">
+              <div className="glass-card rounded-xl p-6 lg:p-8 border-emerald-500/10 transition-all hover:border-emerald-500/30">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
                     <Target className="w-6 h-6 text-emerald-500" />
                   </div>
                   <div>
@@ -2912,7 +2897,7 @@ const ResumeBuilder: React.FC = () => {
                    <button
                     onClick={handleAnalyze}
                     disabled={isAnalyzing || targetJobDescription.length < 50}
-                    className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-xl font-bold shadow-xl hover:shadow-emerald-500/20 transition-all disabled:opacity-30 flex items-center group overflow-hidden relative"
+                    className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-md hover:shadow-none transition-all disabled:opacity-30 flex items-center group overflow-hidden relative"
                   >
                     <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
                     {isAnalyzing ? (
@@ -2934,7 +2919,7 @@ const ResumeBuilder: React.FC = () => {
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                   {/* Left Column: ATS Score & Breakdown */}
                     <div className="xl:col-span-4 space-y-6">
-                    <div className="glass-card p-8 rounded-3xl text-center relative overflow-hidden group border-emerald-500/20">
+                    <div className="glass-card p-8 rounded-xl text-center relative overflow-hidden group border-emerald-500/20">
                       {analysisResults.metadata?.cached && (
                         <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                           <CheckCircle className="w-3 h-3 text-emerald-500" />
@@ -2949,7 +2934,7 @@ const ResumeBuilder: React.FC = () => {
                         </div>
                       )}
                       
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors" />
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full hidden -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors" />
                       <div className="relative w-48 h-48 mx-auto mb-6">
                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                           <circle className="text-zinc-800" strokeWidth="6" stroke="currentColor" fill="transparent" r="44" cx="50" cy="50" />
@@ -2970,13 +2955,13 @@ const ResumeBuilder: React.FC = () => {
                           <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mt-1">Intelligence Score</span>
                         </div>
                       </div>
-                      <div className="px-5 py-2 rounded-2xl border transition-all inline-block" 
+                      <div className="px-5 py-2 rounded-lg border transition-all inline-block" 
                            style={{ backgroundColor: `${analysisResults.color}15`, borderColor: `${analysisResults.color}30`, color: analysisResults.color }}>
                         <span className="text-xs font-black uppercase tracking-[0.15em]">{analysisResults.label || 'Analyzing...'}</span>
                       </div>
                     </div>
 
-                    <div className="glass-card p-6 rounded-3xl space-y-4">
+                    <div className="glass-card p-6 rounded-xl space-y-4">
                       <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-6 px-1">Section Analysis</h3>
                       {Object.entries(analysisResults.sectionScores || {}).map(([section, val], i) => (
                         <div key={i} className="space-y-2">
@@ -3002,7 +2987,7 @@ const ResumeBuilder: React.FC = () => {
                   <div className="xl:col-span-8 space-y-8">
                     {/* Job Match Module */}
                     {analysisResults?.match && (
-                      <div className="glass-card rounded-3xl p-6 border-cyan-500/10">
+                      <div className="glass-card rounded-xl p-6 border-cyan-500/10">
                         <div className="flex items-center justify-between mb-6">
                            <div className="flex items-center gap-3">
                               <div className="w-8 h-8 bg-cyan-500/10 rounded-xl flex items-center justify-center">
@@ -3013,7 +2998,7 @@ const ResumeBuilder: React.FC = () => {
                           <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest">{analysisResults.match.score}% match</span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           <div className="p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                           <div className="p-4 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
                             <p className="text-[10px] font-bold text-emerald-500 uppercase mb-3 px-1">Verified Skills</p>
                             <div className="flex flex-wrap gap-2">
                               {analysisResults.match.matchDetails?.["Job Skills"]?.filter((s: string) => !analysisResults.match?.missingSkills.includes(s)).map((skill: string, i: number) => (
@@ -3021,7 +3006,7 @@ const ResumeBuilder: React.FC = () => {
                               ))}
                             </div>
                           </div>
-                          <div className="p-4 bg-rose-500/5 rounded-2xl border border-rose-500/10">
+                          <div className="p-4 bg-rose-500/5 rounded-lg border border-rose-500/10">
                             <p className="text-[10px] font-bold text-rose-500 uppercase mb-3 px-1">Detected Skill Gaps</p>
                             <div className="flex flex-wrap gap-2">
                               {analysisResults.match.missingSkills.map((skill: string, i: number) => (
@@ -3040,8 +3025,8 @@ const ResumeBuilder: React.FC = () => {
                       <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 px-1">Score Reasoning & Roadmap</h3>
                       <div className="grid grid-cols-1 gap-4">
                         {(analysisResults.reasoning || []).map((reason, i) => (
-                          <div key={i} className="flex items-start p-5 bg-zinc-900/40 rounded-3xl border border-zinc-800/50 hover:border-blue-500/20 transition-all group">
-                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0 transition-colors ${
+                          <div key={i} className="flex items-start p-5 bg-zinc-900/40 rounded-xl border border-zinc-800/50 hover:border-blue-500/20 transition-all group">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 transition-colors ${
                                 reason.type === 'critical' ? 'bg-rose-500/10' : 'bg-blue-500/10'
                             }`}>
                               {reason.type === 'critical' ? 
@@ -3062,11 +3047,11 @@ const ResumeBuilder: React.FC = () => {
                     </div>
 
                     {/* Intelligent Loop - Copy text */}
-                    <div className="p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 relative group">
+                    <div className="p-6 bg-emerald-500/5 rounded-xl border border-emerald-500/10 relative group">
                        <Sparkles className="absolute top-4 right-4 w-5 h-5 text-emerald-500/20 group-hover:text-emerald-500/40 transition-colors" />
                        <h4 className="text-[11px] font-black uppercase text-emerald-500 mb-2">Optimization Context</h4>
                        <p className="text-xs text-zinc-400 italic">"Use this context when clicking 'Improve with AI' in the editor for better results."</p>
-                       <div className="mt-3 p-3 bg-zinc-950 rounded-xl text-[11px] text-emerald-400/70 font-mono border border-emerald-500/5">
+                       <div className="mt-3 p-3 bg-[#0d1110] rounded-xl text-[11px] text-emerald-400/70 font-mono border border-emerald-500/5">
                           {analysisResults.context}
                        </div>
                     </div>
@@ -3124,8 +3109,8 @@ const ResumeBuilder: React.FC = () => {
             }
           }}
         >
-          <div className="glass-card rounded-2xl w-full h-full lg:max-w-5xl lg:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-zinc-800/50">
-            <div className="flex items-center justify-between p-4 border-b border-zinc-800/50 bg-zinc-950/50 backdrop-blur-md">
+          <div className="glass-card rounded-lg w-full h-full lg:max-w-5xl lg:max-h-[90vh] flex flex-col shadow-lg overflow-hidden border border-zinc-800/50">
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800/50 bg-[#0d1110]/50 backdrop-blur-md">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-emerald-500/10 rounded-lg">
                   <Eye className="h-5 w-5 text-emerald-500" />
@@ -3162,7 +3147,7 @@ const ResumeBuilder: React.FC = () => {
             </div>
 
             <div className="flex-1 overflow-auto bg-zinc-900/30 p-4 lg:p-8">
-              <div className="max-w-4xl mx-auto shadow-2xl rounded-sm overflow-hidden bg-white">
+              <div className="max-w-4xl mx-auto shadow-lg rounded-sm overflow-hidden bg-white">
                 <div
                   id="resume-preview-modal"
                   ref={previewRef}
@@ -3188,7 +3173,7 @@ const ResumeBuilder: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-4 border-t border-zinc-800/50 bg-zinc-950/50 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="p-4 border-t border-zinc-800/50 bg-[#0d1110]/50 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="text-sm text-zinc-400 flex items-center">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2" />
                 Formatting and styling will be preserved in the exported PDF.
@@ -3210,3 +3195,5 @@ const ResumeBuilder: React.FC = () => {
 };
 
 export default ResumeBuilder;
+
+
