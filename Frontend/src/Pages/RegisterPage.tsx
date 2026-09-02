@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { Link } from "react-router-dom";
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 
 const RegisterPage = () => {
+  useDocumentTitle('Register');
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

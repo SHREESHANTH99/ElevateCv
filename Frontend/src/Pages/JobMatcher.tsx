@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Target,
@@ -130,6 +131,7 @@ class JobMatcherAPI {
 }
 
 const JobMatcher: React.FC = () => {
+  useDocumentTitle('Job Matcher');
   const [jobDescription, setJobDescription] = useState("");
   const [selectedResume, setSelectedResume] = useState("");
   const [uploadedResume, setUploadedResume] = useState<UploadedResume | null>(null);

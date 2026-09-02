@@ -1,4 +1,5 @@
-﻿import React from "react";
+﻿import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -57,6 +58,7 @@ class DashboardAPI {
 }
 
 const Dashboard: React.FC = () => {
+  useDocumentTitle('Dashboard');
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

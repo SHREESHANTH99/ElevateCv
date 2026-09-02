@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 
 const Landing: React.FC = () => {
+  useDocumentTitle('Home');
   const { user } = useAuth();
 
   const features = [

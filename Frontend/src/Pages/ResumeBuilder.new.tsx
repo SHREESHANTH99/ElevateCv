@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeApi } from "../services/resumeApi";
@@ -96,6 +97,7 @@ type UserProfile = {
   socialLinks?: SocialLinks;
 };
 const ResumeBuilder: React.FC = () => {
+  useDocumentTitle('Builder');
   const [isDownloading, setIsDownloading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"

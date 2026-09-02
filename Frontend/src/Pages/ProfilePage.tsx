@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -52,6 +53,7 @@ interface LoadingState {
 }
 
 const ProfilePage: React.FC = () => {
+  useDocumentTitle('Profile');
   const navigate = useNavigate();
   const { user, updateProfile, logout } = useAuth();
   const [isSaving, setIsSaving] = useState(false);

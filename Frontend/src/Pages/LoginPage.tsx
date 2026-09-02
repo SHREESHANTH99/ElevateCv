@@ -1,3 +1,4 @@
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -21,6 +22,7 @@ interface LoginFormData {
 }
 
 const LoginPage = () => {
+  useDocumentTitle('Login');
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",

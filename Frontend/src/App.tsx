@@ -19,6 +19,9 @@ import ProfilePage from "./Pages/ProfilePage";
 import LoadingSpinner from "./Components/common/LoadingSpinner";
 import "./index.css";
 import ResumeBuilder from "./Pages/ResumeBuilder.new";
+import { ErrorBoundary } from "./Components/ErrorBoundary";
+import NotFound from "./Pages/NotFound";
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -62,6 +65,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 );
 function App() {
   return (
+    <ErrorBoundary>
     <Router>
       <AuthProvider>
         <Routes>
@@ -161,10 +165,11 @@ function App() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </Router>
+    </ErrorBoundary>
   );
 }
 export default App;
