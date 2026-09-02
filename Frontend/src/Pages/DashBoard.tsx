@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -187,7 +187,7 @@ const Dashboard: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {stats.map(({ label, value, icon: Icon, gradient, description }, index) => (
+          {stats.map(({ label, value, icon: Icon, description }, index) => (
             <motion.div
               key={label}
               initial={{ opacity: 0 }}
@@ -214,7 +214,7 @@ const Dashboard: React.FC = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {quickActions.map(({ to, icon: Icon, title, description, gradient }, index) => (
+          {quickActions.map(({ to, icon: Icon, title, description }, index) => (
             <motion.div
               key={to}
               initial={{ opacity: 0 }}
@@ -365,5 +365,6 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
 
 
