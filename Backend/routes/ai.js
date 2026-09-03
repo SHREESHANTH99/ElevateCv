@@ -17,6 +17,21 @@ router.get("/test", (req, res) => {
 
 const { getCachedResult } = require("../utils/resultCache");
 
+const withTimeout = (promise, ms, fallback) => {
+  let timer;
+  const timeoutPromise = new Promise((resolve) => {
+    timer = setTimeout(() => {
+      console.warn(`[TIMEOUT] External AI service call exceeded ${ms}ms`);
+      resolve(fallback);
+    }, ms);
+  });
+  return Promise.race([
+    promise.then(res => { clearTimeout(timer); return res; }).catch(err => { clearTimeout(timer); throw err; }),
+    timeoutPromise
+  ]);
+};
+
+
 /**
  * 👑 THE CENTRAL ORCHESTRATOR (PHASE 1.75 UPGRADE)
  * Highly optimized, parallelized, and cached intelligence pipeline.
@@ -49,6 +64,7 @@ router.post("/analyze-resume", auth, async (req, res) => {
         // Parallelized tasks: LLM skill extraction AND semantic embedding match
         const [llmResult, similarity] = await Promise.all([
           // Task A: Skill Extraction via Gemini
+          withTimeout(
           (async () => {
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const prompt = `Extract skills/reqs from: ${jobDescription}. Return EXCLUSIVELY JSON: {"Job Skills":[], "Experience":""}`;
@@ -56,8 +72,11 @@ router.post("/analyze-resume", auth, async (req, res) => {
             const text = (await res.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
             return JSON.parse(text);
           })(),
+          8000,
+          { "Job Skills": [], "Experience": "Timeout fallback" } // Fallback
+        ),
           // Task B: Semantic Similarity via Python service (Cached in aiServiceConnector)
-          getSimilarity(JSON.stringify(resumeData), jobDescription)
+          withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 8000, 0)
         ]);
 
         jobMatchInfo = llmResult;
@@ -172,24 +191,30 @@ router.post(
     try {
       const { resumeData, jobDescription } = req.body;
 
-      // 1. Extract job keywords using LLM
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const prompt = `
-        Job Description:
-        ${jobDescription}
+      // Parallelize Gemini and Python Service with Timeouts
+      const [jobMatchInfo, similarity] = await Promise.all([
+        withTimeout(
+          (async () => {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const prompt = `
+              Job Description:
+              ${jobDescription}
 
-        Extract EXACTLY:
-        1. "Job Skills": array of technical skills
-        2. "Experience": Required years or level
-        3. "Primary Responsibilities": top 3 bullets
-        Return JSON format.
-      `;
-      const result = await model.generateContent(prompt);
-      const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
-      const jobMatchInfo = JSON.parse(text);
-
-      // 2. Semantic Similarity via Python Service
-      const similarity = await getSimilarity(JSON.stringify(resumeData), jobDescription);
+              Extract EXACTLY:
+              1. "Job Skills": array of technical skills
+              2. "Experience": Required years or level
+              3. "Primary Responsibilities": top 3 bullets
+              Return JSON format.
+            `;
+            const result = await model.generateContent(prompt);
+            const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
+            return JSON.parse(text);
+          })(),
+          8000,
+          { "Job Skills": [], "Experience": "Timeout", "Primary Responsibilities": [] }
+        ),
+        withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 8000, 0)
+      ]);
 
       // 3. Keyword Overlap
       const resumeSkills = resumeData.skills?.map(s => s.name.toLowerCase()) || [];
@@ -246,9 +271,15 @@ router.post("/improve-resume", auth, async (req, res) => {
       Format: Same as the input JSON.
     `;
     
-    const result = await model.generateContent(prompt);
-    const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
-    const improvedContent = JSON.parse(text);
+    const improvedContent = await withTimeout(
+      (async () => {
+        const result = await model.generateContent(prompt);
+        const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
+        return JSON.parse(text);
+      })(),
+      10000,
+      content // Fallback to original content on timeout
+    );
     
     res.json({ improvedContent });
   } catch (error) {
