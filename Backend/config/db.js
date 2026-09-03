@@ -8,7 +8,8 @@ const connectDB = async () => {
     console.log('🔍 Attempting to connect to MongoDB...');
     await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 15000,
-      directConnection: false  
+      directConnection: false,
+      maxPoolSize: 50 // Optimize Mongoose connection pooling  
     });
     console.log('✅ MongoDB connected');
   } catch (error) {
