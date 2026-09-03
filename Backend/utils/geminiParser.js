@@ -71,7 +71,10 @@ async function parseResumeWithAI(rawText) {
       ${rawText}
     `;
 
+    const t0 = performance.now();
     const result = await model.generateContent(prompt);
+    const t1 = performance.now();
+    console.log(`[PERF] Gemini generateContent latency: ${(t1 - t0).toFixed(2)}ms`);
     const response = await result.response;
     let text = response.text();
     

@@ -15,6 +15,17 @@ const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 console.log(`🚀 Starting server in ${NODE_ENV} mode...`);
 app.use(helmet());
+
+// --- STEP 0: Request Timing Middleware ---
+app.use((req, res, next) => {
+  const start = performance.now();
+  res.on('finish', () => {
+    const duration = (performance.now() - start).toFixed(2);
+    console.log(`[REQ] ${req.method} ${req.originalUrl} - ${res.statusCode} - ${duration}ms`);
+  });
+  next();
+});
+
 app.use(
   cors({
     origin: [
