@@ -58,6 +58,9 @@ async function parseResumeWithAI(rawText) {
         ]
       }
 
+      
+      CRITICAL INSTRUCTION: Extract ONLY facts explicitly stated in the text. DO NOT invent, hallucinate, or assume any information (like missing dates, names, or locations). If a field is not present in the text, leave it empty or null.
+      
       RAW TEXT:
       ${rawText}
     `;
