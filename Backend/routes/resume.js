@@ -271,18 +271,7 @@ router.get("/export/:id?", auth, async (req, res) => {
     }
 
     // Check if Puppeteer is available in this environment
-    try {
-      await puppeteer.executablePath();
-    } catch (execError) {
-      console.error("Puppeteer executable not found:", execError);
-      return res.status(503).json({
-        success: false,
-        message:
-          "PDF generation service is temporarily unavailable. The server environment doesn't support browser automation.",
-        fallback:
-          "Please try downloading your resume later or contact support.",
-      });
-    }
+    // Warm browser handles availability checks now.
 
     const resumeId = req.params.id || req.query.id;
     const query = resumeId
@@ -304,23 +293,11 @@ router.get("/export/:id?", auth, async (req, res) => {
         throw new Error("Failed to generate resume content");
       }
 
-      console.log("🚀 Attempting to launch browser...");
-      const browser = await puppeteer.launch({
-        headless: "new",
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-gpu",
-          "--disable-web-security",
-          "--disable-features=VizDisplayCompositor",
-          "--run-all-compositor-stages-before-draw",
-          "--memory-pressure-off",
-        ],
-        timeout: 30000,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-      });
-      console.log("✅ Browser launched successfully");
+      const { getBrowser } = require("../utils/puppeteerService");
+      console.log("🚀 Attempting to connect to warm browser...");
+      const t0_browser = performance.now();
+      const browser = await getBrowser();
+      console.log(`✅ Browser connected in ${(performance.now() - t0_browser).toFixed(2)}ms`);
       const page = await browser.newPage();
       try {
         page.setDefaultNavigationTimeout(30000);
@@ -363,9 +340,11 @@ router.get("/export/:id?", auth, async (req, res) => {
         res.send(pdf);
       } finally {
         try {
-          await browser.close();
-        } catch (browserCloseError) {
-          console.error("Error closing browser:", browserCloseError);
+          if (page && !page.isClosed()) {
+            await page.close();
+          }
+        } catch (pageCloseError) {
+          console.error("Error closing page:", pageCloseError);
         }
       }
     } catch (pdfError) {
