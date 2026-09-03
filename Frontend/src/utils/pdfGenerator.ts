@@ -33,7 +33,8 @@ export const generatePDF = async (options: PDFOptions) => {
     
     // Lazy load heavy PDF libraries
     const html2canvas = (await import("html2canvas")).default;
-    const { jsPDF } = await import("jspdf");
+    const jsPDFModule = await import("jspdf");
+    const jsPDF = (jsPDFModule as any).jsPDF || (jsPDFModule as any).default;
 
     const element = document.getElementById(elementId);
     if (!element) {
