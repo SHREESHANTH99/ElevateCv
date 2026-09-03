@@ -1,5 +1,5 @@
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+
+
 
 export interface PDFOptions {
   elementId: string;
@@ -30,6 +30,11 @@ export const generatePDF = async (options: PDFOptions) => {
   let clone: HTMLElement | null = null;
   try {
     onStart?.();
+    
+    // Lazy load heavy PDF libraries
+    const html2canvas = (await import("html2canvas")).default;
+    const { jsPDF } = await import("jspdf");
+
     const element = document.getElementById(elementId);
     if (!element) {
       throw new Error(`Element with id "${elementId}" not found`);
