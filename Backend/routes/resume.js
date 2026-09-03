@@ -15,7 +15,7 @@ router.get("/", auth, async (req, res) => {
       .sort({ updatedAt: -1 })
       .select(
         "-personalInfo -summary -experiences -education -skills -projects"
-      );
+      ).lean();
     res.json({ resumes });
   } catch (error) {
     console.error("Get resumes error:", error);
@@ -27,7 +27,7 @@ router.get("/:id", auth, async (req, res) => {
     const resume = await Resume.findOne({
       _id: req.params.id,
       userId: req.user._id,
-    });
+    }).lean();
     if (!resume) {
       return res.status(404).json({ message: "Resume not found" });
     }
@@ -97,7 +97,7 @@ router.post(
         const existingResume = await Resume.findOne({
           _id: req.body._id,
           userId: req.user._id,
-        });
+        }).lean();
         if (!existingResume) {
           return res
             .status(404)
@@ -149,7 +149,7 @@ router.post(
             { _id: req.body._id, userId: req.user._id },
             { $set: updateData },
             { new: true, runValidators: true }
-          );
+          ).lean();
         } else {
           resume = new Resume(resumeData);
           await resume.save();
@@ -214,7 +214,7 @@ router.put(
           lastModified: new Date(),
         },
         { new: true, runValidators: true }
-      );
+      ).lean();
       if (!resume) {
         return res.status(404).json({ message: "Resume not found" });
       }
@@ -240,7 +240,7 @@ router.delete("/:id?", auth, async (req, res) => {
     const resume = await Resume.findOneAndDelete({
       _id: resumeId,
       userId: req.user._id,
-    });
+    }).lean();
     if (!resume) {
       return res.status(404).json({
         success: false,
@@ -288,7 +288,7 @@ router.get("/export/:id?", auth, async (req, res) => {
     const query = resumeId
       ? { _id: resumeId, userId: req.user._id }
       : { userId: req.user._id };
-    const resume = await Resume.findOne(query);
+    const resume = await Resume.findOne(query).lean();
     if (!resume) {
       return res.status(404).json({
         success: false,
