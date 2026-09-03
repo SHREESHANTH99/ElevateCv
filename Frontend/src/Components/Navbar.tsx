@@ -124,14 +124,14 @@ const Navbar: React.FC = () => {
               >
                 <Link
                   to="/login"
-                  className="hidden md:flex items-center space-x-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl hover:shadow-md hover:shadow-none transition-all duration-300 text-sm font-semibold"
+                  className="hidden lg:flex items-center space-x-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl hover:shadow-md hover:shadow-none transition-all duration-300 text-sm font-semibold"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>Login</span>
                 </Link>
               </motion.div>
             ) : (
-              <div className="hidden md:flex items-center space-x-2">
+              <div className="hidden lg:flex items-center space-x-2">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -162,6 +162,7 @@ const Navbar: React.FC = () => {
             <motion.button
               className="lg:hidden p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
