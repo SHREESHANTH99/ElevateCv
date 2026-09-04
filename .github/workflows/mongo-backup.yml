@@ -1,0 +1,30 @@
+﻿name: Daily MongoDB Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Runs every day at 2:00 AM UTC
+  workflow_dispatch: # Allows manual triggering from GitHub UI
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Install MongoDB Tools
+        run: |
+          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools
+          
+      - name: Create MongoDB Dump
+        run: |
+          # The URI is pulled safely from GitHub Secrets
+          mongodump --uri="${{ secrets.MONGODB_URI }}" --archive=elevatecv-backup-$(date +%F).gz --gzip
+          
+      - name: Upload Backup as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: elevatecv-database-backup
+          path: elevatecv-backup-*.gz
+          retention-days: 30 # GitHub will store these for 30 days for free
