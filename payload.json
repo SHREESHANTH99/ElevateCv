@@ -1,0 +1,20 @@
+﻿{
+  "resumeData": {
+    "personalInfo": {
+      "fullName": "John Doe",
+      "email": "john@example.com"
+    },
+    "skills": [
+      { "name": "JavaScript", "level": "Expert" },
+      { "name": "React", "level": "Advanced" }
+    ],
+    "experiences": [
+      {
+        "company": "Tech Corp",
+        "position": "Developer",
+        "description": ["Built web apps"]
+      }
+    ]
+  },
+  "jobDescription": "We need a frontend developer skilled in React and JavaScript."
+}

@@ -40,4 +40,4 @@ async function generateAIContent(prompt, fallback, modelName = "gemini-1.5-flash
   });
 }
 
-module.exports = { generateAIContent };
+module.exports = { generateAIContent, limiter };
