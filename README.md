@@ -3,7 +3,7 @@
 **ElevateCV** is an open-source, production-grade AI resume builder and job matching platform. Designed to help job seekers bypass Applicant Tracking Systems (ATS), it combines traditional resume formatting with advanced semantic analysis, powered by Google's Gemini LLM and Python-based vector embeddings.
 
 ![ElevateCV Overview](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
-![Tech Stack](https://img.shields.io/badge/Stack-MERN_%7C_Redis_%7C_Python-blue)
+![Tech Stack](https://img.shields.io/badge/Stack-MERN_%7C_Redis-blue)
 ![AI](https://img.shields.io/badge/AI-Gemini_1.5_Flash-orange)
 
 ## ✨ Core Features
@@ -30,7 +30,7 @@
 
 **AI & Microservices**
 * Google Gemini 1.5 Flash (Generative text & extraction)
-* Python FastAPI (SentenceTransformers for semantic vector embeddings)
+* Gemini `text-embedding-004` (Native Node.js Semantic Vector Embeddings)
 
 ## ⚡ Architecture & Performance Highlights
 
@@ -93,13 +93,6 @@ VITE_FIREBASE_API_KEY=your_api_key
 Start the frontend dev server:
 ```bash
 npm run dev
-```
-
-### 4. Python AI Service Setup (Optional but recommended)
-Navigate to your Python service directory (if hosted alongside) and run:
-```bash
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
 ```
 
 ## 🛡️ Security Note
