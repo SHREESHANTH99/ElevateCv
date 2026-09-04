@@ -1,4 +1,15 @@
 require("dotenv").config();
+const Sentry = require("@sentry/node");
+const { nodeProfilingIntegration } = require("@sentry/profiling-node");
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || "",
+  integrations: [
+    nodeProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+});
 const express = require("express");
 const compression = require("compression");
 const cors = require("cors");
@@ -11,6 +22,8 @@ const aiRoutes = require("./routes/ai");
 const connectDB = require("./config/db");
 const { initializeFirebaseAdmin } = require("./config/firebase");
 const app = express();
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -51,12 +64,46 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(express.json({ limit: "2mb" })); // Prevent large payload DoS
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+const mongoose = require("mongoose");
+const redisClient = require("./config/redis");
+const { limiter: geminiLimiter } = require("./utils/geminiClient");
+
+app.get("/api/health", async (req, res) => {
+  try {
+    const mongoStatus = mongoose.connection.readyState === 1 ? "ok" : "disconnected";
+    let redisStatus = "disconnected";
+    try {
+      redisStatus = redisClient.status === "ready" ? "ok" : redisClient.status;
+    } catch(e) {}
+    
+    let geminiQueue = { queued: 0, executing: 0 };
+    try {
+      const counts = geminiLimiter.counts();
+      geminiQueue = { queued: counts.QUEUED || 0, executing: counts.EXECUTING || 0 };
+    } catch(e) {}
+
+    const status = (mongoStatus === "ok" && redisStatus === "ok") ? "ok" : "degraded";
+    
+    res.status(status === "ok" ? 200 : 503).json({
+      status,
+      timestamp: new Date().toISOString(),
+      services: {
+        mongodb: mongoStatus,
+        redis: redisStatus,
+        geminiQueue
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/ai", aiRoutes);
-app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", timestamp: new Date().toISOString() });
-});
+
+app.use(Sentry.Handlers.errorHandler());
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
