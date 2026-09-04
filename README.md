@@ -1,6 +1,6 @@
 # ElevateCV
 
-**ElevateCV** is an open-source, production-grade AI resume builder and job matching platform. Designed to help job seekers bypass Applicant Tracking Systems (ATS), it combines traditional resume formatting with advanced semantic analysis, powered by Google's Gemini LLM and Python-based vector embeddings.
+**ElevateCV** is an open-source, production-grade AI resume builder and job matching platform. Designed to help job seekers bypass Applicant Tracking Systems (ATS), it combines traditional resume formatting with advanced semantic analysis, powered natively by Google's Gemini LLM for both generative text and semantic vector embeddings.
 
 ![ElevateCV Overview](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
 ![Tech Stack](https://img.shields.io/badge/Stack-MERN_%7C_Redis-blue)
