@@ -1,65 +1,109 @@
-﻿# ElevateCV
+# ElevateCV 🚀
 
-**Build better resumes with AI.** ElevateCV is a modern, privacy-first career intelligence platform designed to help you land your dream job by analyzing, scoring, and formatting your resume to beat Applicant Tracking Systems (ATS).
+**ElevateCV** is an open-source, production-grade AI resume builder and job matching platform. Designed to help job seekers bypass Applicant Tracking Systems (ATS), it combines traditional resume formatting with advanced semantic analysis, powered by Google's Gemini LLM and Python-based vector embeddings.
 
-![ElevateCV Dashboard](/Frontend/public/og-image.png)
+![ElevateCV Overview](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
+![Tech Stack](https://img.shields.io/badge/Stack-MERN_%7C_Redis_%7C_Python-blue)
+![AI](https://img.shields.io/badge/AI-Gemini_1.5_Flash-orange)
 
-## Why ElevateCV?
+## ✨ Core Features
 
-Most AI resume builders generate obvious, heavily formatted "slop" that gets rejected by modern ATS and turns off recruiters. ElevateCV takes a different approach:
-- **Clean, professional exports:** Generates minimalist, highly-readable PDFs that parse perfectly in Greenhouse, Lever, and Workday.
-- **Data-driven scoring:** Instead of just rewriting your text, it grades your resume against a target job description and highlights exactly which keywords you're missing.
-- **Privacy first:** Your career data stays yours. No tracking pixels, no hidden data harvesting.
+* **Intelligent ATS Scoring:** Get instant, actionable feedback on how your resume performs against industry-standard ATS algorithms.
+* **Semantic Job Matcher:** Paste a job description and instantly see your alignment. We use LLM skill extraction paired with Python-backed semantic similarity (vector embeddings) to score your match and identify missing keywords.
+* **Smart Section Rewriting:** Hit writer's block? Let our controlled AI pipeline rewrite your experience bullets for maximum professional impact.
+* **True ATS-Readable PDF Export:** Unlike many builders that export unparseable images, ElevateCV uses a server-side headless Chrome (Puppeteer) engine to render pixel-perfect, fully text-selectable PDFs across 10+ professional templates.
+* **Real-time Previews:** See your resume update instantly as you type, with modern, accessible UI powered by React and Tailwind CSS.
 
-## Features
+## 🛠️ Technology Stack
 
-- **Resume Builder:** A distraction-free, side-by-side editor with real-time PDF generation.
-- **Job Matcher:** Paste a job description and instantly see your alignment score and missing skills.
-- **Smart Templates:** A curated selection of ATS-optimized templates that don't sacrifice design for parsability.
-- **Cover Letter Generation:** Context-aware generation based on your resume data and the specific role.
+**Frontend**
+* React 18 (Vite)
+* Tailwind CSS & Framer Motion (Styling & Animation)
+* Firebase Authentication (Google OAuth & Email/Password)
+* Zustand (State Management)
 
-## Tech Stack
+**Backend Core**
+* Node.js & Express.js
+* MongoDB (Mongoose ODM)
+* Redis (ioredis)
+* Puppeteer (Server-side PDF Rendering)
 
-ElevateCV is built for speed and maintainability:
+**AI & Microservices**
+* Google Gemini 1.5 Flash (Generative text & extraction)
+* Python FastAPI (SentenceTransformers for semantic vector embeddings)
 
-- **Frontend:** React 18, Vite, TypeScript
-- **Styling:** Tailwind CSS (Custom Charcoal & Emerald design system), Framer Motion
-- **PDF Generation:** jsPDF + html2canvas
-- **Backend/AI:** Node.js, Express, Google Gemini Pro 1.5, Firebase Auth
+## ⚡ Architecture & Performance Highlights
 
-## Getting Started
+ElevateCV is built to scale, featuring aggressive optimization and defense-in-depth engineering:
+
+* **Hybrid L1/L2 Caching:** Heavy AI computations are backed by an in-memory Map (L1) and Redis (L2), instantly returning cached ATS scores for exact Resume/Job Description combinations.
+* **Cache Stampede Protection:** In-flight Promise deduplication locks ensure that simultaneous identical requests never burn redundant LLM quota.
+* **Global Rate Limiting:** All Gemini API calls route through a strict `bottleneck` queue (15 RPM), equipped with exponential backoff, auto-retries on `429 Too Many Requests`, and graceful `503` fallbacks to prevent pipeline crashes.
+* **Parallelized AI Pipelines:** Distinct LLM tasks and Python embedding lookups are executed concurrently via `Promise.all` with strict timeout bounds (8-10s).
+* **Warm Puppeteer Instancing:** Drops PDF generation latency by 2-5 seconds per request by maintaining a persistent, self-healing headless Chrome instance rather than booting on every request.
+* **Query Optimization:** Lean Mongoose querying strips heavy document hydration overhead across all authenticated routes.
+* **DevOps Ready:** Integrated with Sentry (v10) for full-stack error tracing, comprehensive `/api/health` diagnostics, and daily automated MongoDB backups via GitHub Actions.
+
+## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
-- Node.js >= 18
-- A Firebase project (for authentication)
-- A Google Gemini API Key (for AI features)
+* Node.js (v18+)
+* MongoDB instance (Local or Atlas)
+* Redis server (Local or Upstash)
+* Python 3.9+ (For embedding service)
+* Firebase Project & Google Gemini API Key
 
-### Installation
+### 1. Clone the Repository
+```bash
+git clone https://github.com/SHREESHANTH99/ElevateCv.git
+cd ElevateCv
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/SHREESHANTH99/ElevateCv.git
-   cd ElevateCv
-   ```
+### 2. Backend Setup
+```bash
+cd Backend
+npm install
+```
+Create a `.env` file in the `Backend` directory:
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/elevatecv
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your_jwt_secret
+GEMINI_API_KEY=your_gemini_api_key
+AI_SERVICE_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:5173
+```
+Start the backend server:
+```bash
+npm run dev
+```
 
-2. **Setup Frontend**
-   ```bash
-   cd Frontend
-   npm install
-   # Create a .env file and add your Firebase config and API URL
-   npm run dev
-   ```
+### 3. Frontend Setup
+```bash
+cd ../Frontend
+npm install
+```
+Create a `.env` file in the `Frontend` directory with your Firebase config and Backend URL:
+```env
+VITE_API_URL=http://localhost:5000
+VITE_FIREBASE_API_KEY=your_api_key
+# ... other firebase vars
+```
+Start the frontend dev server:
+```bash
+npm run dev
+```
 
-3. **Setup Backend**
-   ```bash
-   cd Backend
-   npm install
-   # Create a .env file and add your Gemini API Key
-   npm run start
-   ```
+### 4. Python AI Service Setup (Optional but recommended)
+Navigate to your Python service directory (if hosted alongside) and run:
+```bash
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
-## Security & Privacy
-ElevateCV includes rate-limiting and Helmet out of the box to prevent abuse. Ensure you configure your production CORS settings to your specific deployment domains.
+## 🛡️ Security Note
+This project utilizes `.env` files for configuration. **Never** commit your API keys, database credentials, or JWT secrets to version control.
 
-## License
-MIT
+---
+*Built to help you land the interview.*
