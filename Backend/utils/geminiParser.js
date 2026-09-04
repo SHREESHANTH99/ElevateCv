@@ -1,6 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const { generateAIContent } = require("./geminiClient");
 
 async function parseResumeWithAI(rawText) {
   // Defense in Depth 1: Pre-check for scanned/empty PDFs
@@ -10,8 +8,7 @@ async function parseResumeWithAI(rawText) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+    
     const prompt = `
       You are an expert recruitment AI. Extract structured data from the following raw resume text.
       Return EXCLUSIVELY a valid JSON object matching this schema:
@@ -72,16 +69,10 @@ async function parseResumeWithAI(rawText) {
     `;
 
     const t0 = performance.now();
-    const result = await model.generateContent(prompt);
+    let parsedData = await generateAIContent(prompt, null);
+    if (!parsedData) throw new Error("Gemini returned empty or failed to parse");
     const t1 = performance.now();
     console.log(`[PERF] Gemini generateContent latency: ${(t1 - t0).toFixed(2)}ms`);
-    const response = await result.response;
-    let text = response.text();
-    
-    // Clean up potential markdown formatting if Gemini includes it
-    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    
-    const parsedData = JSON.parse(text);
     
     // Defense in Depth 2: Post-check for hallucinated placeholders
     const name = parsedData?.personalInfo?.fullName?.toLowerCase() || '';

@@ -6,6 +6,7 @@ const redis = require("../config/redis");
  * Caches full analysis results based on the unique combination of resume and job description.
  */
 const resultCache = new Map();
+const inFlightPromises = new Map();
 const MAX_CACHE_SIZE = 200;
 const TTL_SECONDS = 3600; // 1h
 
@@ -40,25 +41,40 @@ async function getCachedResult(resumeData, jobDescription, processFn) {
     console.error("Redis Get Error (Result):", error.message);
   }
   
-  const result = await processFn();
-  
-  if (result) {
-    // Backfill L1
-    if (resultCache.size >= MAX_CACHE_SIZE) {
-      const firstKey = resultCache.keys().next().value;
-      resultCache.delete(firstKey);
-    }
-    resultCache.set(hash, result);
-    
-    // Backfill L2 (fail open)
-    try {
-      if (redis.status === "ready") {
-        await redis.set(redisKey, JSON.stringify(result), "EX", TTL_SECONDS);
-      }
-    } catch (error) {
-      console.error("Redis Set Error (Result):", error.message);
-    }
+  // Deduplication lock for concurrent identical requests
+  if (inFlightPromises.has(hash)) {
+    console.log("PIPELINE CACHE DEDUP: Awaiting in-flight execution...");
+    const result = await inFlightPromises.get(hash);
+    return { ...result, cached: true };
   }
+
+  const promise = processFn().then(async (result) => {
+    if (result) {
+      // Backfill L1
+      if (resultCache.size >= MAX_CACHE_SIZE) {
+        const firstKey = resultCache.keys().next().value;
+        resultCache.delete(firstKey);
+      }
+      resultCache.set(hash, result);
+      
+      // Backfill L2 (fail open)
+      try {
+        if (redis.status === "ready") {
+          await redis.set(redisKey, JSON.stringify(result), "EX", TTL_SECONDS);
+        }
+      } catch (error) {
+        console.error("Redis Set Error (Result):", error.message);
+      }
+    }
+    inFlightPromises.delete(hash);
+    return result;
+  }).catch(err => {
+    inFlightPromises.delete(hash);
+    throw err;
+  });
+
+  inFlightPromises.set(hash, promise);
+  const result = await promise;
   
   return { ...result, cached: false };
 }

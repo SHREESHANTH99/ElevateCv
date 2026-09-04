@@ -23,6 +23,7 @@
     "@types/uuid": "^10.0.0",
     "axios": "^1.13.6",
     "bcryptjs": "^2.4.3",
+    "bottleneck": "^2.19.5",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",

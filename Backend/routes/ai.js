@@ -5,6 +5,7 @@ const { parseResumeWithAI } = require("../utils/geminiParser");
 const { getEmbedding, getSimilarity } = require("../utils/aiServiceConnector");
 const { scoreResume } = require("../utils/resumeScorer");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { generateAIContent } = require("../utils/geminiClient");
 
 const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -65,16 +66,13 @@ router.post("/analyze-resume", auth, async (req, res) => {
         const [llmResult, similarity] = await Promise.all([
           // Task A: Skill Extraction via Gemini
           withTimeout(
-          (async () => {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const prompt = `Extract skills/reqs from: ${jobDescription}. Return EXCLUSIVELY JSON: {"Job Skills":[], "Experience":""}`;
-            const res = await model.generateContent(prompt);
-            const text = (await res.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
-            return JSON.parse(text);
-          })(),
-          8000,
-          { "Job Skills": [], "Experience": "Timeout fallback" } // Fallback
-        ),
+            generateAIContent(
+              `Extract skills/reqs from: ${jobDescription}. Return EXCLUSIVELY JSON: {"Job Skills":[], "Experience":""}`,
+              { "Job Skills": [], "Experience": "Timeout fallback" }
+            ),
+            8000,
+            { "Job Skills": [], "Experience": "Timeout fallback" }
+          ),
           // Task B: Semantic Similarity via Python service (Cached in aiServiceConnector)
           withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 8000, 0)
         ]);
@@ -127,7 +125,7 @@ router.post("/analyze-resume", auth, async (req, res) => {
 
   } catch (error) {
     console.error("Orchestration Pipeline Error:", error);
-    res.status(500).json({ message: "Intelligence pipeline failure" });
+    res.status(503).json({ message: "AI analysis temporarily busy, please try again." });
   }
 });
 
@@ -194,9 +192,7 @@ router.post(
       // Parallelize Gemini and Python Service with Timeouts
       const [jobMatchInfo, similarity] = await Promise.all([
         withTimeout(
-          (async () => {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const prompt = `
+          generateAIContent(`
               Job Description:
               ${jobDescription}
 
@@ -205,11 +201,9 @@ router.post(
               2. "Experience": Required years or level
               3. "Primary Responsibilities": top 3 bullets
               Return JSON format.
-            `;
-            const result = await model.generateContent(prompt);
-            const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
-            return JSON.parse(text);
-          })(),
+            `, 
+            { "Job Skills": [], "Experience": "Timeout", "Primary Responsibilities": [] }
+          ),
           8000,
           { "Job Skills": [], "Experience": "Timeout", "Primary Responsibilities": [] }
         ),
@@ -272,11 +266,7 @@ router.post("/improve-resume", auth, async (req, res) => {
     `;
     
     const improvedContent = await withTimeout(
-      (async () => {
-        const result = await model.generateContent(prompt);
-        const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
-        return JSON.parse(text);
-      })(),
+      generateAIContent(prompt, content),
       10000,
       content // Fallback to original content on timeout
     );
