@@ -70,25 +70,8 @@ const Landing: React.FC = () => {
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center">
         {/* Background Effects */}
-        <div className="absolute inset-0">
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 hidden"
-            animate={{
-              x: [0, 60, 0],
-              y: [0, -40, 0],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-          />
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] hidden"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
-          />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
 
           {/* Grid pattern */}
           <div
