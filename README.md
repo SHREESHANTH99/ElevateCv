@@ -9,7 +9,7 @@
 ## ✨ Core Features
 
 * **Intelligent ATS Scoring:** Get instant, actionable feedback on how your resume performs against industry-standard ATS algorithms.
-* **Semantic Job Matcher:** Paste a job description and instantly see your alignment. We use LLM skill extraction paired with Python-backed semantic similarity (vector embeddings) to score your match and identify missing keywords.
+* **Semantic Job Matcher:** Paste a job description and instantly see your alignment. We use LLM skill extraction paired with Gemini text-embedding-004 semantic similarity (vector embeddings) to score your match and identify missing keywords.
 * **Smart Section Rewriting:** Hit writer's block? Let our controlled AI pipeline rewrite your experience bullets for maximum professional impact.
 * **True ATS-Readable PDF Export:** Unlike many builders that export unparseable images, ElevateCV uses a server-side headless Chrome (Puppeteer) engine to render pixel-perfect, fully text-selectable PDFs across 10+ professional templates.
 * **Real-time Previews:** See your resume update instantly as you type, with modern, accessible UI powered by React and Tailwind CSS.
@@ -50,7 +50,6 @@ ElevateCV is built to scale, featuring aggressive optimization and defense-in-de
 * Node.js (v18+)
 * MongoDB instance (Local or Atlas)
 * Redis server (Local or Upstash)
-* Python 3.9+ (For embedding service)
 * Firebase Project & Google Gemini API Key
 
 ### 1. Clone the Repository
@@ -71,7 +70,6 @@ MONGODB_URI=mongodb://localhost:27017/elevatecv
 REDIS_URL=redis://localhost:6379
 JWT_SECRET=your_jwt_secret
 GEMINI_API_KEY=your_gemini_api_key
-AI_SERVICE_URL=http://localhost:8000
 FRONTEND_URL=http://localhost:5173
 ```
 Start the backend server:
