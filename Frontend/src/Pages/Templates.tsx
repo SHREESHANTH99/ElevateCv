@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import PreviewModal from "../Components/PreviewModal";
 import Toast from "../Components/Toast";
+import { CardContainer, CardBody, CardItem } from "../Components/ui/3d-card";
 
 interface Template {
   id: string;
@@ -173,85 +174,109 @@ const Templates: React.FC = () => {
         >
           <AnimatePresence mode="popLayout">
             {filteredTemplates.map((template, index) => (
-              <motion.div
-                key={template.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                whileHover={{ y: -8 }}
-                className="glass-card rounded-lg overflow-hidden cursor-pointer group"
-                onClick={() => setSelectedTemplate(template)}
-              >
-                {/* Preview Area */}
-                <div className="relative h-48 bg-zinc-800/50 flex items-center justify-center overflow-hidden">
-                  {/* Color accent bar */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-1"
-                    style={{ background: `linear-gradient(90deg, ${template.colors[0]}, ${template.colors[1]})` }}
-                  />
-                  <div className="text-center">
-                    <FileText className="w-10 h-10 text-zinc-600 mx-auto mb-2" />
-                    <p className="text-xs text-zinc-600">Preview</p>
-                  </div>
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-[#0d1110]/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handlePreview(template); }}
-                        className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg text-xs font-medium hover:bg-white/20 transition-colors border border-white/10"
-                      >
-                        <Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDownloadSample(template); }}
-                        className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg text-xs font-medium hover:bg-white/20 transition-colors border border-white/10"
-                      >
-                        <Download className="w-3.5 h-3.5 inline mr-1.5" />Sample
-                      </button>
+              <CardContainer key={template.id} containerClassName="w-full">
+                <CardBody className="w-full">
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    className="glass-card rounded-lg overflow-hidden cursor-pointer group bg-[#161c1a] border border-[#1f2725]"
+                    onClick={() => setSelectedTemplate(template)}
+                  >
+                    {/* Preview Area */}
+                    <CardItem translateZ={30} className="w-full">
+                      <div className="relative h-56 bg-[#0d1110] flex items-center justify-center overflow-hidden border-b border-[#1f2725]">
+                        {/* Color accent bar */}
+                        <div
+                          className="absolute top-0 left-0 right-0 h-1 z-10"
+                          style={{ background: `linear-gradient(90deg, ${template.colors[0]}, ${template.colors[1]})` }}
+                        />
+                        
+                        {/* Preview Image with Fallback */}
+                        <img 
+                          src={`/template-previews/${template.id}.png`}
+                          alt={template.name}
+                          className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
+                          onError={(e) => {
+                            // Fallback if screenshot doesn't exist
+                            (e.target as HTMLElement).style.display = 'none';
+                            const parent = (e.target as HTMLElement).parentElement;
+                            if (parent) {
+                              const fallback = parent.querySelector('.fallback-preview');
+                              if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                            }
+                          }}
+                        />
+                        <div className="fallback-preview hidden flex-col items-center justify-center text-center p-4">
+                          <FileText className="w-10 h-10 text-zinc-600 mx-auto mb-2" />
+                          <p className="text-xs text-zinc-500 font-medium">{template.name}</p>
+                        </div>
+
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-[#0d1110]/80 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-20">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handlePreview(template); }}
+                              className="px-4 py-2 bg-emerald-500/20 backdrop-blur-sm text-emerald-400 rounded-lg text-xs font-medium hover:bg-emerald-500/30 transition-colors border border-emerald-500/30"
+                            >
+                              <Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleDownloadSample(template); }}
+                              className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg text-xs font-medium hover:bg-white/20 transition-colors border border-white/10"
+                            >
+                              <Download className="w-3.5 h-3.5 inline mr-1.5" />Sample
+                            </button>
+                          </div>
+                        </div>
+                        {/* Badges */}
+                        <div className="absolute top-3 right-3 flex space-x-2 z-10">
+                          {template.isPopular && (
+                            <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-semibold rounded-full border border-amber-500/20">
+                              Popular
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </CardItem>
+
+                    {/* Info */}
+                    <div className="p-5">
+                      <CardItem translateZ={20} className="w-full">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-semibold text-zinc-200 text-sm group-hover:text-emerald-400 transition-colors">{template.name}</h3>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${template.isFree ? "bg-emerald-500/15 text-emerald-400" : "bg-cyan-500/15 text-cyan-400"}`}>
+                            {template.isFree ? "Free" : "Pro"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-zinc-500 mb-3 line-clamp-2 leading-relaxed">{template.description}</p>
+
+                        <div className="flex space-x-1 mb-3">
+                          {template.colors.map((color, i) => (
+                            <div key={i} className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+                          ))}
+                        </div>
+                      </CardItem>
+
+                      {/* Use Template Button */}
+                      <CardItem translateZ={25} className="w-full">
+                        <motion.div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Link
+                            to={`/resume/builder?template=${template.id}`}
+                            className="w-full flex items-center justify-center py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-500 transition-all"
+                            onClick={(e) => { e.stopPropagation(); localStorage.setItem("selectedTemplate", template.id); }}
+                          >
+                            <FileText className="w-3.5 h-3.5 mr-1.5" />
+                            Use Template
+                          </Link>
+                        </motion.div>
+                      </CardItem>
                     </div>
-                  </div>
-                  {/* Badges */}
-                  <div className="absolute top-3 right-3 flex space-x-2">
-                    {template.isPopular && (
-                      <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-semibold rounded-full border border-amber-500/20">
-                        Popular
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-zinc-200 text-sm group-hover:text-emerald-400 transition-colors">{template.name}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${template.isFree ? "bg-emerald-500/15 text-emerald-400" : "bg-cyan-500/15 text-cyan-400"}`}>
-                      {template.isFree ? "Free" : "Pro"}
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-500 mb-3 line-clamp-2 leading-relaxed">{template.description}</p>
-
-                    <div className="flex space-x-1">
-                      {template.colors.map((color, i) => (
-                        <div key={i} className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-                      ))}
-                    </div>
-
-
-                  {/* Use Template Button (appears on hover) */}
-                  <motion.div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link
-                      to={`/resume/builder?template=${template.id}`}
-                      className="w-full flex items-center justify-center py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:shadow-md hover:shadow-none transition-all"
-                      onClick={(e) => { e.stopPropagation(); localStorage.setItem("selectedTemplate", template.id); }}
-                    >
-                      <FileText className="w-3.5 h-3.5 mr-1.5" />
-                      Use Template
-                    </Link>
                   </motion.div>
-                </div>
-              </motion.div>
+                </CardBody>
+              </CardContainer>
             ))}
           </AnimatePresence>
         </motion.div>

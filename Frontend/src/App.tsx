@@ -21,6 +21,8 @@ import "./index.css";
 import ResumeBuilder from "./Pages/ResumeBuilder.new";
 import { ErrorBoundary } from "./Components/ErrorBoundary";
 import NotFound from "./Pages/NotFound";
+import TemplateRenderer from "./Pages/TemplateRenderer";
+import { Toaster } from "sonner";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -165,12 +167,23 @@ function App() {
             }
           />
 
+          <Route path="/template-render" element={<TemplateRenderer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </Router>
+    <Toaster
+      theme="dark"
+      position="bottom-right"
+      toastOptions={{
+        style: {
+          background: '#161c1a',
+          border: '1px solid #1f2725',
+          color: '#e5e7eb',
+        },
+      }}
+    />
     </ErrorBoundary>
   );
 }
 export default App;
-

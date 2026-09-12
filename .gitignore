@@ -7,7 +7,7 @@ dist/
 build/
 */dist/
 */build/
-
+.agents/
 # Environment files
 .env
 .env.local

@@ -15,6 +15,7 @@ import {
   Eye,
   ChevronRight,
 } from "lucide-react";
+import { Compare } from "../Components/ui/compare";
 
 const Landing: React.FC = () => {
   useDocumentTitle('Home');
@@ -197,6 +198,29 @@ const Landing: React.FC = () => {
                   <span>View Templates</span>
                 </Link>
               </motion.div>
+            </motion.div>
+
+            {/* Compare Slider: Before & After Intelligence */}
+            <motion.div
+              className="mt-16 max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.9 }}
+            >
+              <div className="text-center mb-4">
+                <span className="text-xs font-semibold uppercase tracking-widest text-emerald-400">
+                  Visual Transformation
+                </span>
+                <h3 className="text-xl font-bold text-zinc-200 mt-1">
+                  Drag to Compare: Standard vs. ElevateCV AI
+                </h3>
+              </div>
+              <Compare
+                firstImage="/template-previews/before-example.png"
+                secondImage="/template-previews/modern.png"
+                className="h-[420px] sm:h-[500px] w-full"
+                slideMode="drag"
+              />
             </motion.div>
           </motion.div>
         </div>
