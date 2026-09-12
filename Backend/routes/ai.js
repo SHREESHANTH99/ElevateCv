@@ -92,7 +92,8 @@ router.post("/analyze-resume", auth, async (req, res) => {
       metadata: {
         timings,
         cached: finalResult.cached || false,
-        engine: "ElevateCV-v2.0-MultiDimensional"
+        fallbackUsed: finalResult.jobAnalysis?.fallbackUsed || false,
+        engine: finalResult.jobAnalysis?.fallbackUsed ? "ElevateCV-v2.0-HeuristicFallback" : "ElevateCV-v2.0-GeminiLLM"
       }
     });
 

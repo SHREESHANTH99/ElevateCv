@@ -73,10 +73,14 @@ Return ONLY valid JSON.
   try {
     const fallback = buildHeuristicFallback(jobText);
     const result = await generateAIContent(prompt, fallback);
-    return sanitizeAnalysis(result, fallback);
+    const sanitized = sanitizeAnalysis(result, fallback);
+    sanitized.fallbackUsed = false;
+    return sanitized;
   } catch (error) {
     console.warn("[JOB ANALYZER] Using heuristic extraction fallback:", error.message);
-    return buildHeuristicFallback(jobText);
+    const fallback = buildHeuristicFallback(jobText);
+    fallback.fallbackUsed = true;
+    return fallback;
   }
 }
 
