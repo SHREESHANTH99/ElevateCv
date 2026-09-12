@@ -19,6 +19,7 @@ export default function TemplateRenderer() {
     minimalist: MinimalistTemplate, ats: ATSTemplate, tech: TechTemplate,
     classic: ClassicTemplate, corporate: CorporateTemplate, engineer: EngineerTemplate,
     graduate: GraduateTemplate,
+    'ind-1': ExecutiveTemplate, 'ind-2': ModernTemplate, 'ind-3': ClassicTemplate, 'ind-4': TechTemplate,
   };
 
   const Component = components[templateId];

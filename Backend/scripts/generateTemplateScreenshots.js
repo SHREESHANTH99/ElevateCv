@@ -8,7 +8,8 @@ faker.seed(42);
 
 const templates = [
   'modern', 'executive', 'creative', 'minimalist', 'ats', 
-  'tech', 'classic', 'corporate', 'engineer', 'graduate'
+  'tech', 'classic', 'corporate', 'engineer', 'graduate',
+  'ind-1', 'ind-2', 'ind-3', 'ind-4'
 ];
 
 const sampleData = {
