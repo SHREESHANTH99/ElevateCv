@@ -71,6 +71,8 @@ class JobMatcherAPI {
       return {
         matchScore: result.score || 0,
         label: result.label || "Needs Improvement",
+        fallbackUsed: result.metadata?.fallbackUsed || result.jobAnalysis?.fallbackUsed || false,
+        engine: result.metadata?.engine || "ElevateCV-v2.0-MultiDimensional",
         dimensionScores: result.dimensionScores || result.sectionScores || {},
         jobAnalysis: result.jobAnalysis || null,
         gaps: result.gaps || null,
@@ -370,6 +372,19 @@ const JobMatcher: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="space-y-8"
           >
+            {/* Fallback Warning Banner */}
+            {analysis.fallbackUsed && (
+              <div className="px-5 py-3.5 bg-amber-500/15 border border-amber-500/30 text-amber-400 rounded-xl text-xs flex items-center space-x-3 shadow-lg">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-400" />
+                <div>
+                  <span className="font-bold uppercase tracking-wider text-amber-300">Basic Heuristic Engine Active</span>
+                  <span className="text-amber-200/80 block mt-0.5">
+                    Gemini LLM pipeline was unavailable or unconfigured. Analysis performed using ElevateCV deterministic fallback engine.
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Top Bar Score Summary */}
             <div className="glass-card rounded-xl p-8 border border-[#1f2725] bg-[#161c1a]">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">

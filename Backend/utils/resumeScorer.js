@@ -62,8 +62,8 @@ function scoreResume(resumeData = {}, jobInput = null, semanticSimScore = null) 
 
   const keywordMatchScore = isAligned ? calculateKeywordAlignment(resumeData, jobAnalysis, semanticSimScore) : 80;
   const skillCoverageScore = gaps ? gaps.skillCoveragePercentage : scoreStandaloneSkills(resumeData.skills || []);
-  const experienceScore = scoreExperienceSection(resumeData.experiences || []);
-  const projectScore = scoreProjectSection(resumeData.projects || []);
+  const experienceScore = scoreExperienceSection(resumeData.experiences || [], jobAnalysis);
+  const projectScore = scoreProjectSection(resumeData.projects || [], jobAnalysis);
   const impactScore = scoreQuantifiedImpact(resumeData);
   const structureScore = atsSim.parseRate;
   const educationScore = scoreEducationSection(resumeData.education || []);
@@ -139,19 +139,21 @@ function scoreStandaloneSkills(skills = []) {
   return skills.length * 12;
 }
 
-function scoreExperienceSection(experiences = []) {
-  if (!experiences.length) return 0;
-  let score = 50;
+function scoreExperienceSection(experiences = [], jobAnalysis = null) {
+  if (!experiences || !experiences.length) return 0;
   
-  if (experiences.length >= 2) score += 20;
-  else if (experiences.length === 1) score += 10;
+  // 1. Structural & Impact Quality (30% weight)
+  let structuralScore = 50;
+  if (experiences.length >= 2) structuralScore += 20;
+  else if (experiences.length === 1) structuralScore += 10;
 
-  // Evaluate bullet impact across experiences
   let totalBulletScore = 0;
   let bulletCount = 0;
+  const expTextParts = [];
 
   experiences.forEach(exp => {
     const descs = Array.isArray(exp.description) ? exp.description : [exp.description || ""];
+    expTextParts.push(`${exp.title || ""} ${exp.company || ""} ${descs.join(" ")}`);
     descs.forEach(bullet => {
       if (bullet.trim().length > 0) {
         const analysis = analyzeBullet(bullet);
@@ -162,24 +164,67 @@ function scoreExperienceSection(experiences = []) {
   });
 
   if (bulletCount > 0) {
-    const avgBulletImpact = totalBulletScore / bulletCount;
-    score += (avgBulletImpact * 0.3);
+    structuralScore += ((totalBulletScore / bulletCount) * 0.3);
   }
+  structuralScore = Math.min(structuralScore, 100);
 
-  return Math.min(Math.round(score), 100);
+  // If no job description is aligned, return structural score
+  if (!jobAnalysis) return Math.round(structuralScore);
+
+  // 2. Subject Matter Relevance to Target Job (70% weight)
+  const fullExpText = expTextParts.join(" ").toLowerCase();
+  const targetSkills = Array.from(new Set([
+    ...(jobAnalysis.requiredSkills || []),
+    ...(jobAnalysis.preferredSkills || []),
+    ...(jobAnalysis.keywords || [])
+  ])).map(s => normalizeSkill(String(s)));
+
+  if (targetSkills.length === 0) return Math.round(structuralScore);
+
+  const matchedSkillCount = targetSkills.filter(skill => fullExpText.includes(skill)).length;
+  const relevanceRatio = (matchedSkillCount / targetSkills.length);
+  const relevanceScore = Math.min(relevanceRatio * 100 * 1.5, 100); // 1.5x scaling for partial coverage
+
+  // Weighted Combination: 70% Job Relevance + 30% Structural Quality
+  const finalRelevance = (relevanceScore * 0.70) + (structuralScore * 0.30);
+  return Math.round(finalRelevance);
 }
 
-function scoreProjectSection(projects = []) {
-  if (!projects || !projects.length) return 20; // Baseline for no projects
-  let score = 60;
+function scoreProjectSection(projects = [], jobAnalysis = null) {
+  if (!projects || !projects.length) return 0;
+  
+  // 1. Project Completeness (30% weight)
+  let baseScore = 50;
+  if (projects.length >= 2) baseScore += 30;
+  else if (projects.length === 1) baseScore += 15;
 
-  if (projects.length >= 3) score += 25;
-  else if (projects.length >= 1) score += 15;
+  const projectTextParts = [];
+  projects.forEach(p => {
+    const tech = Array.isArray(p.technologies) ? p.technologies.join(" ") : (p.technologies || "");
+    projectTextParts.push(`${p.name || ""} ${p.description || ""} ${tech}`);
+  });
+  baseScore = Math.min(baseScore, 100);
 
-  const hasTechDetails = projects.some(p => p.technologies?.length > 0 || (p.description && p.description.length > 50));
-  if (hasTechDetails) score += 15;
+  // If no job description is aligned, return base completeness score
+  if (!jobAnalysis) return Math.round(baseScore);
 
-  return Math.min(score, 100);
+  // 2. Subject Matter Relevance to Target Job (70% weight)
+  const fullProjText = projectTextParts.join(" ").toLowerCase();
+  const targetSkills = Array.from(new Set([
+    ...(jobAnalysis.requiredSkills || []),
+    ...(jobAnalysis.preferredSkills || []),
+    ...(jobAnalysis.keywords || [])
+  ])).map(s => normalizeSkill(String(s)));
+
+  if (targetSkills.length === 0) return Math.round(baseScore);
+
+  const matchedSkillCount = targetSkills.filter(skill => fullProjText.includes(skill)).length;
+  const relevanceRatio = (matchedSkillCount / targetSkills.length);
+  const relevanceScore = Math.min(relevanceRatio * 100 * 1.5, 100);
+
+  // Weighted Combination: 70% Job Relevance + 30% Project Completeness
+  const finalRelevance = (relevanceScore * 0.70) + (baseScore * 0.30);
+  return Math.round(finalRelevance);
 }
 
 function scoreQuantifiedImpact(resumeData) {
