@@ -1,6 +1,8 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
 const auth = require("../middleware/auth");
+const multer = require("multer");
+const pdfParse = require("pdf-parse");
 const { parseResumeWithAI } = require("../utils/geminiParser");
 const { getEmbedding, getSimilarity } = require("../utils/aiServiceConnector");
 const { scoreResume } = require("../utils/resumeScorer");
@@ -13,6 +15,7 @@ const { generateAIContent } = require("../utils/geminiClient");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key");
 
 const withTimeout = (promise, ms, fallback) => {
@@ -270,6 +273,87 @@ router.post("/improve-smart", auth, async (req, res) => {
   } catch (error) {
     console.error("Smart Improve Error:", error);
     res.status(500).json({ message: "Failed to improve with context" });
+  }
+});
+
+/**
+ * 📄 UPLOADED RESUME ANALYZER (PDF / TXT / DOCX / RAW TEXT)
+ */
+router.post("/analyze-uploaded", auth, upload.single("file"), async (req, res) => {
+  try {
+    let rawText = req.body.resumeContent || "";
+    const jobDescription = req.body.jobDescription || "";
+
+    if (req.file) {
+      if (req.file.mimetype === "application/pdf" || req.file.originalname.toLowerCase().endsWith(".pdf")) {
+        try {
+          const pdfData = await pdfParse(req.file.buffer);
+          rawText = pdfData.text;
+        } catch (pdfErr) {
+          console.error("PDF extraction error:", pdfErr.message);
+        }
+      } else {
+        rawText = req.file.buffer.toString("utf-8");
+      }
+    }
+
+    if (!rawText || rawText.trim().length < 20) {
+      return res.status(400).json({ message: "Could not extract readable text from uploaded resume." });
+    }
+
+    if (!jobDescription || jobDescription.trim().length < 20) {
+      return res.status(400).json({ message: "Valid job description is required." });
+    }
+
+    // 1. Parse raw text into structured resume data via Gemini AI
+    let resumeData;
+    try {
+      resumeData = await parseResumeWithAI(rawText);
+    } catch (parseErr) {
+      console.warn("AI Resume parse warning, building basic fallback structure:", parseErr.message);
+      resumeData = {
+        personalInfo: { fullName: "Candidate" },
+        summary: rawText.slice(0, 300),
+        skills: rawText.split(/\s+/).filter(w => w.length > 3).map(s => ({ name: s })),
+        experiences: [{ company: "Experience", position: "Role", description: [rawText] }],
+        projects: [],
+        education: []
+      };
+    }
+
+    // 2. Run Job Description Analysis & Scoring
+    const [jobAnalysis, vectorSim] = await Promise.all([
+      analyzeJobDescription(jobDescription),
+      withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 6000, 0)
+    ]);
+
+    const similarityScore = Math.round(vectorSim * 100);
+    const scoreResult = scoreResume(resumeData, jobAnalysis, similarityScore);
+    const gaps = analyzeSkillGaps(resumeData, jobAnalysis);
+    const atsSim = simulateATSParsing(resumeData, rawText);
+
+    res.json({
+      matchScore: scoreResult.score,
+      score: scoreResult.score,
+      label: scoreResult.label,
+      color: scoreResult.color,
+      dimensionScores: scoreResult.dimensionScores,
+      sectionScores: scoreResult.dimensionScores,
+      jobAnalysis,
+      gaps,
+      atsSimulation: atsSim,
+      missingKeywords: gaps.missing.map(m => m.skill),
+      presentKeywords: gaps.matched.map(m => m.skill),
+      suggestions: scoreResult.feedback,
+      feedback: scoreResult.feedback,
+      metadata: {
+        fallbackUsed: jobAnalysis?.fallbackUsed || false,
+        engine: jobAnalysis?.fallbackUsed ? "ElevateCV-v2.0-HeuristicFallback" : "ElevateCV-v2.0-GeminiLLM"
+      }
+    });
+  } catch (error) {
+    console.error("Analyze Uploaded Error:", error);
+    res.status(500).json({ message: "Failed to analyze uploaded resume" });
   }
 });
 

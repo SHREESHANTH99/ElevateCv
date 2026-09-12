@@ -87,17 +87,54 @@ class JobMatcherAPI {
       return this.performLocalAnalysis(jobDescription);
     }
   }
-  static async analyzeUploadedResume(resumeContent: string, jobDescription: string) {
+  static async analyzeUploadedResume(uploaded: UploadedResume, jobDescription: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/ai/analyze-uploaded`, {
-        method: "POST",
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify({ resumeContent, jobDescription }),
-      });
+      let response;
+      const token = localStorage.getItem("authToken") || localStorage.getItem("token");
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      if (uploaded.file) {
+        const formData = new FormData();
+        formData.append("file", uploaded.file);
+        formData.append("jobDescription", jobDescription);
+        if (uploaded.content && uploaded.content.length > 50) {
+          formData.append("resumeContent", uploaded.content);
+        }
+
+        response = await fetch(`${API_BASE_URL}/ai/analyze-uploaded`, {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+      } else {
+        headers["Content-Type"] = "application/json";
+        response = await fetch(`${API_BASE_URL}/ai/analyze-uploaded`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ resumeContent: uploaded.content, jobDescription }),
+        });
+      }
+
       if (!response.ok) throw new Error("Failed to analyze uploaded resume");
-      return await response.json();
+      const result = await response.json();
+      return {
+        matchScore: result.matchScore || result.score || 0,
+        label: result.label || "Needs Improvement",
+        fallbackUsed: result.metadata?.fallbackUsed || result.jobAnalysis?.fallbackUsed || false,
+        engine: result.metadata?.engine || "ElevateCV-v2.0-MultiDimensional",
+        dimensionScores: result.dimensionScores || result.sectionScores || {},
+        jobAnalysis: result.jobAnalysis || null,
+        gaps: result.gaps || null,
+        atsSimulation: result.atsSimulation || null,
+        missingKeywords: result.missingKeywords || result.gaps?.missing?.map((m: any) => m.skill) || [],
+        presentKeywords: result.presentKeywords || result.gaps?.matched?.map((m: any) => m.skill) || [],
+        suggestions: result.suggestions || result.feedback || [],
+        sectionScores: result.dimensionScores || {},
+      };
     } catch (error) {
-      return this.performLocalAnalysisWithContent(resumeContent, jobDescription);
+      console.error("Uploaded Resume Analysis Error:", error);
+      return this.performLocalAnalysisWithContent(uploaded.content, jobDescription);
     }
   }
   static performLocalAnalysisWithContent(resumeContent: string, jobDescription: string) {
@@ -164,7 +201,7 @@ const JobMatcher: React.FC = () => {
     try {
       let result;
       if (analysisType === "saved") { result = await JobMatcherAPI.analyzeJobMatch(selectedResume, jobDescription); }
-      else { result = await JobMatcherAPI.analyzeUploadedResume(uploadedResume!.content, jobDescription); }
+      else { result = await JobMatcherAPI.analyzeUploadedResume(uploadedResume!, jobDescription); }
       setAnalysis(result);
     } catch { setError("Failed to analyze job match. Please try again."); }
     finally { setLoading(false); }
