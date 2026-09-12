@@ -72,6 +72,9 @@ export const Compare = ({
     };
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
 
+  const [img1Error, setImg1Error] = useState(false);
+  const [img2Error, setImg2Error] = useState(false);
+
   return (
     <div
       ref={containerRef}
@@ -81,15 +84,16 @@ export const Compare = ({
     >
       {/* Before Image (Left / Base) */}
       <div className="absolute inset-0 w-full h-full">
-        {firstImage ? (
+        {firstImage && !img1Error ? (
           <img
             src={firstImage}
-            alt="Before resume layout"
+            alt=""
+            onError={() => setImg1Error(true)}
             className={`w-full h-full object-cover object-top ${firstImageClassName}`}
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-[#0d1110] text-gray-500 p-8">
-            <p className="text-sm font-semibold uppercase tracking-wider text-rose-400 mb-2">Before: Cluttered & Unformatted</p>
+            <p className="text-sm font-semibold uppercase tracking-wider text-rose-400 mb-2">Before: Cluttered Layout</p>
             <p className="text-xs text-gray-400 max-w-md text-center">Dense, hard-to-read layout without visual hierarchy or ATS optimization.</p>
           </div>
         )}
@@ -105,10 +109,11 @@ export const Compare = ({
           clipPath: `polygon(${sliderPosition}% 0, 100% 0, 100% 100%, ${sliderPosition}% 100%)`,
         }}
       >
-        {secondImage ? (
+        {secondImage && !img2Error ? (
           <img
             src={secondImage}
-            alt="After resume layout"
+            alt=""
+            onError={() => setImg2Error(true)}
             className={`w-full h-full object-cover object-top ${secondImageClassname}`}
           />
         ) : (
