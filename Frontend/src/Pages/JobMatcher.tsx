@@ -1,9 +1,8 @@
-﻿import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Target,
-  TrendingUp,
   AlertCircle,
   CheckCircle,
   FileText,
@@ -61,7 +60,7 @@ class JobMatcherAPI {
       const resumeResult = await resumeResponse.json();
       const resumeData = resumeResult.resume;
 
-      const response = await fetch(`${API_BASE_URL}/ai/optimize`, {
+      const response = await fetch(`${API_BASE_URL}/ai/analyze-resume`, {
         method: "POST",
         headers: this.getAuthHeaders(),
         body: JSON.stringify({ resumeData, jobDescription }),
@@ -70,21 +69,16 @@ class JobMatcherAPI {
       const result = await response.json();
 
       return {
-        matchScore: result.optimization?.matchScore?.percentage || 0,
-        missingKeywords:
-          result.optimization?.suggestions?.find((s: any) => s.type === "missing_keywords")?.items || [],
-        presentKeywords:
-          result.optimization?.jobKeywords?.filter((keyword: any) => {
-            const resumeText = JSON.stringify(resumeData).toLowerCase();
-            return resumeText.includes(keyword.toLowerCase());
-          }) || [],
-        suggestions: result.optimization?.suggestions?.flatMap((s: any) => s.items) || [],
-        sectionScores: {
-          skills: result.optimization?.matchScore?.percentage || 0,
-          experience: Math.max((result.optimization?.matchScore?.percentage || 0) - 10, 0),
-          education: Math.max((result.optimization?.matchScore?.percentage || 0) - 5, 0),
-          keywords: result.optimization?.matchScore?.percentage || 0,
-        },
+        matchScore: result.score || 0,
+        label: result.label || "Needs Improvement",
+        dimensionScores: result.dimensionScores || result.sectionScores || {},
+        jobAnalysis: result.jobAnalysis || null,
+        gaps: result.gaps || null,
+        atsSimulation: result.atsSimulation || null,
+        missingKeywords: result.gaps?.missing?.map((m: any) => m.skill) || [],
+        presentKeywords: result.gaps?.matched?.map((m: any) => m.skill) || [],
+        suggestions: result.feedback || [],
+        sectionScores: result.dimensionScores || {},
       };
     } catch (error) {
       console.error("Error analyzing job match:", error);
@@ -370,105 +364,212 @@ const JobMatcher: React.FC = () => {
       <AnimatePresence>
         {analysis && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6 }}
-            className="glass-card rounded-lg p-8"
+            className="space-y-8"
           >
-            <div className="flex items-center space-x-3 mb-8">
-              <BarChart3 className="w-5 h-5 text-emerald-500" />
-              <h2 className="text-xl font-bold text-zinc-100">Match Analysis</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Score */}
-              <div className="md:col-span-1">
-                <div className="text-center p-8 rounded-lg bg-zinc-800/40 border border-zinc-800/60">
-                  <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">Match Score</h3>
-                  <div className={`text-6xl font-bold mb-3 ${getScoreColor(analysis.matchScore)}`}>
-                    {analysis.matchScore}%
+            {/* Top Bar Score Summary */}
+            <div className="glass-card rounded-xl p-8 border border-[#1f2725] bg-[#161c1a]">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start space-x-2 mb-2">
+                    <Sparkles className="w-5 h-5 text-emerald-400" />
+                    <span className="text-xs font-semibold uppercase tracking-widest text-emerald-400">
+                      Multi-Dimensional Intelligence Match
+                    </span>
                   </div>
-                  <p className="text-sm text-zinc-500">
-                    {analysis.matchScore > 80 ? "Excellent match!" : analysis.matchScore > 60 ? "Good match" : "Needs improvement"}
-                  </p>
+                  <h2 className="text-3xl font-bold text-zinc-100">{analysis.label || "ATS Match Analysis"}</h2>
+                  <p className="text-xs text-zinc-400 mt-1">Calibrated across 8 weighted ATS dimensions & semantic vector similarity</p>
                 </div>
 
-                {/* Section Scores */}
-                <div className="mt-6 space-y-4">
-                  <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Section Scores</h3>
-                  {Object.entries(analysis.sectionScores || {}).map(([section, score]: [string, unknown]) => (
-                    <div key={section}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="capitalize text-sm text-zinc-400">{section}</span>
-                        <span className="text-sm font-semibold text-zinc-300">{String(score)}%</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <motion.div
-                          className={`h-full rounded-full ${Number(score) >= 80 ? "bg-emerald-500" : Number(score) >= 60 ? "bg-amber-500" : "bg-rose-500"}`}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${score}%` }}
-                          transition={{ duration: 1, delay: 0.3 }}
-                        />
-                      </div>
+                <div className="flex items-center space-x-6">
+                  <div className="text-center px-6 py-4 rounded-xl bg-[#0d1110] border border-[#1f2725]">
+                    <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider block mb-1">ATS Score</span>
+                    <span className={`text-4xl font-extrabold ${getScoreColor(analysis.matchScore)}`}>
+                      {analysis.matchScore}/100
+                    </span>
+                  </div>
+                  {analysis.atsSimulation && (
+                    <div className="text-center px-6 py-4 rounded-xl bg-[#0d1110] border border-[#1f2725]">
+                      <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider block mb-1">Parse Rate</span>
+                      <span className="text-4xl font-extrabold text-cyan-400">
+                        {analysis.atsSimulation.parseRate}%
+                      </span>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
+            </div>
 
-              {/* Details */}
-              <div className="md:col-span-2 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center uppercase tracking-wider">
-                      <CheckCircle className="mr-2 text-emerald-500" size={16} />
-                      Matching Skills
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {analysis.presentKeywords?.map((keyword: string, index: number) => (
-                        <span key={index} className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-lg border border-emerald-500/20 capitalize">
-                          {keyword}
-                        </span>
-                      ))}
-                      {(!analysis.presentKeywords || analysis.presentKeywords.length === 0) && (
-                        <p className="text-sm text-zinc-600">No matching keywords found</p>
-                      )}
+            {/* 8-Dimension Breakdown Grid */}
+            <div className="glass-card rounded-xl p-6 border border-[#1f2725] bg-[#161c1a]">
+              <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-6 flex items-center">
+                <BarChart3 className="w-4 h-4 mr-2 text-emerald-400" />
+                8-Dimension Weighted Score Breakdown
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { name: "Keyword Match (25%)", score: analysis.dimensionScores?.keywordMatch ?? analysis.matchScore, color: "emerald" },
+                  { name: "Required Skills (20%)", score: analysis.dimensionScores?.requiredSkills ?? 75, color: "emerald" },
+                  { name: "Experience (15%)", score: analysis.dimensionScores?.experience ?? 80, color: "cyan" },
+                  { name: "Projects (15%)", score: analysis.dimensionScores?.projects ?? 85, color: "cyan" },
+                  { name: "Quantification (10%)", score: analysis.dimensionScores?.quantification ?? 60, color: "amber" },
+                  { name: "Structure (5%)", score: analysis.dimensionScores?.structure ?? 95, color: "emerald" },
+                  { name: "Education (5%)", score: analysis.dimensionScores?.education ?? 100, color: "emerald" },
+                  { name: "Summary Quality (5%)", score: analysis.dimensionScores?.summary ?? 80, color: "cyan" },
+                ].map((item) => (
+                  <div key={item.name} className="p-4 rounded-lg bg-[#0d1110] border border-[#1f2725]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-medium text-zinc-300">{item.name}</span>
+                      <span className={`text-xs font-bold text-${item.color}-400`}>{item.score}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full bg-${item.color}-500 rounded-full transition-all duration-500`}
+                        style={{ width: `${item.score}%` }}
+                      />
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Job Intelligence & Skill Gap Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Job Intelligence Panel */}
+              {analysis.jobAnalysis && (
+                <div className="glass-card rounded-xl p-6 border border-[#1f2725] bg-[#161c1a] space-y-4">
+                  <h3 className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center">
+                    <Target className="w-4 h-4 mr-2" />
+                    Job Intelligence Profile
+                  </h3>
+
+                  <div className="p-4 rounded-lg bg-[#0d1110] border border-[#1f2725] flex justify-between items-center">
+                    <div>
+                      <h4 className="text-sm font-bold text-zinc-100">{analysis.jobAnalysis.jobTitle}</h4>
+                      <p className="text-xs text-zinc-500">{analysis.jobAnalysis.domain} • {analysis.jobAnalysis.seniority}</p>
+                    </div>
+                  </div>
+
                   <div>
-                    <h3 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center uppercase tracking-wider">
-                      <AlertCircle className="mr-2 text-amber-500" size={16} />
-                      Missing Keywords
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {analysis.missingKeywords?.map((keyword: string, index: number) => (
-                        <span key={index} className="px-3 py-1.5 bg-amber-500/10 text-amber-400 text-xs font-medium rounded-lg border border-amber-500/20 capitalize">
-                          {keyword}
+                    <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block mb-2">Required Skills</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {analysis.jobAnalysis.requiredSkills?.map((s: string, i: number) => (
+                        <span key={i} className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-md border border-emerald-500/20">
+                          {s}
                         </span>
                       ))}
-                      {(!analysis.missingKeywords || analysis.missingKeywords.length === 0) && (
-                        <p className="text-sm text-zinc-600">No missing keywords</p>
-                      )}
                     </div>
+                  </div>
+
+                  {analysis.jobAnalysis.preferredSkills?.length > 0 && (
+                    <div>
+                      <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block mb-2">Preferred Skills</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {analysis.jobAnalysis.preferredSkills?.map((s: string, i: number) => (
+                          <span key={i} className="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 text-xs font-medium rounded-md border border-cyan-500/20">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {analysis.jobAnalysis.responsibilities?.length > 0 && (
+                    <div>
+                      <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block mb-2">Primary Responsibilities</span>
+                      <ul className="space-y-1">
+                        {analysis.jobAnalysis.responsibilities.slice(0, 3).map((r: string, i: number) => (
+                          <li key={i} className="text-xs text-zinc-400 flex items-start">
+                            <span className="text-emerald-500 mr-2">•</span>{r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Skill Gap Analysis (Matched / Missing / Recommendations) */}
+              <div className="glass-card rounded-xl p-6 border border-[#1f2725] bg-[#161c1a] space-y-4">
+                <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Skill Gap & Coverage Analysis
+                </h3>
+
+                <div>
+                  <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider block mb-2">Matched Skills (✓)</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {analysis.presentKeywords?.map((s: string, i: number) => (
+                      <span key={i} className="px-2.5 py-1 bg-emerald-500/15 text-emerald-400 text-xs font-medium rounded-md border border-emerald-500/30">
+                        ✓ {s}
+                      </span>
+                    ))}
+                    {(!analysis.presentKeywords || analysis.presentKeywords.length === 0) && (
+                      <p className="text-xs text-zinc-500">None detected</p>
+                    )}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-300 mb-4 flex items-center uppercase tracking-wider">
-                    <TrendingUp className="mr-2 text-cyan-500" size={16} />
-                    Improvement Suggestions
-                  </h3>
+                  <span className="text-[10px] font-semibold text-rose-400 uppercase tracking-wider block mb-2">Missing Skills (✗)</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {analysis.missingKeywords?.map((s: string, i: number) => (
+                      <span key={i} className="px-2.5 py-1 bg-rose-500/15 text-rose-400 text-xs font-medium rounded-md border border-rose-500/30">
+                        ✗ {s}
+                      </span>
+                    ))}
+                    {(!analysis.missingKeywords || analysis.missingKeywords.length === 0) && (
+                      <p className="text-xs text-emerald-400">All required skills matched!</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Recommendations */}
+                <div>
+                  <span className="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider block mb-2">Actionable Recommendations</span>
                   <div className="space-y-2">
-                    {analysis.suggestions?.map((suggestion: string, index: number) => (
-                      <div key={index} className="flex items-start p-3 rounded-lg bg-zinc-800/30 border border-zinc-800/60">
-                        <ArrowRight className="w-3.5 h-3.5 text-cyan-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-zinc-400">{suggestion}</span>
+                    {analysis.suggestions?.map((sugg: string, i: number) => (
+                      <div key={i} className="p-3 rounded-lg bg-[#0d1110] border border-[#1f2725] flex items-start text-xs text-zinc-300">
+                        <ArrowRight className="w-3.5 h-3.5 text-cyan-400 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>{sugg}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* ATS Simulation & Structural Warnings */}
+            {analysis.atsSimulation && (
+              <div className="glass-card rounded-xl p-6 border border-[#1f2725] bg-[#161c1a]">
+                <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-4 flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  ATS Structure Compatibility & Layout Audit
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">Compliance Checks</span>
+                    {analysis.atsSimulation.compatibility?.map((check: string, i: number) => (
+                      <p key={i} className="text-xs text-emerald-400">{check}</p>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">Layout Warnings</span>
+                    {analysis.atsSimulation.warnings?.map((warn: string, i: number) => (
+                      <p key={i} className="text-xs text-amber-400">{warn}</p>
+                    ))}
+                    {(!analysis.atsSimulation.warnings || analysis.atsSimulation.warnings.length === 0) && (
+                      <p className="text-xs text-emerald-400">✓ No layout or formatting smells detected.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

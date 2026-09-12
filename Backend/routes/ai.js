@@ -4,19 +4,16 @@ const auth = require("../middleware/auth");
 const { parseResumeWithAI } = require("../utils/geminiParser");
 const { getEmbedding, getSimilarity } = require("../utils/aiServiceConnector");
 const { scoreResume } = require("../utils/resumeScorer");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { analyzeJobDescription } = require("../utils/jobAnalyzer");
+const { analyzeSkillGaps } = require("../utils/gapAnalyzer");
+const { simulateATSParsing } = require("../utils/atsSimulator");
+const { analyzeBullet } = require("../utils/bulletIntelligence");
+const { getCachedResult } = require("../utils/resultCache");
 const { generateAIContent } = require("../utils/geminiClient");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const router = express.Router();
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-const { normalizeSkills } = require("../utils/skillExtractor");
-
-router.get("/test", (req, res) => {
-  res.json({ status: "Route verified", context: "AI Routes Online" });
-});
-
-const { getCachedResult } = require("../utils/resultCache");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key");
 
 const withTimeout = (promise, ms, fallback) => {
   let timer;
@@ -32,10 +29,13 @@ const withTimeout = (promise, ms, fallback) => {
   ]);
 };
 
+router.get("/test", (req, res) => {
+  res.json({ status: "Route verified", context: "AI Routes Online", engine: "ElevateCV AI Intelligence v2.0" });
+});
 
 /**
- * 👑 THE CENTRAL ORCHESTRATOR (PHASE 1.75 UPGRADE)
- * Highly optimized, parallelized, and cached intelligence pipeline.
+ * 👑 THE CENTRAL ORCHESTRATOR
+ * Multi-dimensional weighted scoring, gap analysis, ATS simulation & caching.
  */
 router.post("/analyze-resume", auth, async (req, res) => {
   const startTime = Date.now();
@@ -45,81 +45,54 @@ router.post("/analyze-resume", auth, async (req, res) => {
     const { resumeData, jobDescription } = req.body;
     if (!resumeData) return res.status(400).json({ message: "Resume data is required" });
 
-    // Use Result Caching (Hash of Resume + Job)
     const finalResult = await getCachedResult(resumeData, jobDescription, async () => {
-      // 1. Light Processing (Scoring & Normalization)
       const sectionStart = Date.now();
-      const analysis = scoreResume(resumeData, jobDescription);
-      const rawSkills = resumeData.skills?.map(s => s.name) || [];
-      const normalizedSkills = normalizeSkills(rawSkills);
-      timings.foundation = Date.now() - sectionStart;
 
-      let jobMatchInfo = null;
-      let matchScore = 0;
-      let missingSkills = [];
+      let jobAnalysis = null;
+      let similarityScore = 0;
 
-      // 2. Heavy Processing (Parallelize LLM and Similarity)
-      if (jobDescription) {
-        const heavyStart = Date.now();
-        
-        // Parallelized tasks: LLM skill extraction AND semantic embedding match
-        const [llmResult, similarity] = await Promise.all([
-          // Task A: Skill Extraction via Gemini
-          withTimeout(
-            generateAIContent(
-              `Extract skills/reqs from: ${jobDescription}. Return EXCLUSIVELY JSON: {"Job Skills":[], "Experience":""}`,
-              { "Job Skills": [], "Experience": "Timeout fallback" }
-            ),
-            8000,
-            { "Job Skills": [], "Experience": "Timeout fallback" }
-          ),
-          // Task B: Semantic Similarity via Python service (Cached in aiServiceConnector)
-          withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 8000, 0)
+      if (jobDescription && jobDescription.trim().length > 0) {
+        const [jobDetails, vectorSim] = await Promise.all([
+          withTimeout(analyzeJobDescription(jobDescription), 6000, null),
+          withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 6000, 0)
         ]);
 
-        jobMatchInfo = llmResult;
-        const jobSkills = normalizeSkills(jobMatchInfo["Job Skills"] || []);
-        const matched = jobSkills.filter(s => normalizedSkills.includes(s));
-        missingSkills = jobSkills.filter(s => !normalizedSkills.includes(s));
-
-        const skillScore = jobSkills.length > 0 ? (matched.length / jobSkills.length) : 1;
-        matchScore = Math.round((similarity * 0.5 + skillScore * 0.5) * 100);
-        
-        timings.heavy_alignment = Date.now() - heavyStart;
+        jobAnalysis = jobDetails;
+        similarityScore = Math.round(vectorSim * 100);
       }
 
-      // 3. Assemble Suggestion Context
-      const improvementContext = `
-        ATS Score: ${analysis.score} (${analysis.label})
-        Feedback: ${analysis.feedback.slice(0, 2).join(". ")}
-        ${missingSkills.length > 0 ? "Missing: " + missingSkills.slice(0, 3).join(", ") : ""}
-      `;
+      timings.jobAnalysis = Date.now() - sectionStart;
+
+      // Execute Multi-Dimensional Scorer & Gap Analyzer
+      const scoreResult = scoreResume(resumeData, jobAnalysis, similarityScore);
+      const gaps = jobAnalysis ? analyzeSkillGaps(resumeData, jobAnalysis) : null;
+      const atsSim = simulateATSParsing(resumeData);
+
+      timings.analysis = Date.now() - sectionStart;
 
       return {
-        score: analysis.score,
-        label: analysis.label,
-        color: analysis.color,
-        sectionScores: analysis.sectionScores,
-        reasoning: analysis.reasoning,
-        feedback: analysis.feedback,
-        match: jobDescription ? {
-          score: matchScore,
-          missingSkills,
-          matchDetails: jobMatchInfo
-        } : null,
-        context: improvementContext
+        score: scoreResult.score,
+        label: scoreResult.label,
+        color: scoreResult.color,
+        dimensionScores: scoreResult.dimensionScores,
+        sectionScores: scoreResult.dimensionScores, // Backward compatibility
+        jobAnalysis,
+        gaps,
+        atsSimulation: atsSim,
+        feedback: scoreResult.feedback,
+        context: `ATS Score: ${scoreResult.score} (${scoreResult.label}). ${scoreResult.feedback.slice(0, 2).join(". ")}`
       };
     });
 
-    // Add Latency Metadata
     timings.total = Date.now() - startTime;
+
     res.json({
       ...finalResult,
       pipelineId: Date.now(),
       metadata: {
         timings,
         cached: finalResult.cached || false,
-        engine: "ElevateCV-v1.75-Parallel"
+        engine: "ElevateCV-v2.0-MultiDimensional"
       }
     });
 
@@ -130,38 +103,93 @@ router.post("/analyze-resume", auth, async (req, res) => {
 });
 
 /**
- * 🔗 SMART IMPROVEMENT: Score-Aware Generator
+ * 📋 DEEP JOB DESCRIPTION ANALYZER (16-Field JSON Output)
  */
-router.post("/improve-smart", auth, async (req, res) => {
+router.post("/analyze-job", auth, async (req, res) => {
   try {
-    const { section, content, feedbackContext } = req.body;
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    // Inject the intelligent "feedback loop" into the prompt
-    const prompt = `
-      You are a professional resume optimizer.
-      Section: ${section}
-      Current Content: ${JSON.stringify(content)}
-      
-      CRITICAL FEEDBACK TO ADDRESS:
-      ${feedbackContext || "General optimization for professional quality."}
-      
-      Task: Improve the content specifically to address the feedback. 
-      Use stronger action verbs, add metrics where requested, and ensure professional phrasing.
-      Return EXCLUSIVELY the improved JSON object.
-    `;
-    
-    const result = await model.generateContent(prompt);
-    const text = (await result.response).text().replace(/```json/g, "").replace(/```/g, "").trim();
-    res.json({ improvedContent: JSON.parse(text) });
+    const { jobDescription } = req.body;
+    if (!jobDescription || jobDescription.trim().length < 20) {
+      return res.status(400).json({ message: "Valid job description text is required." });
+    }
+
+    const analysis = await analyzeJobDescription(jobDescription);
+    res.json({ jobAnalysis: analysis });
   } catch (error) {
-    console.error("Smart Improve Error:", error);
-    res.status(500).json({ message: "Failed to improve with context" });
+    console.error("Job Analysis Error:", error);
+    res.status(500).json({ message: "Failed to analyze job description" });
   }
 });
 
 /**
- * 🧩 1. RESUME PARSING LAYER
+ * 🎯 ATS PARSER SIMULATOR & STRUCTURE COMPLIANCE
+ */
+router.post("/ats-simulate", auth, async (req, res) => {
+  try {
+    const { resumeData, rawText } = req.body;
+    const simulation = simulateATSParsing(resumeData || {}, rawText || "");
+    res.json({ simulation });
+  } catch (error) {
+    console.error("ATS Simulation Error:", error);
+    res.status(500).json({ message: "Failed to simulate ATS parsing" });
+  }
+});
+
+/**
+ * 💡 BULLET-POINT INTELLIGENCE
+ */
+router.post("/analyze-bullet", auth, async (req, res) => {
+  try {
+    const { bulletText } = req.body;
+    if (!bulletText) return res.status(400).json({ message: "Bullet text is required" });
+    const analysis = analyzeBullet(bulletText);
+    res.json({ bulletAnalysis: analysis });
+  } catch (error) {
+    console.error("Bullet Intelligence Error:", error);
+    res.status(500).json({ message: "Failed to analyze bullet" });
+  }
+});
+
+/**
+ * 🔍 JOB MATCHER ROUTE (Compatibility + Upgraded Gap Analysis)
+ */
+router.post(
+  "/match-job",
+  auth,
+  [
+    body("resumeData").isObject(),
+    body("jobDescription").isString().isLength({ min: 20 }),
+  ],
+  async (req, res) => {
+    try {
+      const { resumeData, jobDescription } = req.body;
+
+      const [jobAnalysis, vectorSim] = await Promise.all([
+        analyzeJobDescription(jobDescription),
+        withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 6000, 0)
+      ]);
+
+      const gaps = analyzeSkillGaps(resumeData, jobAnalysis);
+      const scoreResult = scoreResume(resumeData, jobAnalysis, Math.round(vectorSim * 100));
+
+      res.json({
+        matchScore: scoreResult.score,
+        dimensionScores: scoreResult.dimensionScores,
+        jobAnalysis,
+        matchedSkills: gaps.matched.map(m => m.skill),
+        missingSkills: gaps.missing.map(m => m.skill),
+        partiallyMatchedSkills: gaps.partiallyMatched,
+        recommendedActions: gaps.recommendedActions,
+        suggestions: scoreResult.feedback
+      });
+    } catch (error) {
+      console.error("AI Job Match Error:", error);
+      res.status(500).json({ message: "Failed to match job" });
+    }
+  }
+);
+
+/**
+ * 🧩 RESUME PARSING LAYER
  */
 router.post("/parse-resume", auth, async (req, res) => {
   try {
@@ -176,65 +204,7 @@ router.post("/parse-resume", auth, async (req, res) => {
 });
 
 /**
- * 🔍 3. JOB MATCHER ENGINE (CORE FEATURE)
- */
-router.post(
-  "/match-job",
-  auth,
-  [
-    body("resumeData").isObject(),
-    body("jobDescription").isString().isLength({ min: 50 }),
-  ],
-  async (req, res) => {
-    try {
-      const { resumeData, jobDescription } = req.body;
-
-      // Parallelize Gemini and Python Service with Timeouts
-      const [jobMatchInfo, similarity] = await Promise.all([
-        withTimeout(
-          generateAIContent(`
-              Job Description:
-              ${jobDescription}
-
-              Extract EXACTLY:
-              1. "Job Skills": array of technical skills
-              2. "Experience": Required years or level
-              3. "Primary Responsibilities": top 3 bullets
-              Return JSON format.
-            `, 
-            { "Job Skills": [], "Experience": "Timeout", "Primary Responsibilities": [] }
-          ),
-          8000,
-          { "Job Skills": [], "Experience": "Timeout", "Primary Responsibilities": [] }
-        ),
-        withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 8000, 0)
-      ]);
-
-      // 3. Keyword Overlap
-      const resumeSkills = resumeData.skills?.map(s => s.name.toLowerCase()) || [];
-      const jobSkills = jobMatchInfo["Job Skills"]?.map(s => s.toLowerCase()) || [];
-      const matchedSkills = jobSkills.filter(s => resumeSkills.some(rs => rs.includes(s) || s.includes(rs)));
-      const missingSkills = jobSkills.filter(s => !matchedSkills.includes(s));
-
-      res.json({
-        matchScore: Math.round(similarity * 100),
-        matchedSkills,
-        missingSkills,
-        jobMatchInfo,
-        suggestions: [
-          `Focus on ${missingSkills.slice(0, 3).join(", ")} to improve your match score.`,
-          "Tailor your profile using these extracted job responsibilities."
-        ]
-      });
-    } catch (error) {
-      console.error("AI Job Match Error:", error);
-      res.status(500).json({ message: "Failed to match job" });
-    }
-  }
-);
-
-/**
- * 📊 4. RESUME SCORING ENGINE (ATS SIMULATION)
+ * 📊 RESUME SCORING ROUTE
  */
 router.post("/score-resume", auth, async (req, res) => {
   try {
@@ -248,7 +218,7 @@ router.post("/score-resume", auth, async (req, res) => {
 });
 
 /**
- * 🤖 5. CONTROLLED AI GENERATION PIPELINE
+ * 🤖 CONTROLLED AI GENERATION PIPELINE
  */
 router.post("/improve-resume", auth, async (req, res) => {
   try {
@@ -268,7 +238,7 @@ router.post("/improve-resume", auth, async (req, res) => {
     const improvedContent = await withTimeout(
       generateAIContent(prompt, content),
       10000,
-      content // Fallback to original content on timeout
+      content
     );
     
     res.json({ improvedContent });
@@ -278,22 +248,27 @@ router.post("/improve-resume", auth, async (req, res) => {
   }
 });
 
-/**
- * Compatibility Aliases for Frontend (if any)
- */
-router.post("/optimize", auth, async (req, res) => {
-  // Alias for match-job to avoid breaking mobile/old web
-  res.redirect(307, "./match-job");
-});
-
-router.post("/suggestions", auth, async (req, res) => {
-  // Mock generic suggestions as before but using the new scorer logic
+router.post("/improve-smart", auth, async (req, res) => {
   try {
-    const { section, currentData } = req.body;
-    const analysis = scoreResume({ [section]: currentData });
-    res.json({ suggestions: analysis.feedback, section });
+    const { section, content, feedbackContext } = req.body;
+    const prompt = `
+      You are a professional resume optimizer.
+      Section: ${section}
+      Current Content: ${JSON.stringify(content)}
+      
+      CRITICAL FEEDBACK TO ADDRESS:
+      ${feedbackContext || "General optimization for professional quality."}
+      
+      Task: Improve the content specifically to address the feedback. 
+      Use stronger action verbs, add metrics where requested, and ensure professional phrasing.
+      Return EXCLUSIVELY the improved JSON object.
+    `;
+    
+    const improvedContent = await generateAIContent(prompt, content);
+    res.json({ improvedContent });
   } catch (error) {
-    res.status(500).json({ message: "Failure in suggestions" });
+    console.error("Smart Improve Error:", error);
+    res.status(500).json({ message: "Failed to improve with context" });
   }
 });
 
