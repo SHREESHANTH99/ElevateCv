@@ -12,6 +12,7 @@ import {
   LogIn,
   LogOut,
   Sparkles,
+  Briefcase,
   X,
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ const Navbar: React.FC = () => {
     { path: "/dashboard", icon: BarChart3, label: "Dashboard" },
     { path: "/resume/builder", icon: FileText, label: "Resume Builder" },
     { path: "/job-matcher", icon: Target, label: "Job Matcher" },
+    { path: "/applications", icon: Briefcase, label: "Applications" },
     { path: "/cover-letter", icon: Mail, label: "Cover Letter" },
     { path: "/templates", icon: FileText, label: "Templates" },
   ];

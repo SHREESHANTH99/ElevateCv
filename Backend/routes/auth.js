@@ -6,6 +6,7 @@ const auth = require("../middleware/auth");
 const { verifyFirebaseToken } = require("../config/firebase");
 const multer = require("multer");
 const path = require("path");
+const inMemoryStorage = require("../utils/inMemoryStorage.js");
 const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -64,6 +65,41 @@ router.post(
         });
       }
       const { email, password, firstName, lastName } = req.body;
+
+      if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+        const existingUser = await inMemoryStorage.findUserByEmail(email);
+        if (existingUser) {
+          return res.status(400).json({
+            success: false,
+            message: "Email already in use",
+          });
+        }
+        const user = await inMemoryStorage.createUser({
+          email,
+          password,
+          profile: {
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            fullName: `${firstName.trim()} ${lastName.trim()}`,
+          },
+          subscription: { plan: "free", status: "active" },
+          preferences: { theme: "light", notifications: { email: true, push: true } }
+        });
+        const token = await inMemoryStorage.generateToken(user._id);
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return res.status(201).json({
+          success: true,
+          message: "User registered successfully",
+          token,
+          user: getUserData(user),
+        });
+      }
+
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({
@@ -114,6 +150,7 @@ router.post(
       res.status(201).json({
         success: true,
         message: "User registered successfully",
+        token,
         user: getUserData(user),
       });
     } catch (error) {
@@ -148,6 +185,31 @@ router.post(
       }
       const { email, password } = req.body;
       console.log("Login attempt for email:", email);
+
+      if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+        const user = await inMemoryStorage.findUserByEmail(email);
+        if (!user || user.password !== password) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid credentials",
+            error: "Incorrect email or password",
+          });
+        }
+        const token = await inMemoryStorage.generateToken(user._id);
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return res.json({
+          success: true,
+          message: "Login successful",
+          token,
+          user: getUserData(user),
+        });
+      }
+
       const user = await User.findOne({ email }).select("+password");
       console.log("User found:", user ? "Yes" : "No");
       if (!user) {
@@ -196,6 +258,20 @@ router.post(
 );
 router.get("/me", auth, async (req, res) => {
   try {
+    if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+      const user = await inMemoryStorage.findUserById(req.user._id || req.user.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+      return res.json({
+        success: true,
+        user: getUserData(user),
+      });
+    }
+
     const user = await User.findById(req.user.id).select("-password");
     if (!user) {
       return res.status(404).json({

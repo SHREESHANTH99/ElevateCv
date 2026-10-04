@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Navbar from "./Components/Navbar";
 import Dashboard from "./Pages/DashBoard";
 import JobMatcher from "./Pages/JobMatcher";
+import Applications from "./Pages/Applications";
 import CoverLetterGenerator from "./Pages/CoverLetterGenerator";
 import Templates from "./Pages/Templates";
 import Landing from "./Pages/LandingPage";
@@ -142,6 +143,16 @@ function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <JobMatcher />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/applications"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Applications />
                 </AppLayout>
               </ProtectedRoute>
             }

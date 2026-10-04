@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
 const connectDB = async () => {
+  if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+    console.log("⚡ Running with In-Memory Mock Storage (USE_IN_MEMORY_STORAGE=true)");
+    return;
+  }
   const MONGODB_URI = process.env.MONGODB_URI;
   if (!MONGODB_URI) {
-    throw new Error('MONGODB_URI is not set. Create a .env file with MONGODB_URI.');
+    console.warn("⚠️ MONGODB_URI is not set. Defaulting to In-Memory Mock Storage.");
+    process.env.USE_IN_MEMORY_STORAGE = "true";
+    return;
   }
   try {
     console.log('🔍 Attempting to connect to MongoDB...');
@@ -13,8 +19,8 @@ const connectDB = async () => {
     });
     console.log('✅ MongoDB connected');
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
-    throw error;
+    console.warn('⚠️ MongoDB connection error, falling back to In-Memory Mock Storage:', error.message);
+    process.env.USE_IN_MEMORY_STORAGE = "true";
   }
 };
 module.exports = connectDB;

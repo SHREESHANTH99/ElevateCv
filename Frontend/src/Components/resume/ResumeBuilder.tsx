@@ -108,7 +108,7 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
       };
     case "SET_SUMMARY":
       return { ...state, summary: action.payload };
-    case "ADD_EXPERIENCE":
+    case "ADD_EXPERIENCE": {
       const newExp: Experience = {
         id: uuidv4(),
         company: "",
@@ -124,6 +124,7 @@ function resumeReducer(state: ResumeState, action: ResumeAction): ResumeState {
         ...state,
         experiences: [...state.experiences, newExp],
       };
+    }
     case "UPDATE_EXPERIENCE":
       return {
         ...state,

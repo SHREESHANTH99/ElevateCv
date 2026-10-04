@@ -1,4 +1,4 @@
-﻿/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 export default {
 content: [
 './index.html',
@@ -6,6 +6,11 @@ content: [
 ],
 theme: {
 extend: {
+      fontFamily: {
+        display: ['"Aalto Display"', 'Aalto', '"Bricolage Grotesk"', '"Space Grotesk"', 'Outfit', 'sans-serif'],
+        aalto: ['"Aalto Display"', 'Aalto', '"Bricolage Grotesk"', '"Space Grotesk"', 'Outfit', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+      },
       colors: { 
         charcoal: '#0d1110',
         'charcoal-light': '#161c1a',

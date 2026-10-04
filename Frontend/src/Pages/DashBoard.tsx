@@ -1,4 +1,4 @@
-﻿import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,71 +14,19 @@ import {
   CheckCircle,
   ArrowRight,
 } from "lucide-react";
-import { useState, useEffect } from "react";
-
-const API_BASE_URL = `${
-  import.meta.env.VITE_API_URL || "http://localhost:5000"
-}/api`;
-
-interface Resume {
-  _id: string;
-  title: string;
-  company?: string;
-  matchScore?: number;
-  updatedAt: string;
-  createdAt: string;
-  score?: number;
-  analysis?: {
-    feedback: string[];
-    breakdown: any;
-  };
-}
-
-class DashboardAPI {
-  private static getAuthHeaders() {
-    const token = localStorage.getItem("authToken");
-    return {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
-  static async getResumes(): Promise<Resume[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/resume`, {
-        headers: this.getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error("Failed to load resumes");
-      const data = await response.json();
-      return data.resumes || [];
-    } catch (error) {
-      console.error("Error loading resumes:", error);
-      return [];
-    }
-  }
-}
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../Components/ui/Tooltip";
+import { useResumes } from "../hooks/queries/useResumes";
 
 const Dashboard: React.FC = () => {
   useDocumentTitle('Dashboard');
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchResumes = async () => {
-      try {
-        setLoading(true);
-        const resumeData = await DashboardAPI.getResumes();
-        setResumes(resumeData);
-        setError(null);
-      } catch (err) {
-        setError("Failed to load resumes");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResumes();
-  }, []);
+  
+  const {
+    data: resumes = [],
+    isPending,
+    isError,
+    error,
+    isFetching,
+  } = useResumes();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -189,27 +137,36 @@ const Dashboard: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {stats.map(({ label, value, icon: Icon, description }, index) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <div className="glass-card rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center shadow-lg`}>
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-zinc-100">{value}</p>
-                    <p className="text-sm font-medium text-zinc-400">{label}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-zinc-600">{description}</p>
-              </div>
-            </motion.div>
-          ))}
+          <TooltipProvider>
+            {stats.map(({ label, value, icon: Icon, description }, index) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="glass-card rounded-lg p-6 cursor-help">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className={`w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center shadow-lg`}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-zinc-100">{value}</p>
+                          <p className="text-sm font-medium text-zinc-400">{label}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-zinc-600">{description}</p>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Total number of resumes you have built and saved.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </motion.div>
+            ))}
+          </TooltipProvider>
         </div>
 
 
@@ -261,14 +218,17 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="p-6">
             <div className="space-y-3">
-              {loading ? (
+              {isFetching && !isPending && (
+                <p className="text-xs text-zinc-600 mb-2">Updating...</p>
+              )}
+              {isPending ? (
                 <div className="text-center py-12">
                   <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mx-auto" />
                   <p className="text-zinc-500 mt-4 text-sm">Loading resumes...</p>
                 </div>
-              ) : error ? (
+              ) : isError ? (
                 <div className="text-center py-12 text-red-400">
-                  <p>{error}</p>
+                  <p>{error?.message || "Failed to load resumes"}</p>
                 </div>
               ) : resumes.length === 0 ? (
                 <div className="text-center py-12">
@@ -304,7 +264,7 @@ const Dashboard: React.FC = () => {
                       <div className="flex items-center space-x-4 mt-2">
                         <p className="text-xs text-zinc-600 flex items-center">
                           <Calendar className="w-3 h-3 mr-1" />
-                          {formatDate(resume.updatedAt || resume.createdAt)}
+                          {formatDate(resume.updatedAt || resume.createdAt || new Date().toISOString())}
                         </p>
                       </div>
                     </div>

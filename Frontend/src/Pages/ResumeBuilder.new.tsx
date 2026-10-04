@@ -2,6 +2,8 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeApi } from "../services/resumeApi";
+import { useResume } from "../hooks/queries/useResumes";
+import { useCreateResume, useUpdateResume } from "../hooks/queries/useResumeMutations";
 import { v4 as uuidv4 } from "uuid";
 import {
   Loader2,
@@ -20,7 +22,11 @@ import {
   Sparkles,
   Target,
   BarChart3,
+  Wand2,
+  History,
 } from "lucide-react";
+import { TailorResumeModal } from "../Components/resume/TailorResumeModal";
+import { ResumeVersionDrawer } from "../Components/resume/ResumeVersionDrawer";
 import {
   ModernTemplate,
   ExecutiveTemplate,
@@ -40,7 +46,6 @@ import type {
   Education,
   Skill,
   Project,
-  PersonalInfo,
   Certification,
   Award,
   Language,
@@ -48,42 +53,6 @@ import type {
   VolunteerExperience,
   Reference,
 } from "../types/resume";
-type AuthExperience = {
-  id?: string;
-  company: string;
-  position: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-  description: string[];
-};
-type AuthEducation = {
-  id?: string;
-  institution: string;
-  degree: string;
-  field: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-  gpa?: string;
-  description?: string;
-};
-type AuthSkill = {
-  id?: string;
-  name: string;
-  level: "Beginner" | "Intermediate" | "Advanced" | "Expert";
-  category: string;
-};
-type AuthProject = {
-  id?: string;
-  name: string;
-  description: string;
-  technologies: string[];
-  startDate: string;
-  endDate?: string;
-};
 type SocialLinks = {
   linkedin?: string;
   github?: string;
@@ -132,7 +101,108 @@ const ResumeBuilder: React.FC = () => {
   const [showPreview, setShowPreview] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>("personal");
+  const [expandedBullet, setExpandedBullet] = useState<{ expId: string; bIdx: number } | null>(null);
+  const [isTailorModalOpen, setIsTailorModalOpen] = useState(false);
+  const [isVersionDrawerOpen, setIsVersionDrawerOpen] = useState(false);
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialResumeId = urlParams.get("resumeId") || undefined;
+  
+  const [resumeId, setResumeId] = useState<string | undefined>(initialResumeId);
   const previewRef = useRef<HTMLDivElement>(null);
+  
+  const { data: queryResumeData, isPending: isQueryPending } = useResume(resumeId);
+  const createResumeMutation = useCreateResume();
+  const updateResumeMutation = useUpdateResume();
+
+  const STRONG_ACTION_VERBS = new Set([
+    "architected", "engineered", "spearheaded", "orchestrated", "developed", "launched",
+    "optimized", "scaled", "reduced", "increased", "accelerated", "implemented", "overhauled",
+    "automated", "streamlined", "constructed", "pioneered", "designed", "executed", "transformed"
+  ]);
+
+  const WEAK_ACTION_VERBS = new Set([
+    "worked", "helped", "assisted", "responsible for", "handled", "did", "made",
+    "participated", "involved", "used", "created", "looked after"
+  ]);
+
+  const analyzeBulletClient = (text: string) => {
+    const trimmed = (text || "").trim();
+    if (!trimmed) {
+      return {
+        score: 0,
+        hasMetric: false,
+        hasStrongVerb: false,
+        weakVerbDetected: false,
+        problems: ["Empty bullet point"],
+        suggestedTypes: [
+          "Scale or dataset size (e.g., processing 10,000+ records)",
+          "Percentage improvement (e.g., +25% efficiency boost)",
+          "Latency or speed reduction (e.g., -35ms response time)"
+        ]
+      };
+    }
+
+    const words = trimmed.toLowerCase().split(/\s+/);
+    const firstWord = words[0].replace(/[^a-z]/g, "");
+    const hasStrongVerb = STRONG_ACTION_VERBS.has(firstWord);
+    const hasWeakVerb = WEAK_ACTION_VERBS.has(firstWord) || trimmed.toLowerCase().startsWith("responsible for");
+    const metricRegex = /(\d+[\d,]*\s*%)|(\d+[\d,]*x)|(\$[\d,]+(\.\d+)?[kmb]?)|(\d+[\d,]*\s*\+?\s*(users|clients|customers|records|requests|queries|events|downloads))|(\d+[\d,]*\s*(ms|seconds|min|hours|days))/i;
+    const hasMetric = metricRegex.test(trimmed);
+
+    const problems: string[] = [];
+    let score = 50;
+
+    if (hasMetric) {
+      score += 30;
+    } else {
+      problems.push("Missing metric or quantified impact");
+    }
+
+    if (hasStrongVerb) {
+      score += 20;
+    } else if (hasWeakVerb) {
+      score -= 15;
+      problems.push(`Weak verb "${firstWord}" — replace with a strong action verb (e.g., Engineered, Spearheaded, Accelerated)`);
+    } else {
+      problems.push("Action verb could be stronger");
+    }
+
+    if (trimmed.length < 40) {
+      score -= 10;
+      problems.push("Bullet is brief; detail your engineering approach and context");
+    }
+
+    const finalScore = Math.max(10, Math.min(score, 100));
+
+    const lower = trimmed.toLowerCase();
+    const suggestedTypes: string[] = [];
+    if (lower.includes("model") || lower.includes("ml") || lower.includes("learning") || lower.includes("ai") || lower.includes("nlp") || lower.includes("neural") || lower.includes("data") || lower.includes("pipeline")) {
+      suggestedTypes.push("Dataset volume (e.g., 500,000+ records)");
+      suggestedTypes.push("Accuracy / Precision % (e.g., +15% F1 score improvement)");
+    }
+    if (lower.includes("api") || lower.includes("backend") || lower.includes("service") || lower.includes("server")) {
+      suggestedTypes.push("Latency reduction (e.g., cut p99 response time from 350ms to 90ms)");
+      suggestedTypes.push("Throughput (e.g., scaled capacity to 5,000 req/sec)");
+    }
+    if (lower.includes("frontend") || lower.includes("ui") || lower.includes("react") || lower.includes("user")) {
+      suggestedTypes.push("Load time reduction (e.g., reduced initial bundle render by 40%)");
+      suggestedTypes.push("User adoption (e.g., adopted by 25,000+ active monthly users)");
+    }
+    if (suggestedTypes.length === 0) {
+      suggestedTypes.push("Percentage improvement (e.g., +25% efficiency boost)");
+      suggestedTypes.push("Scale or dataset size (e.g., processing 10,000+ daily events)");
+    }
+
+    return {
+      score: finalScore,
+      hasMetric,
+      hasStrongVerb,
+      weakVerbDetected: hasWeakVerb,
+      problems,
+      suggestedTypes
+    };
+  };
   interface AuthUser {
     email?: string;
     profile?: UserProfile;
@@ -200,102 +270,86 @@ const ResumeBuilder: React.FC = () => {
     };
   }, [showPreview]);
   useEffect(() => {
-    const loadResume = async () => {
-      try {
-        setIsLoading(true);
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectedTemplate =
-          urlParams.get("template") || localStorage.getItem("selectedTemplate");
-        const data = await ResumeApi.getResume();
-        if (data) {
-          const apiData = data as unknown as {
-            title?: string;
-            personalInfo: PersonalInfo;
-            summary: string;
-            experiences: AuthExperience[];
-            education: AuthEducation[];
-            skills: AuthSkill[];
-            projects: AuthProject[];
-            template: string;
-          };
-          const normalizedData: ResumeData = {
-            title: apiData.title || "My Resume",
-            personalInfo: {
-              fullName: apiData.personalInfo?.fullName || "",
-              email: apiData.personalInfo?.email || "",
-              phone: apiData.personalInfo?.phone || "",
-              location: apiData.personalInfo?.location || "",
-              linkedin: apiData.personalInfo?.linkedin || "",
-              website: apiData.personalInfo?.website || "",
-              github: apiData.personalInfo?.github,
-              twitter: apiData.personalInfo?.twitter,
-              headline: apiData.personalInfo?.headline,
-              photo: apiData.personalInfo?.photo,
-            },
-            summary: apiData.summary || "",
-            experiences: (apiData.experiences || []).map((exp) => ({
-              id: exp.id || uuidv4(),
-              company: exp.company || "",
-              title: exp.position || "",
-              location: exp.location || "",
-              startDate:
-                exp.startDate || new Date().toISOString().split("T")[0],
-              endDate: exp.endDate || "",
-              current: exp.current || false,
-              description: exp.description || [],
-            })),
-            education: (apiData.education || []).map((edu) => ({
-              id: edu.id || uuidv4(),
-              institution: edu.institution || "",
-              degree: edu.degree || "",
-              field: edu.field || "",
-              location: edu.location || "",
-              startDate:
-                edu.startDate || new Date().toISOString().split("T")[0],
-              endDate: edu.endDate || "",
-              current: edu.current || false,
-              gpa: edu.gpa,
-              description: edu.description,
-            })),
-            skills: (apiData.skills || []).map((skill) => ({
-              id: skill.id || uuidv4(),
-              name: skill.name || "",
-              level: skill.level || "Beginner",
-              category: skill.category || "",
-            })),
-            projects: (apiData.projects || []).map((project) => ({
-              id: project.id || uuidv4(),
-              name: project.name || "",
-              description: project.description || "",
-              technologies: project.technologies || [],
-              startDate:
-                project.startDate || new Date().toISOString().split("T")[0],
-              endDate: project.endDate,
-            })),
-            certifications: [],
-            awards: [],
-            languages: [],
-            publications: [],
-            volunteerExperience: [],
-            references: [],
-            template: selectedTemplate || apiData.template || "modern",
-          };
-          setResumeData(normalizedData);
-        }
-      } catch (error) {
-        console.error("Error loading resume:", error);
-      } finally {
-        // Clear the selected template from localStorage after using it
-        const urlParams = new URLSearchParams(window.location.search);
-        const templateParam = urlParams.get("template") || localStorage.getItem("selectedTemplate");
-        if (templateParam) {
-          localStorage.removeItem("selectedTemplate");
-        }
-        setIsLoading(false);
+    if (isQueryPending) {
+      setIsLoading(true);
+      return;
+    }
+    
+    if (queryResumeData) {
+      const selectedTemplate = urlParams.get("template") || localStorage.getItem("selectedTemplate");
+      if (queryResumeData._id) {
+        setResumeId(queryResumeData._id);
       }
-    };
-    loadResume();
-  }, []);
+      
+      const apiData = queryResumeData as any;
+      const normalizedData: ResumeData = {
+        title: apiData.title || "My Resume",
+        personalInfo: {
+          fullName: apiData.personalInfo?.fullName || "",
+          email: apiData.personalInfo?.email || "",
+          phone: apiData.personalInfo?.phone || "",
+          location: apiData.personalInfo?.location || "",
+          linkedin: apiData.personalInfo?.linkedin || "",
+          website: apiData.personalInfo?.website || "",
+          github: apiData.personalInfo?.github,
+          twitter: apiData.personalInfo?.twitter,
+          headline: apiData.personalInfo?.headline,
+          photo: apiData.personalInfo?.photo,
+        },
+        summary: apiData.summary || "",
+        experiences: (apiData.experiences || []).map((exp: any) => ({
+          id: exp.id || uuidv4(),
+          company: exp.company || "",
+          title: exp.position || exp.title || "",
+          location: exp.location || "",
+          startDate: exp.startDate || new Date().toISOString().split("T")[0],
+          endDate: exp.endDate || "",
+          current: exp.current || false,
+          description: exp.description || [],
+        })),
+        education: (apiData.education || []).map((edu: any) => ({
+          id: edu.id || uuidv4(),
+          institution: edu.institution || "",
+          degree: edu.degree || "",
+          field: edu.field || "",
+          location: edu.location || "",
+          startDate: edu.startDate || new Date().toISOString().split("T")[0],
+          endDate: edu.endDate || "",
+          current: edu.current || false,
+          gpa: edu.gpa,
+          description: edu.description,
+        })),
+        skills: (apiData.skills || []).map((skill: any) => ({
+          id: skill.id || uuidv4(),
+          name: skill.name || "",
+          level: skill.level || "Beginner",
+          category: skill.category || "",
+        })),
+        projects: (apiData.projects || []).map((project: any) => ({
+          id: project.id || uuidv4(),
+          name: project.name || "",
+          description: project.description || "",
+          technologies: project.technologies || [],
+          startDate: project.startDate || new Date().toISOString().split("T")[0],
+          endDate: project.endDate,
+        })),
+        certifications: [],
+        awards: [],
+        languages: [],
+        publications: [],
+        volunteerExperience: [],
+        references: [],
+        template: selectedTemplate || apiData.template || "modern",
+      };
+      setResumeData(normalizedData);
+      
+      if (selectedTemplate) {
+        localStorage.removeItem("selectedTemplate");
+      }
+    }
+    
+    setIsLoading(false);
+  }, [queryResumeData, isQueryPending]);
   const addExperience = () => {
     const newExp: Experience = {
       id: uuidv4(),
@@ -905,12 +959,13 @@ const ResumeBuilder: React.FC = () => {
         })),
         template: resumeData.template || "modern",
       };
-      const urlParams = new URLSearchParams(window.location.search);
-      const resumeId = urlParams.get("resumeId");
       if (resumeId) {
-        await ResumeApi.updateResume(resumeToSave);
+        await updateResumeMutation.mutateAsync({ ...resumeToSave, _id: resumeId });
       } else {
-        await ResumeApi.createResume(resumeToSave);
+        const created = await createResumeMutation.mutateAsync(resumeToSave);
+        if (created && ((created as any)._id || (created as any).id)) {
+          setResumeId((created as any)._id || (created as any).id);
+        }
       }
       setSaveStatus("saved");
       setErrorMessage("");
@@ -955,6 +1010,14 @@ const ResumeBuilder: React.FC = () => {
               <p className="text-xs text-zinc-500 mt-1 flex items-center">Resume Editor</p>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setIsVersionDrawerOpen(true)}
+                className="inline-flex items-center px-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all duration-300 flex-1 sm:flex-none justify-center group cursor-pointer"
+              >
+                <History className="h-4 w-4 mr-2 group-hover:text-emerald-500 transition-colors" />
+                Versions
+              </button>
               <button
                 onClick={() => setShowPreview(!showPreview)}
                 className="inline-flex items-center px-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all duration-300 flex-1 sm:flex-none justify-center group"
@@ -1343,13 +1406,24 @@ const ResumeBuilder: React.FC = () => {
                 <h2 className="text-lg lg:text-xl font-semibold">
                   Work Experience
                 </h2>
-                <button
-                  onClick={addExperience}
-                  className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-none transition-all duration-300 font-semibold text-sm w-full sm:w-auto justify-center"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Experience
-                </button>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setIsTailorModalOpen(true)}
+                    className="flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600/25 to-teal-600/25 hover:from-emerald-600/35 hover:to-teal-600/35 text-emerald-400 border border-emerald-500/30 rounded-xl transition-all duration-300 font-semibold text-xs justify-center cursor-pointer"
+                  >
+                    <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+                    Tailor to Job
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addExperience}
+                    className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg hover:shadow-none transition-all duration-300 font-semibold text-sm justify-center cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Experience
+                  </button>
+                </div>
               </div>
               {resumeData.experiences.length === 0 ? (
                 <div className="text-center py-12 glass-card rounded-lg shadow-md shadow-black/20">
@@ -1506,42 +1580,132 @@ const ResumeBuilder: React.FC = () => {
                           </button>
                         </div>
                         <div className="space-y-3">
-                          {exp.description.map((bullet, bIdx) => (
-                            <div key={bIdx} className="relative group">
-                              <textarea
-                                value={bullet}
-                                onChange={(e) => {
-                                  const newDescriptions = [...exp.description];
-                                  newDescriptions[bIdx] = e.target.value;
-                                  updateExperience(exp.id, { description: newDescriptions });
-                                }}
-                                className="input-dark !pr-12 text-sm"
-                                rows={2}
-                                placeholder="Describe impact (e.g., Increased sales by 20%...)"
-                              />
-                              <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  onClick={() => improveBulletWithAI(exp.id, bIdx)}
-                                  className="p-1.5 bg-zinc-800 rounded-lg text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-lg"
-                                  title="Improve with AI"
-                                >
-                                  <Sparkles className="w-3.5 h-3.5" />
-                                </button>
-                                {exp.description.length > 1 && (
-                                  <button
-                                    onClick={() => {
-                                      const newDescriptions = exp.description.filter((_, i) => i !== bIdx);
+                          {exp.description.map((bullet, bIdx) => {
+                            const analysis = analyzeBulletClient(bullet);
+                            const isExpanded = expandedBullet?.expId === exp.id && expandedBullet?.bIdx === bIdx;
+                            const scoreColor =
+                              analysis.score >= 70
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25"
+                                : analysis.score >= 40
+                                ? "bg-amber-500/15 text-amber-400 border-amber-500/30 hover:bg-amber-500/25"
+                                : "bg-rose-500/15 text-rose-400 border-rose-500/30 hover:bg-rose-500/25";
+
+                            return (
+                              <div key={bIdx} className="space-y-2">
+                                <div className="relative group">
+                                  <textarea
+                                    value={bullet}
+                                    onChange={(e) => {
+                                      const newDescriptions = [...exp.description];
+                                      newDescriptions[bIdx] = e.target.value;
                                       updateExperience(exp.id, { description: newDescriptions });
                                     }}
-                                    className="p-1.5 bg-zinc-800 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg"
-                                    title="Remove Bullet"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
+                                    className="input-dark !pr-28 text-sm"
+                                    rows={2}
+                                    placeholder="Describe impact (e.g., Engineered distributed pipeline, reducing latency by 35%...)"
+                                  />
+
+                                  <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                                    {/* Impact Score Badge */}
+                                    {bullet.trim().length > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setExpandedBullet(isExpanded ? null : { expId: exp.id, bIdx })
+                                        }
+                                        className={`px-2 py-0.5 rounded-md text-xs font-bold border transition-all flex items-center gap-1 shadow-sm ${scoreColor}`}
+                                        title="Click to view Bullet Intelligence & suggested metrics"
+                                      >
+                                        <Target className="w-3 h-3" />
+                                        <span>{analysis.score}</span>
+                                      </button>
+                                    )}
+
+                                    {exp.description.length > 1 && (
+                                      <button
+                                        onClick={() => {
+                                          const newDescriptions = exp.description.filter((_, i) => i !== bIdx);
+                                          updateExperience(exp.id, { description: newDescriptions });
+                                        }}
+                                        className="p-1 bg-zinc-800/80 rounded-md text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="Remove Bullet"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Expanded Bullet Intelligence Drawer */}
+                                {isExpanded && (
+                                  <div className="p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-700/60 shadow-xl space-y-3 text-xs animate-in fade-in slide-in-from-top-1 duration-200">
+                                    <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+                                      <div className="flex items-center gap-2">
+                                        <Sparkles className="w-4 h-4 text-emerald-400" />
+                                        <span className="font-semibold text-zinc-200">Bullet Intelligence</span>
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${scoreColor}`}>
+                                          Score: {analysis.score}/100
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => improveBulletWithAI(exp.id, bIdx)}
+                                          className="px-2.5 py-1 bg-emerald-600/80 hover:bg-emerald-600 text-white rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all"
+                                          title="Improve phrasing with AI"
+                                        >
+                                          <Sparkles className="w-3 h-3" />
+                                          <span>AI Polish</span>
+                                        </button>
+                                        <button
+                                          onClick={() => setExpandedBullet(null)}
+                                          className="text-zinc-500 hover:text-zinc-300"
+                                        >
+                                          <X className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Detected Weaknesses */}
+                                    {analysis.problems.length > 0 && (
+                                      <div>
+                                        <span className="text-zinc-400 font-medium block mb-1">Detected Areas for Improvement:</span>
+                                        <ul className="space-y-1 pl-1">
+                                          {analysis.problems.map((prob, pIdx) => (
+                                            <li key={pIdx} className="text-amber-400/90 flex items-start gap-1.5">
+                                              <span className="text-amber-500">•</span>
+                                              <span>{prob}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {/* Suggested Metric Types ONLY */}
+                                    <div>
+                                      <span className="text-zinc-400 font-medium block mb-1">
+                                        Suggested Metric Types (add your real numbers):
+                                      </span>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                        {analysis.suggestedTypes.map((st, sIdx) => (
+                                          <div
+                                            key={sIdx}
+                                            className="p-2 rounded-lg bg-zinc-800/60 border border-zinc-700/40 text-zinc-300 text-[11px] flex items-center gap-1.5"
+                                          >
+                                            <BarChart3 className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                                            <span>{st}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <p className="text-[10px] text-zinc-500 mt-1.5 italic">
+                                        ℹ ElevateCV never invents fabricated metrics. Use these categories to quantify your genuine results.
+                                      </p>
+                                    </div>
+                                  </div>
                                 )}
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
@@ -3190,8 +3354,31 @@ const ResumeBuilder: React.FC = () => {
           </div>
         </div>
       )}
-
       <div className="h-20 lg:hidden"></div>
+
+      {/* Interactive Anti-Hallucination Tailoring Modal */}
+      <TailorResumeModal
+        isOpen={isTailorModalOpen}
+        onClose={() => setIsTailorModalOpen(false)}
+        resumeData={resumeData}
+        onApplyChanges={(updatedExps) => {
+          setResumeData((prev) => ({
+            ...prev,
+            experiences: updatedExps,
+          }));
+        }}
+      />
+
+      {/* Resume Versioning & Dimension Improvement Drawer */}
+      <ResumeVersionDrawer
+        isOpen={isVersionDrawerOpen}
+        onClose={() => setIsVersionDrawerOpen(false)}
+        resumeId={resumeId || ""}
+        currentResumeData={resumeData}
+        onRestoreSnapshot={(restoredData) => {
+          setResumeData(restoredData);
+        }}
+      />
     </div>
   );
 };

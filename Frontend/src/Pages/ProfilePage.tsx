@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeApi } from "../services/resumeApi";
+import { useResumes } from "../hooks/queries/useResumes";
+import { useDeleteResume } from "../hooks/queries/useResumeMutations";
 import {
   Lock,
   CheckCircle,
@@ -37,16 +39,6 @@ interface ProfileData {
   linkedin?: string;
 }
 
-interface Resume {
-  _id: string;
-  title: string;
-  updatedAt: string;
-  createdAt: string;
-  template: string;
-  isPublic?: boolean;
-  personalInfo?: { fullName?: string };
-}
-
 interface LoadingState {
   profile: boolean;
   resume: boolean;
@@ -60,11 +52,22 @@ const ProfilePage: React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState<LoadingState>({ profile: true, resume: false });
   const [editData, setEditData] = useState<ProfileData>({
     firstName: "", lastName: "", email: "", role: "", bio: "", location: "", website: "", github: "", linkedin: "",
   });
+  const { data: queryResumes = [] } = useResumes();
+  const deleteResumeMutation = useDeleteResume();
+
+  const resumes = queryResumes.map((resume: any) => ({
+    _id: resume._id || resume.id,
+    title: resume.title || "Untitled Resume",
+    updatedAt: resume.updatedAt || resume.lastModified || new Date().toISOString(),
+    createdAt: resume.createdAt || new Date().toISOString(),
+    template: resume.template || "modern",
+    isPublic: resume.isPublic || false,
+    personalInfo: resume.personalInfo,
+  }));
 
   useEffect(() => {
     if (!user) return;
@@ -73,20 +76,7 @@ const ProfilePage: React.FC = () => {
       role: user.profile?.role || "", bio: user.profile?.bio || "", location: user.profile?.location || "",
       website: user.profile?.website || "", github: user.profile?.github || "", linkedin: user.profile?.linkedin || "",
     });
-    const loadUserData = async () => {
-      try {
-        setLoading((prev) => ({ ...prev, profile: true, resume: true }));
-        const userResumes = await ResumeApi.getResumes();
-        const formattedResumes = userResumes.map((resume: any) => ({
-          _id: resume._id || resume.id, title: resume.title || "Untitled Resume",
-          updatedAt: resume.updatedAt || resume.lastModified || new Date().toISOString(),
-          createdAt: resume.createdAt || new Date().toISOString(), template: resume.template || "modern",
-          isPublic: resume.isPublic || false, personalInfo: resume.personalInfo,
-        }));
-        setResumes(formattedResumes);
-      } catch { } finally { setLoading((prev) => ({ ...prev, profile: false, resume: false })); }
-    };
-    loadUserData();
+    setLoading((prev) => ({ ...prev, profile: false }));
   }, [user]);
 
   const handleLogout = async () => {
@@ -109,12 +99,10 @@ const ProfilePage: React.FC = () => {
   const handleDeleteResume = async (id: string) => {
     if (!confirm("Are you sure you want to delete this resume?")) return;
     try {
-      setLoading((prev) => ({ ...prev, resume: true })); setError("");
-      await ResumeApi.deleteResume(id);
-      setResumes((prev) => prev.filter((resume) => resume._id !== id));
+      setError("");
+      await deleteResumeMutation.mutateAsync(id);
       setSuccess("Resume deleted successfully."); setTimeout(() => setSuccess(""), 3000);
     } catch { setError("Failed to delete resume."); }
-    finally { setLoading((prev) => ({ ...prev, resume: false })); }
   };
 
   const handleDownloadResume = async (resumeId: string, title: string) => {

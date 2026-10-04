@@ -19,6 +19,7 @@ const http = require("http");
 const authRoutes = require("./routes/auth");
 const resumeRoutes = require("./routes/resume");
 const aiRoutes = require("./routes/ai");
+const applicationRoutes = require("./routes/applications");
 const connectDB = require("./config/db");
 const { initializeFirebaseAdmin } = require("./config/firebase");
 const app = express();
@@ -99,6 +100,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/applications", applicationRoutes);
 
 Sentry.setupExpressErrorHandler(app);
 

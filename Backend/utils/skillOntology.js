@@ -43,7 +43,7 @@ const SKILL_ONTOLOGY_TREE = {
       "deep_learning": {
         name: "Deep Learning",
         keywords: ["deep learning", "dl", "neural networks", "cnn", "rnn", "lstm"],
-        skills: ["pytorch", "tensorflow", "keras", "jax", "tensorrt", "onnx"]
+        skills: ["pytorch", "tensorflow", "keras", "jax", "tensorrt", "onnx", "pytorch-lightning"]
       },
       "nlp": {
         name: "Natural Language Processing",
@@ -124,8 +124,23 @@ function normalizeSkill(skill) {
 }
 
 /**
+ * Calculate character / token overlap similarity score between 0 and 1.
+ */
+function tokenSimilarityScore(str1, str2) {
+  const s1 = str1.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const s2 = str2.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (s1 === s2) return 1.0;
+  if (s1.includes(s2) || s2.includes(s1)) {
+    const minLen = Math.min(s1.length, s2.length);
+    const maxLen = Math.max(s1.length, s2.length);
+    return minLen / maxLen;
+  }
+  return 0.0;
+}
+
+/**
  * Maps a list of candidate skills into ontology categories and identifies implicit matches.
- * e.g., candidate has ["PyTorch", "TensorFlow"] => returns category match for "Deep Learning".
+ * Uses exact alias mapping and >0.75 fuzzy token/similarity fallback for unlisted terms.
  */
 function resolveOntologyMatches(candidateSkills = []) {
   const normalizedCandidate = candidateSkills.map(normalizeSkill);
@@ -134,9 +149,27 @@ function resolveOntologyMatches(candidateSkills = []) {
 
   for (const [domainKey, domainObj] of Object.entries(SKILL_ONTOLOGY_TREE)) {
     for (const [subKey, subObj] of Object.entries(domainObj.subcategories)) {
-      const matchedSkills = subObj.skills.filter(s => 
-        normalizedCandidate.includes(normalizeSkill(s))
-      );
+      const matchedSkills = [];
+
+      for (const candSkill of normalizedCandidate) {
+        // 1. Exact alias / list match
+        const isExactMatch = subObj.skills.some(s => normalizeSkill(s) === candSkill);
+        
+        // 2. >0.75 similarity fallback for unlisted skill terms
+        let isFuzzyMatch = false;
+        if (!isExactMatch) {
+          for (const s of subObj.skills) {
+            if (tokenSimilarityScore(candSkill, normalizeSkill(s)) > 0.75) {
+              isFuzzyMatch = true;
+              break;
+            }
+          }
+        }
+
+        if (isExactMatch || isFuzzyMatch) {
+          matchedSkills.push(candSkill);
+        }
+      }
 
       if (matchedSkills.length > 0) {
         matchedCategories.add(subObj.name.toLowerCase());
@@ -162,5 +195,6 @@ module.exports = {
   SKILL_ONTOLOGY_TREE,
   ALIAS_MAP,
   normalizeSkill,
-  resolveOntologyMatches
+  resolveOntologyMatches,
+  tokenSimilarityScore
 };

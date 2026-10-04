@@ -2,7 +2,8 @@
  * ATS Parser Simulation & Structure Compliance Engine for ElevateCV.
  * 
  * Simulates enterprise ATS parser extraction (Workday, Greenhouse, Taleo)
- * and detects layout smells, structural issues, and formatting risks.
+ * and detects layout smells, structural issues, and formatting risks using
+ * Stage 1 layout coordinates when layoutAnalysisUsed === true.
  */
 
 const STANDARD_SECTION_HEADERS = new Set([
@@ -15,8 +16,9 @@ const STANDARD_SECTION_HEADERS = new Set([
 
 /**
  * Simulates parsing a candidate resume object or raw text.
+ * Accepts optional layoutMetadata from Python pdfplumber layout extraction.
  */
-function simulateATSParsing(resumeData = {}, rawText = "") {
+function simulateATSParsing(resumeData = {}, rawText = "", layoutMetadata = null) {
   const detections = {
     name: false,
     email: false,
@@ -64,18 +66,38 @@ function simulateATSParsing(resumeData = {}, rawText = "") {
   const structuralWarnings = [];
   const compatibilityChecks = [];
 
-  // Table & Column detection heuristics
-  if (textToScan.includes("table") || textToScan.includes("col-") || textToScan.includes("grid")) {
-    structuralWarnings.push("⚠ Tables or complex multi-column grids detected. ATS parsers may misalign row text.");
-  } else {
-    compatibilityChecks.push("✓ Single-column / ATS-friendly section layout");
-  }
+  if (layoutMetadata && layoutMetadata.layoutAnalysisUsed) {
+    // Stage 1 pdfplumber Spatial Coordinate Signals
+    if (layoutMetadata.summary?.is_multi_column) {
+      structuralWarnings.push("⚠ Multi-column layout detected via spatial x0/y0 coordinate analysis. Legacy ATS parsers (Taleo, Workday) may merge multi-column text lines horizontally.");
+    } else {
+      compatibilityChecks.push("✓ Verified single-column ATS-compliant spatial layout");
+    }
 
-  // Icons & Visual artifacts
-  if (textToScan.includes("icon") || textToScan.includes("fa-") || textToScan.includes("emoji")) {
-    structuralWarnings.push("⚠ Icons or decorative vector graphics detected in contact header. High risk of unparsed symbol noise.");
+    if (layoutMetadata.summary?.has_tables) {
+      structuralWarnings.push("⚠ Table structures detected in PDF page layout. High risk of ATS row text corruption.");
+    } else {
+      compatibilityChecks.push("✓ No table formatting impediments detected");
+    }
+
+    if (layoutMetadata.summary?.image_count > 0) {
+      structuralWarnings.push(`⚠ ${layoutMetadata.summary.image_count} embedded images/icons detected in PDF layout. ATS parsers ignore image content.`);
+    } else {
+      compatibilityChecks.push("✓ Clean text-only stream without image or icon artifacts");
+    }
   } else {
-    compatibilityChecks.push("✓ Clean text-based content without vector symbol interference");
+    // Fallback heuristic check if layout analysis is unavailable
+    if (textToScan.includes("table") || textToScan.includes("col-") || textToScan.includes("grid")) {
+      structuralWarnings.push("⚠ Tables or complex multi-column grids detected. ATS parsers may misalign row text.");
+    } else {
+      compatibilityChecks.push("✓ Single-column / ATS-friendly section layout");
+    }
+
+    if (textToScan.includes("icon") || textToScan.includes("fa-") || textToScan.includes("emoji")) {
+      structuralWarnings.push("⚠ Icons or decorative vector graphics detected in contact header. High risk of unparsed symbol noise.");
+    } else {
+      compatibilityChecks.push("✓ Clean text-based content without vector symbol interference");
+    }
   }
 
   // Section Heading Compliance

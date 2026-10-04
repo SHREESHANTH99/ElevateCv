@@ -2,6 +2,7 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const puppeteer = require("puppeteer");
 const Resume = require("../models/Resume");
+const ResumeVersion = require("../models/ResumeVersion");
 const auth = require("../middleware/auth");
 const inMemoryStorage = require("../utils/inMemoryStorage.js");
 const router = express.Router();
@@ -35,6 +36,360 @@ router.get("/:id", auth, async (req, res) => {
   } catch (error) {
     console.error("Get resume error:", error);
     res.status(500).json({ message: "Server error while fetching resume" });
+  }
+});
+
+/**
+ * 🏷️ RESUME VERSIONING: GET COMPARE (Diff two versions)
+ */
+router.get("/:id/versions/compare", auth, async (req, res) => {
+  try {
+    const { v1, v2 } = req.query;
+    if (!v1 || !v2) {
+      return res.status(400).json({ message: "Both v1 and v2 parameters are required (version numbers or IDs)." });
+    }
+
+    const resumeId = req.params.id;
+    const userId = req.user._id;
+
+    let ver1, ver2;
+    if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+      ver1 = await inMemoryStorage.findResumeVersionByIdOrNumber(v1, resumeId, userId);
+      ver2 = await inMemoryStorage.findResumeVersionByIdOrNumber(v2, resumeId, userId);
+    } else {
+      const findVersion = async (val) => {
+        if (val.match(/^[0-9a-fA-F]{24}$/)) {
+          const byId = await ResumeVersion.findOne({ _id: val, resumeId, userId }).lean();
+          if (byId) return byId;
+        }
+        const num = parseInt(val, 10);
+        if (!isNaN(num)) {
+          return await ResumeVersion.findOne({ versionNumber: num, resumeId, userId }).lean();
+        }
+        return null;
+      };
+      [ver1, ver2] = await Promise.all([findVersion(v1), findVersion(v2)]);
+    }
+
+    if (!ver1 || !ver2) {
+      return res.status(404).json({ message: "One or both specified resume versions were not found." });
+    }
+
+    const scoreDelta = (ver2.atsScore || 0) - (ver1.atsScore || 0);
+
+    const dims1 = ver1.dimensionScores || {};
+    const dims2 = ver2.dimensionScores || {};
+    const dimensionKeys = [
+      "keywordMatch",
+      "requiredSkills",
+      "experience",
+      "projects",
+      "quantification",
+      "structure",
+      "education",
+      "summary",
+    ];
+
+    const dimensionDeltas = {};
+    const dimensionComparison = {};
+    for (const dim of dimensionKeys) {
+      const s1 = dims1[dim] ?? 0;
+      const s2 = dims2[dim] ?? 0;
+      dimensionDeltas[dim] = s2 - s1;
+      dimensionComparison[dim] = { v1: s1, v2: s2, delta: s2 - s1 };
+    }
+
+    // Field-by-field diff
+    const data1 = ver1.snapshotData || {};
+    const data2 = ver2.snapshotData || {};
+
+    const getBullets = (exps = []) =>
+      exps.flatMap((e) =>
+        Array.isArray(e.description)
+          ? e.description
+          : typeof e.description === "string"
+          ? [e.description]
+          : []
+      );
+    const bullets1 = getBullets(data1.experiences || []);
+    const bullets2 = getBullets(data2.experiences || []);
+    const b1Set = new Set(bullets1.map((b) => (b || "").trim().toLowerCase()));
+    const b2Set = new Set(bullets2.map((b) => (b || "").trim().toLowerCase()));
+
+    const getSkillNames = (skills = []) =>
+      skills
+        .map((s) => (typeof s === "string" ? s.trim() : (s?.name || "").trim()))
+        .filter(Boolean);
+    const s1 = getSkillNames(data1.skills || []);
+    const s2 = getSkillNames(data2.skills || []);
+    const s1Set = new Set(s1.map((s) => s.toLowerCase()));
+    const s2Set = new Set(s2.map((s) => s.toLowerCase()));
+
+    const fieldChanges = {
+      summaryChanged: (data1.summary || "").trim() !== (data2.summary || "").trim(),
+      experiences: {
+        totalBulletsV1: bullets1.length,
+        totalBulletsV2: bullets2.length,
+        bulletsAdded: bullets2.filter((b) => !b1Set.has((b || "").trim().toLowerCase())),
+        bulletsRemoved: bullets1.filter((b) => !b2Set.has((b || "").trim().toLowerCase())),
+      },
+      skills: {
+        added: s2.filter((s) => !s1Set.has(s.toLowerCase())),
+        removed: s1.filter((s) => !s2Set.has(s.toLowerCase())),
+        retained: s2.filter((s) => s1Set.has(s.toLowerCase())),
+      },
+      projectsChanged:
+        JSON.stringify(data1.projects || []) !== JSON.stringify(data2.projects || []),
+    };
+
+    res.json({
+      v1: {
+        id: ver1._id,
+        versionNumber: ver1.versionNumber,
+        label: ver1.label,
+        atsScore: ver1.atsScore,
+        dimensionScores: ver1.dimensionScores,
+        createdAt: ver1.createdAt,
+      },
+      v2: {
+        id: ver2._id,
+        versionNumber: ver2.versionNumber,
+        label: ver2.label,
+        atsScore: ver2.atsScore,
+        dimensionScores: ver2.dimensionScores,
+        createdAt: ver2.createdAt,
+      },
+      scoreDelta,
+      dimensionDeltas,
+      dimensionComparison,
+      fieldChanges,
+    });
+  } catch (error) {
+    console.error("Compare versions error:", error);
+    res.status(500).json({ message: "Failed to compare resume versions", error: error.message });
+  }
+});
+
+/**
+ * 🏷️ RESUME VERSIONING: GET ALL VERSIONS
+ */
+router.get("/:id/versions", auth, async (req, res) => {
+  try {
+    const resumeId = req.params.id;
+    const userId = req.user._id;
+
+    if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+      const versions = await inMemoryStorage.findResumeVersionsByResumeId(resumeId, userId);
+      const scoreProgression = versions
+        .map((v) => ({
+          versionNumber: v.versionNumber,
+          label: v.label,
+          atsScore: v.atsScore,
+          createdAt: v.createdAt,
+        }))
+        .reverse();
+
+      return res.json({
+        versions,
+        totalVersions: versions.length,
+        scoreProgression,
+      });
+    }
+
+    const resume = await Resume.findOne({ _id: resumeId, userId }).lean();
+    if (!resume) {
+      return res.status(404).json({ message: "Resume not found" });
+    }
+
+    const versions = await ResumeVersion.find({ resumeId, userId })
+      .sort({ versionNumber: -1 })
+      .lean();
+
+    // Calculate progression overview
+    const scoreProgression = versions
+      .map((v) => ({
+        versionNumber: v.versionNumber,
+        label: v.label,
+        atsScore: v.atsScore,
+        createdAt: v.createdAt,
+      }))
+      .reverse();
+
+    res.json({
+      versions,
+      totalVersions: versions.length,
+      scoreProgression,
+    });
+  } catch (error) {
+    console.error("Get resume versions error:", error);
+    res.status(500).json({ message: "Failed to fetch resume versions" });
+  }
+});
+
+/**
+ * 🏷️ RESUME VERSIONING: CREATE SNAPSHOT VERSION
+ */
+router.post("/:id/versions", auth, async (req, res) => {
+  try {
+    const resumeId = req.params.id;
+    const userId = req.user._id;
+
+    let resume;
+    if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+      resume = await inMemoryStorage.findResumeById(resumeId);
+    } else {
+      resume = await Resume.findOne({ _id: resumeId, userId }).lean();
+    }
+
+    if (!resume) {
+      return res.status(404).json({ message: "Resume not found" });
+    }
+
+    const { label, snapshotData: customSnapshot, atsScore, dimensionScores } = req.body;
+    const snapshotData = customSnapshot || resume;
+
+    let nextVersionNumber = 1;
+    if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+      const existing = await inMemoryStorage.findResumeVersionsByResumeId(resumeId, userId);
+      nextVersionNumber = existing.length > 0 ? existing[0].versionNumber + 1 : 1;
+    } else {
+      const latestVersion = await ResumeVersion.findOne({ resumeId, userId })
+        .sort({ versionNumber: -1 })
+        .select("versionNumber")
+        .lean();
+      nextVersionNumber = latestVersion ? latestVersion.versionNumber + 1 : 1;
+    }
+
+    const versionLabel = label?.trim() || `v${nextVersionNumber} Snapshot`;
+
+    const finalDimensions = dimensionScores || {
+      keywordMatch: 70,
+      requiredSkills: 75,
+      experience: 80,
+      projects: 70,
+      quantification: 65,
+      structure: 90,
+      education: 85,
+      summary: 75,
+    };
+
+    const finalAtsScore =
+      typeof atsScore === "number"
+        ? Math.max(0, Math.min(100, Math.round(atsScore)))
+        : Math.round(
+            (finalDimensions.keywordMatch * 0.25 +
+              finalDimensions.requiredSkills * 0.2 +
+              finalDimensions.experience * 0.15 +
+              finalDimensions.projects * 0.15 +
+              finalDimensions.quantification * 0.1 +
+              finalDimensions.structure * 0.05 +
+              finalDimensions.education * 0.05 +
+              finalDimensions.summary * 0.05)
+          );
+
+    if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+      const newVer = await inMemoryStorage.createResumeVersion({
+        resumeId,
+        userId,
+        versionNumber: nextVersionNumber,
+        label: versionLabel,
+        snapshotData,
+        atsScore: finalAtsScore,
+        dimensionScores: finalDimensions,
+      });
+      return res.status(201).json({
+        message: "Resume version snapshot created successfully",
+        version: newVer,
+      });
+    }
+
+    const newVersion = new ResumeVersion({
+      resumeId,
+      userId,
+      versionNumber: nextVersionNumber,
+      label: versionLabel,
+      snapshotData,
+      atsScore: finalAtsScore,
+      dimensionScores: finalDimensions,
+    });
+
+    await newVersion.save();
+
+    res.status(201).json({
+      message: "Resume version snapshot created successfully",
+      version: newVersion,
+    });
+  } catch (error) {
+    console.error("Create resume version error:", error);
+    res.status(500).json({ message: "Failed to create resume version snapshot", error: error.message });
+  }
+});
+
+/**
+ * 🏷️ RESUME VERSIONING: RESTORE SNAPSHOT
+ */
+router.post("/:id/versions/:versionId/restore", auth, async (req, res) => {
+  try {
+    const { id: resumeId, versionId } = req.params;
+    const userId = req.user._id;
+
+    let version;
+    if (process.env.USE_IN_MEMORY_STORAGE === "true") {
+      version = await inMemoryStorage.findResumeVersionByIdOrNumber(versionId, resumeId, userId);
+      if (!version) {
+        return res.status(404).json({ message: "Snapshot version not found" });
+      }
+      const updated = await inMemoryStorage.updateResume(resumeId, {
+        title: version.snapshotData.title || "My Resume",
+        personalInfo: version.snapshotData.personalInfo,
+        summary: version.snapshotData.summary,
+        experiences: version.snapshotData.experiences,
+        education: version.snapshotData.education,
+        skills: version.snapshotData.skills,
+        projects: version.snapshotData.projects,
+        template: version.snapshotData.template || "modern",
+      });
+      return res.json({
+        message: `Restored resume to version ${version.versionNumber} (${version.label})`,
+        resume: updated,
+      });
+    }
+
+    version = await ResumeVersion.findOne({
+      _id: versionId,
+      resumeId,
+      userId,
+    }).lean();
+
+    if (!version) {
+      return res.status(404).json({ message: "Snapshot version not found" });
+    }
+
+    const { snapshotData } = version;
+    const updated = await Resume.findOneAndUpdate(
+      { _id: resumeId, userId },
+      {
+        $set: {
+          title: snapshotData.title || "My Resume",
+          personalInfo: snapshotData.personalInfo,
+          summary: snapshotData.summary,
+          experiences: snapshotData.experiences,
+          education: snapshotData.education,
+          skills: snapshotData.skills,
+          projects: snapshotData.projects,
+          template: snapshotData.template || "modern",
+        },
+      },
+      { new: true }
+    );
+
+    res.json({
+      message: `Restored resume to version ${version.versionNumber} (${version.label})`,
+      resume: updated,
+    });
+  } catch (error) {
+    console.error("Restore version error:", error);
+    res.status(500).json({ message: "Failed to restore resume version" });
   }
 });
 router.post(
@@ -85,11 +440,30 @@ router.post(
         });
       }
       if (process.env.USE_IN_MEMORY_STORAGE === "true") {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Cannot save resume: Running in in-memory storage mode. Please check your MongoDB connection.",
-        });
+        const isUpdate = req.body._id;
+        if (isUpdate) {
+          const updated = await inMemoryStorage.updateResume(req.body._id, {
+            ...req.body,
+            userId: req.user._id,
+          });
+          return res.status(200).json({
+            success: true,
+            message: "Resume updated successfully",
+            resume: updated,
+            _id: updated._id,
+          });
+        } else {
+          const created = await inMemoryStorage.createResume({
+            ...req.body,
+            userId: req.user._id,
+          });
+          return res.status(201).json({
+            success: true,
+            message: "Resume created successfully",
+            resume: created,
+            _id: created._id,
+          });
+        }
       }
       const isUpdate = req.body._id;
       let resumeData;
@@ -293,11 +667,11 @@ router.get("/export/:id?", auth, async (req, res) => {
         throw new Error("Failed to generate resume content");
       }
 
-      const { getBrowser } = require("../utils/puppeteerService");
-      console.log("🚀 Attempting to connect to warm browser...");
+      const { acquireBrowser, releaseBrowser } = require("../utils/puppeteerService");
+      console.log("🚀 Attempting to acquire worker from pool...");
       const t0_browser = performance.now();
-      const browser = await getBrowser();
-      console.log(`✅ Browser connected in ${(performance.now() - t0_browser).toFixed(2)}ms`);
+      const browser = await acquireBrowser();
+      console.log(`✅ Worker acquired in ${(performance.now() - t0_browser).toFixed(2)}ms`);
       const page = await browser.newPage();
       try {
         page.setDefaultNavigationTimeout(30000);
@@ -343,8 +717,11 @@ router.get("/export/:id?", auth, async (req, res) => {
           if (page && !page.isClosed()) {
             await page.close();
           }
+          if (browser) {
+            await releaseBrowser(browser);
+          }
         } catch (pageCloseError) {
-          console.error("Error closing page:", pageCloseError);
+          console.error("Error cleaning up worker:", pageCloseError);
         }
       }
     } catch (pdfError) {

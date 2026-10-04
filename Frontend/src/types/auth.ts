@@ -58,6 +58,12 @@ export interface Project {
   endDate?: string;
 }
 export interface ResumeData {
+  _id?: string;
+  title?: string;
+  company?: string;
+  score?: number;
+  updatedAt?: string;
+  createdAt?: string;
   personalInfo: PersonalInfo;
   summary: string;
   experiences: Experience[];

@@ -10,8 +10,11 @@ const { analyzeJobDescription } = require("../utils/jobAnalyzer");
 const { analyzeSkillGaps } = require("../utils/gapAnalyzer");
 const { simulateATSParsing } = require("../utils/atsSimulator");
 const { analyzeBullet } = require("../utils/bulletIntelligence");
+const { generateTailoredBullet } = require("../utils/tailoringEngine");
+const Resume = require("../models/Resume");
 const { getCachedResult } = require("../utils/resultCache");
 const { generateAIContent } = require("../utils/geminiClient");
+const { processMultiStageResumeAnalysis } = require("../utils/pipelineOrchestrator");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const router = express.Router();
@@ -227,7 +230,6 @@ router.post("/score-resume", auth, async (req, res) => {
 router.post("/improve-resume", auth, async (req, res) => {
   try {
     const { section, content, context } = req.body;
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const prompt = `
       Task: Improve this resume section.
@@ -277,60 +279,170 @@ router.post("/improve-smart", auth, async (req, res) => {
 });
 
 /**
- * 📄 UPLOADED RESUME ANALYZER (PDF / TXT / DOCX / RAW TEXT)
+ * 🎯 BULLET-POINT INTELLIGENCE & IMPACT SCORING
+ * Analyzes an array of bullet strings, returning impact score, weak verbs, metrics, and metric type suggestions.
+ * NEVER fabricates false numbers.
+ */
+router.post("/analyze-bullets", auth, async (req, res) => {
+  try {
+    const { bullets } = req.body;
+    if (!bullets || !Array.isArray(bullets)) {
+      return res.status(400).json({ message: "An array of bullet strings is required." });
+    }
+
+    const results = bullets.map(b => {
+      const text = typeof b === "string" ? b : (b?.text || "");
+      const analysis = analyzeBullet(text);
+      return {
+        text,
+        impactScore: analysis.impactScore,
+        weakVerbDetected: !analysis.hasStrongVerb,
+        hasMetric: analysis.hasMetric,
+        problems: analysis.problems,
+        suggestedMetricTypes: analysis.suggestedMetrics,
+        improvedTemplate: analysis.improved
+      };
+    });
+
+    res.json({ bullets: results });
+  } catch (error) {
+    console.error("Analyze Bullets Error:", error);
+    res.status(500).json({ message: "Failed to analyze bullets" });
+  }
+});
+
+/**
+ * 🎯 RESUME -> JOB TAILORING ENGINE
+ * Generates grounded, tailored bullet points aligning experiences with target job description.
+ * Enforces strict anti-hallucination checks (no unverified skills or metrics).
+ */
+router.post("/tailor-resume", auth, async (req, res) => {
+  try {
+    const { resumeId, resumeData: rawResumeData, jobDescription } = req.body;
+
+    if (!jobDescription || typeof jobDescription !== "string") {
+      return res.status(400).json({ message: "Job description is required." });
+    }
+
+    let resumeData = rawResumeData;
+    if (!resumeData && resumeId) {
+      resumeData = await Resume.findOne({ _id: resumeId, userId: req.user.id });
+      if (!resumeData) {
+        return res.status(404).json({ message: "Resume not found." });
+      }
+    }
+
+    if (!resumeData) {
+      return res.status(400).json({ message: "Either resumeId or resumeData must be provided." });
+    }
+
+    const candidateSkills = [
+      ...(Array.isArray(resumeData.skills) ? resumeData.skills.map(s => typeof s === "string" ? s : s?.name) : []),
+      ...(Array.isArray(resumeData.technologies) ? resumeData.technologies : [])
+    ].filter(Boolean);
+
+    const resumeContext = {
+      skills: candidateSkills,
+      summary: resumeData.summary || ""
+    };
+
+    const experiences = resumeData.experiences || resumeData.experience || [];
+    const tailoredExperiences = [];
+    let totalBullets = 0;
+    let tailoredCount = 0;
+    let unchangedCount = 0;
+
+    for (const exp of experiences) {
+      const bullets = Array.isArray(exp.description)
+        ? exp.description
+        : (typeof exp.description === "string" ? exp.description.split("\n").filter(Boolean) : []);
+
+      const tailoredBullets = [];
+      for (const bullet of bullets) {
+        const text = typeof bullet === "string" ? bullet : (bullet?.text || "");
+        if (!text.trim()) continue;
+        totalBullets++;
+
+        const tailoredResult = await generateTailoredBullet(text, jobDescription, resumeContext);
+        if (tailoredResult.tailored && tailoredResult.tailored !== text) {
+          tailoredCount++;
+        } else {
+          unchangedCount++;
+        }
+
+        tailoredBullets.push({
+          original: text,
+          tailored: tailoredResult.tailored,
+          changesExplained: tailoredResult.changesExplained || [],
+          grounded: tailoredResult.grounded !== false,
+          engine: tailoredResult.engine || "deterministic-rule-engine",
+          isTailored: tailoredResult.isTailored ?? (tailoredResult.tailored !== text),
+          retriedOnce: tailoredResult.retriedOnce || false,
+          fallbackToOriginal: tailoredResult.fallbackToOriginal ?? (tailoredResult.tailored === text),
+          fallbackUsed: tailoredResult.fallbackToOriginal ?? (tailoredResult.tailored === text)
+        });
+      }
+
+      tailoredExperiences.push({
+        id: exp._id || exp.id,
+        company: exp.company || "Experience",
+        position: exp.position || "Role",
+        startDate: exp.startDate || "",
+        endDate: exp.endDate || "",
+        bullets: tailoredBullets
+      });
+    }
+
+    res.json({
+      tailoredExperiences,
+      summary: {
+        totalBullets,
+        tailoredCount,
+        unchangedCount
+      }
+    });
+  } catch (error) {
+    console.error("Tailor Resume Route Error:", error);
+    res.status(500).json({ message: "Failed to tailor resume", error: error.message });
+  }
+});
+
+/**
+ * 📄 UPLOADED RESUME ANALYZER (MULTI-STAGE DEEP ARCHITECTURE)
  */
 router.post("/analyze-uploaded", auth, upload.single("file"), async (req, res) => {
   try {
     let rawText = req.body.resumeContent || "";
     const jobDescription = req.body.jobDescription || "";
+    const pdfBuffer = req.file ? req.file.buffer : null;
+    const filename = req.file ? req.file.originalname : "resume.pdf";
 
-    if (req.file) {
-      if (req.file.mimetype === "application/pdf" || req.file.originalname.toLowerCase().endsWith(".pdf")) {
+    if (req.file && (!rawText || rawText.length < 20)) {
+      if (req.file.mimetype === "application/pdf" || filename.toLowerCase().endsWith(".pdf")) {
         try {
           const pdfData = await pdfParse(req.file.buffer);
           rawText = pdfData.text;
         } catch (pdfErr) {
-          console.error("PDF extraction error:", pdfErr.message);
+          console.error("PDF extraction fallback error:", pdfErr.message);
         }
       } else {
         rawText = req.file.buffer.toString("utf-8");
       }
     }
 
-    if (!rawText || rawText.trim().length < 20) {
-      return res.status(400).json({ message: "Could not extract readable text from uploaded resume." });
-    }
-
     if (!jobDescription || jobDescription.trim().length < 20) {
       return res.status(400).json({ message: "Valid job description is required." });
     }
 
-    // 1. Parse raw text into structured resume data via Gemini AI
-    let resumeData;
-    try {
-      resumeData = await parseResumeWithAI(rawText);
-    } catch (parseErr) {
-      console.warn("AI Resume parse warning, building basic fallback structure:", parseErr.message);
-      resumeData = {
-        personalInfo: { fullName: "Candidate" },
-        summary: rawText.slice(0, 300),
-        skills: rawText.split(/\s+/).filter(w => w.length > 3).map(s => ({ name: s })),
-        experiences: [{ company: "Experience", position: "Role", description: [rawText] }],
-        projects: [],
-        education: []
-      };
-    }
+    // Execute Multi-Stage Deep Architecture Pipeline
+    const pipelineResult = await processMultiStageResumeAnalysis(
+      pdfBuffer,
+      filename,
+      rawText,
+      jobDescription
+    );
 
-    // 2. Run Job Description Analysis & Scoring
-    const [jobAnalysis, vectorSim] = await Promise.all([
-      analyzeJobDescription(jobDescription),
-      withTimeout(getSimilarity(JSON.stringify(resumeData), jobDescription), 6000, 0)
-    ]);
-
-    const similarityScore = Math.round(vectorSim * 100);
-    const scoreResult = scoreResume(resumeData, jobAnalysis, similarityScore);
-    const gaps = analyzeSkillGaps(resumeData, jobAnalysis);
-    const atsSim = simulateATSParsing(resumeData, rawText);
+    const { candidateResume, scoreResult, jobAnalysis, gaps, atsSimulation, ontologyResolution, metadata } = pipelineResult;
 
     res.json({
       matchScore: scoreResult.score,
@@ -341,18 +453,17 @@ router.post("/analyze-uploaded", auth, upload.single("file"), async (req, res) =
       sectionScores: scoreResult.dimensionScores,
       jobAnalysis,
       gaps,
-      atsSimulation: atsSim,
-      missingKeywords: gaps.missing.map(m => m.skill),
-      presentKeywords: gaps.matched.map(m => m.skill),
+      atsSimulation,
+      ontologyResolution,
+      parsedResumeData: candidateResume,
+      missingKeywords: gaps?.missing?.map(m => m.skill) || [],
+      presentKeywords: gaps?.matched?.map(m => m.skill) || [],
       suggestions: scoreResult.feedback,
       feedback: scoreResult.feedback,
-      metadata: {
-        fallbackUsed: jobAnalysis?.fallbackUsed || false,
-        engine: jobAnalysis?.fallbackUsed ? "ElevateCV-v2.0-HeuristicFallback" : "ElevateCV-v2.0-GeminiLLM"
-      }
+      metadata
     });
   } catch (error) {
-    console.error("Analyze Uploaded Error:", error);
+    console.error("Analyze Uploaded Multi-Stage Pipeline Error:", error);
     res.status(500).json({ message: "Failed to analyze uploaded resume" });
   }
 });

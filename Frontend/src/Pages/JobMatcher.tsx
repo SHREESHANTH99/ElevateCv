@@ -1,5 +1,5 @@
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Target,
@@ -11,18 +11,14 @@ import {
   Sparkles,
   ArrowRight,
   BarChart3,
+  Wand2,
 } from "lucide-react";
+import { TailorResumeModal } from "../Components/resume/TailorResumeModal";
 
 const API_BASE_URL = `${
   import.meta.env.VITE_API_URL || "http://localhost:5000"
 }/api`;
 
-interface Resume {
-  _id: string;
-  title: string;
-  updatedAt: string;
-  createdAt: string;
-}
 
 interface UploadedResume {
   file: File;
@@ -37,19 +33,6 @@ class JobMatcherAPI {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     };
-  }
-  static async getResumes(): Promise<Resume[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/resume`, {
-        headers: this.getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error("Failed to load resumes");
-      const data = await response.json();
-      return data.resumes || [];
-    } catch (error) {
-      console.error("Error loading resumes:", error);
-      return [];
-    }
   }
   static async analyzeJobMatch(resumeId: string, jobDescription: string) {
     try {
@@ -72,6 +55,8 @@ class JobMatcherAPI {
         matchScore: result.score || 0,
         label: result.label || "Needs Improvement",
         fallbackUsed: result.metadata?.fallbackUsed || result.jobAnalysis?.fallbackUsed || false,
+        semanticMatchDegraded: result.metadata?.semanticMatchDegraded || false,
+        embeddingSource: result.metadata?.embeddingSource || "local-semantic",
         engine: result.metadata?.engine || "ElevateCV-v2.0-MultiDimensional",
         dimensionScores: result.dimensionScores || result.sectionScores || {},
         jobAnalysis: result.jobAnalysis || null,
@@ -122,6 +107,8 @@ class JobMatcherAPI {
         matchScore: result.matchScore || result.score || 0,
         label: result.label || "Needs Improvement",
         fallbackUsed: result.metadata?.fallbackUsed || result.jobAnalysis?.fallbackUsed || false,
+        semanticMatchDegraded: result.metadata?.semanticMatchDegraded || false,
+        embeddingSource: result.metadata?.embeddingSource || "local-semantic",
         engine: result.metadata?.engine || "ElevateCV-v2.0-MultiDimensional",
         dimensionScores: result.dimensionScores || result.sectionScores || {},
         jobAnalysis: result.jobAnalysis || null,
@@ -163,6 +150,8 @@ class JobMatcherAPI {
   }
 }
 
+import { useResumes } from "../hooks/queries/useResumes";
+
 const JobMatcher: React.FC = () => {
   useDocumentTitle('Job Matcher');
   const [jobDescription, setJobDescription] = useState("");
@@ -171,9 +160,10 @@ const JobMatcher: React.FC = () => {
   const [analysisType, setAnalysisType] = useState<"saved" | "upload">("saved");
   const [analysis, setAnalysis] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [loadingResumes, setLoadingResumes] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTailorModalOpen, setIsTailorModalOpen] = useState(false);
+
+  const { data: resumes = [], isPending: loadingResumes } = useResumes();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -207,17 +197,7 @@ const JobMatcher: React.FC = () => {
     finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    const loadResumes = async () => {
-      setLoadingResumes(true);
-      try {
-        const fetchedResumes = await JobMatcherAPI.getResumes();
-        setResumes(fetchedResumes); setError(null);
-      } catch { setError("Failed to load resumes"); }
-      finally { setLoadingResumes(false); }
-    };
-    loadResumes();
-  }, []);
+
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-emerald-400";
@@ -322,7 +302,7 @@ const JobMatcher: React.FC = () => {
                       <option value="">Select a resume</option>
                       {resumes.map((resume) => (
                         <option key={resume._id} value={resume._id}>
-                          {resume.title} (Updated: {new Date(resume.updatedAt).toLocaleDateString()})
+                          {resume.title || "Untitled"} (Updated: {new Date(resume.updatedAt || resume.createdAt || Date.now()).toLocaleDateString()})
                         </option>
                       ))}
                     </select>
@@ -409,14 +389,40 @@ const JobMatcher: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="space-y-8"
           >
-            {/* Fallback Warning Banner */}
+            {/* Fallback Warning Banner (Heuristic Fallback) */}
             {analysis.fallbackUsed && (
               <div className="px-5 py-3.5 bg-amber-500/15 border border-amber-500/30 text-amber-400 rounded-xl text-xs flex items-center space-x-3 shadow-lg">
                 <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-400" />
                 <div>
                   <span className="font-bold uppercase tracking-wider text-amber-300">Basic Heuristic Engine Active</span>
                   <span className="text-amber-200/80 block mt-0.5">
-                    Gemini LLM pipeline was unavailable or unconfigured. Analysis performed using ElevateCV deterministic fallback engine.
+                    LLM pipeline was unavailable. Analysis performed using ElevateCV deterministic fallback engine.
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Total Semantic Failure Banner (Tier 3) */}
+            {analysis.embeddingSource === "none" && !analysis.fallbackUsed && (
+              <div className="px-5 py-3.5 bg-rose-500/15 border border-rose-500/30 text-rose-400 rounded-xl text-xs flex items-center space-x-3 shadow-lg">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-400" />
+                <div>
+                  <span className="font-bold uppercase tracking-wider text-rose-300">Semantic Matching Unavailable</span>
+                  <span className="text-rose-200/80 block mt-0.5">
+                    Vector embedding engines were unreachable. Score calculated using deterministic keyword and skill ontology overlap only.
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Local Semantic Informational Badge (Tier 2) */}
+            {analysis.embeddingSource === "local-semantic" && !analysis.fallbackUsed && (
+              <div className="px-5 py-3 bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 rounded-xl text-xs flex items-center space-x-3">
+                <Sparkles className="w-4 h-4 flex-shrink-0 text-cyan-400" />
+                <div className="flex-1">
+                  <span className="font-semibold text-cyan-300">Local Neural Embeddings Active</span>
+                  <span className="text-cyan-200/70 ml-2">
+                    Running high-throughput on-device transformer model (all-MiniLM-L6-v2) with zero quota latency.
                   </span>
                 </div>
               </div>
@@ -436,7 +442,7 @@ const JobMatcher: React.FC = () => {
                   <p className="text-xs text-zinc-400 mt-1">Calibrated across 8 weighted ATS dimensions & semantic vector similarity</p>
                 </div>
 
-                <div className="flex items-center space-x-6">
+                <div className="flex flex-wrap items-center gap-4">
                   <div className="text-center px-6 py-4 rounded-xl bg-[#0d1110] border border-[#1f2725]">
                     <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider block mb-1">ATS Score</span>
                     <span className={`text-4xl font-extrabold ${getScoreColor(analysis.matchScore)}`}>
@@ -451,6 +457,14 @@ const JobMatcher: React.FC = () => {
                       </span>
                     </div>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => setIsTailorModalOpen(true)}
+                    className="px-5 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-xl shadow-emerald-950/40 transition-all cursor-pointer"
+                  >
+                    <Wand2 className="w-4 h-4" />
+                    <span>Tailor Bullets</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -625,6 +639,15 @@ const JobMatcher: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Interactive Anti-Hallucination Tailoring Modal */}
+      <TailorResumeModal
+        isOpen={isTailorModalOpen}
+        onClose={() => setIsTailorModalOpen(false)}
+        resumeId={analysisType === "saved" ? selectedResume : undefined}
+        resumeData={analysis?.parsedResumeData}
+        initialJobDescription={jobDescription}
+      />
     </div>
   );
 };

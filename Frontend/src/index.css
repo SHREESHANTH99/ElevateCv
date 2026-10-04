@@ -1,7 +1,18 @@
-﻿@import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesk:opsz,wght@12..96,400;600;700;800&family=Syne:wght@600;700;800&family=Sora:wght@600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+@font-face {
+  font-family: 'Aalto Display';
+  src: local('Aalto Display'), local('AaltoDisplay'), local('Aalto-Display'), local('Aalto');
+  font-weight: 400 900;
+  font-display: swap;
+}
 
 @theme {
+  --font-display: 'Aalto Display', 'Aalto', 'Bricolage Grotesk', 'Syne', 'Sora', 'Space Grotesk', 'Outfit', sans-serif;
+  --font-aalto: 'Aalto Display', 'Aalto', 'Bricolage Grotesk', 'Syne', 'Sora', 'Space Grotesk', 'Outfit', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
   --color-brand-50: #ecfdf5;
   --color-brand-100: #d1fae5;
   --color-brand-200: #a7f3d0;
@@ -34,6 +45,10 @@
 
 * {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3, h4, .font-display, .font-aalto {
+  font-family: 'Outfit', 'Space Grotesk', 'Plus Jakarta Sans', sans-serif !important;
 }
 
 html {

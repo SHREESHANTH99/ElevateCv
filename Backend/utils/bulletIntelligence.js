@@ -103,7 +103,17 @@ function suggestMetricsForBullet(text) {
   const lower = text.toLowerCase();
   const suggestions = [];
 
-  if (lower.includes("model") || lower.includes("ml") || lower.includes("data") || lower.includes("pipeline")) {
+  if (
+    lower.includes("model") ||
+    lower.includes("ml") ||
+    lower.includes("machine learning") ||
+    lower.includes("learning") ||
+    lower.includes("ai") ||
+    lower.includes("nlp") ||
+    lower.includes("neural") ||
+    lower.includes("data") ||
+    lower.includes("pipeline")
+  ) {
     suggestions.push("Dataset volume (e.g., 500,000+ records)");
     suggestions.push("Accuracy / Precision % (e.g., +15% F1 score improvement)");
   }
